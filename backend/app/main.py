@@ -1,8 +1,6 @@
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.routers import tasks, sim, devices
-from backend.app.routers import decide 
+from backend.app.routers import tasks, devices, sim, decide
 
 app = FastAPI(title="VESPER Backend (LLM Integrated)")
 
