@@ -1,60 +1,120 @@
+# Attach this to an Always sensor (pulse/true level) on your Actor:
+# Logic Editor → Always (true level) → Python module: game.actor_controller.update
 
-# Attach this to an Always sensor (true level triggering) → Python module: game.actor_controller.update
+import os, time, json, base64
+from mathutils import Vector
+
+# Use stdlib HTTP so you don't need extra deps inside UPBGE
+import urllib.request
+
+# ---- Config (override via environment if needed) ----
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")  # FastAPI root
+STEP_SIZE   = float(os.getenv("STEP_SIZE", "0.25"))               # meters per tick
+TICK_SECS   = float(os.getenv("TICK_SECS", "0.25"))               # seconds between decisions
+
+# Default tasks for quick testing (you can override from Python console or another script)
+DEFAULT_TASKS = ["Make coffee", "Turn off living room lights"]
+
 try:
-    from bge import logic
-    from mathutils import Vector
+    from bge import logic, render
 except Exception:
-    logic = None
-    class Vector:
-        def __init__(self, xy): pass
+    logic = None  # allows import outside UPBGE for linting
 
-from .device_sync import BRIDGE
+# Optional WS bridge (safe if not running)
+try:
+    from .device_sync import BRIDGE
+except Exception:
+    BRIDGE = None
 
-state = {"initialized": False, "plan": None, "step_idx": 0}
+state = {
+    "last_tick": 0.0,
+    "last_room": None,
+    "tasks": DEFAULT_TASKS[:],
+}
 
-def on_bus(msg):
-    if msg.get("event") == "new_plan":
-        state["plan"] = msg["plan"]
-        state["step_idx"] = 0
+def _encode_birdeye_png_b64() -> str or None:
+    """
+    Capture the current viewport to PNG and return base64 string.
+    Works while the game is running (Play).
+    """
+    if logic is None:
+        return None
+    tmp_path = os.path.join(logic.expandPath("//"), "_birdeye.png")
+    try:
+        render.makeScreenshot(tmp_path)
+        with open(tmp_path, "rb") as f:
+            return base64.b64encode(f.read()).decode("ascii")
+    except Exception:
+        return None
 
-def init():
-    if not state["initialized"]:
-        if not BRIDGE.thread: BRIDGE.start()
-        BRIDGE.on_message = on_bus
-        state["initialized"] = True
+def _http_post_json(url: str, payload: dict, timeout_sec: float = 5.0) -> dict:
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
+        return json.loads(resp.read().decode("utf-8"))
 
-def move_toward(obj, target_xy, speed=0.05):
-    pos = obj.worldPosition.xy if hasattr(obj.worldPosition, "xy") else obj.worldPosition
-    tgt = Vector((target_xy[0], target_xy[1]))
-    d = tgt - Vector((pos[0], pos[1]))
-    if d.length < 0.05: return True
-    step = d.normalized() * speed
-    obj.worldPosition.x += step.x
-    obj.worldPosition.y += step.y
-    return False
+def _grid_step(own, direction: str):
+    d = direction.upper()
+    if d == "LEFT":
+        own.worldPosition.x -= STEP_SIZE
+    elif d == "RIGHT":
+        own.worldPosition.x += STEP_SIZE
+    elif d == "UP":
+        own.worldPosition.y += STEP_SIZE
+    elif d == "DOWN":
+        own.worldPosition.y -= STEP_SIZE
+    # STAY → no move
 
 def update():
     if logic is None:
         return
+
     cont = logic.getCurrentController()
-    own = cont.owner
-    init()
+    own  = cont.owner
 
-    if not state["plan"]: 
+    now = time.time()
+    if now - state["last_tick"] < TICK_SECS:
+        return
+    state["last_tick"] = now
+
+    # --- (1) Capture bird-eye view (optional for text-only LLMs) ---
+    img64 = _encode_birdeye_png_b64()
+
+    # --- (2) Build numeric state & rooms map ---
+    # You can set this from another init script:
+    # logic.globalDict["vesper_rooms"] = {"Kitchen":{"center":[...]} , ...}
+    rooms = logic.globalDict.get("vesper_rooms", {
+        "Kitchen":    {"center": [3.0, -1.0]},
+        "LivingRoom": {"center": [-2.0, 1.5]},
+        "Bedroom":    {"center": [-3.0, -2.0]},
+    })
+    actor = {"x": float(own.worldPosition.x), "y": float(own.worldPosition.y)}
+
+    payload = {
+        "tasks": state["tasks"],
+        "actor": actor,
+        "rooms": rooms,
+        "last_room": state["last_room"],
+        "bird_eye_b64": img64,  # OK if None
+    }
+
+    # --- (3) Ask backend for next {room, direction} ---
+    try:
+        decision = _http_post_json(BACKEND_URL + "/decider/decide", payload)
+        room = decision.get("room", state["last_room"])
+        direction = decision.get("direction", "STAY").upper()
+    except Exception:
+        # If backend/LLM is down, do nothing this tick
         return
 
-    steps = state["plan"]["steps"]
-    if state["step_idx"] >= len(steps):
-        return
+    # --- (4) Move one grid step in that direction ---
+    _grid_step(own, direction)
 
-    step = steps[state["step_idx"]]
-    wp = step["waypoints"][0]
-    arrived = move_toward(own, wp)
+    # --- (5) Notify progress (optional) ---
+    if BRIDGE:
+        try:
+            BRIDGE.send({"event": "tick", "actor": actor, "decision": decision})
+        except Exception:
+            pass
 
-    if arrived:
-        BRIDGE.send({"event":"actor_progress","status":"arrived","step_index":state["step_idx"]})
-        for act in step.get("actions", []):
-            BRIDGE.send({"event":"device_action",
-                         "device_id": act.get("target_device_id"),
-                         "op": act.get("op")})
-        state["step_idx"] += 1
+    state["last_room"] = room

@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.routers import tasks, sim, devices
+from backend.app.routers import decide 
 
 app = FastAPI(title="VESPER Backend (LLM Integrated)")
 
@@ -16,6 +17,7 @@ app.add_middleware(
 app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 app.include_router(devices.router, prefix="/devices", tags=["devices"])
 app.include_router(sim.router, prefix="/sim", tags=["sim"])
+app.include_router(decide.router, prefix="/decider", tags=["decider"])
 
 @app.get("/")
 def root():
