@@ -1,0 +1,99 @@
+{
+  "session_summary": {
+    "total_tests": 2,
+    "success_rate": 1.0,
+    "average_steps": 4.5,
+    "average_time": 7.0,
+    "total_llm_calls": 5,
+    "total_screenshots": 7
+  },
+  "individual_tests": [
+    {
+      "test_id": "DEMO_001",
+      "task": "Make coffee",
+      "target_room": "Kitchen",
+      "start_position": [
+        0.0,
+        0.0
+      ],
+      "start_time": 1755113493.811166,
+      "path_points": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.12,
+          0.0
+        ],
+        [
+          0.24,
+          0.05
+        ],
+        [
+          0.36,
+          0.15
+        ],
+        [
+          1.88,
+          1.45
+        ],
+        [
+          2.0,
+          1.5
+        ]
+      ],
+      "llm_calls": 2,
+      "screenshots": 3,
+      "completion_time": 6.8,
+      "success": true,
+      "final_room": "Kitchen",
+      "commands_issued": [
+        {
+          "command": "Navigate to Kitchen for coffee",
+          "timestamp": 0.0
+        },
+        {
+          "command": "Continue to Kitchen center",
+          "timestamp": 3.2
+        }
+      ]
+    },
+    {
+      "test_id": "DEMO_002",
+      "task": "Go to bed",
+      "target_room": "Bedroom",
+      "start_position": [
+        2.0,
+        1.5
+      ],
+      "path_points": [
+        [
+          2.0,
+          1.5
+        ],
+        [
+          1.88,
+          1.38
+        ],
+        [
+          1.76,
+          1.26
+        ],
+        [
+          -2.88,
+          -1.88
+        ],
+        [
+          -3.0,
+          -2.0
+        ]
+      ],
+      "llm_calls": 3,
+      "screenshots": 4,
+      "completion_time": 7.2,
+      "success": true,
+      "final_room": "Bedroom"
+    }
+  ]
+}

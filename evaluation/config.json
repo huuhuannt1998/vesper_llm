@@ -1,0 +1,96 @@
+{
+  "evaluation_config": {
+    "test_parameters": {
+      "trials_per_scenario": 20,
+      "total_test_duration": "30_minutes",
+      "screenshot_interval": "per_room_transition",
+      "movement_tracking": "all_steps"
+    },
+    
+    "research_scenarios": [
+      {
+        "name": "Morning Routine Evaluation",
+        "tasks": ["Make coffee", "Brush teeth", "Check emails"],
+        "expected_rooms": ["Kitchen", "Bathroom", "Office"],
+        "baseline_comparison": true,
+        "metrics_focus": ["accuracy", "efficiency", "human_likeness"]
+      },
+      {
+        "name": "Complex Navigation",
+        "tasks": ["Prepare for guests", "Clean the house", "Relax in evening"],
+        "expected_rooms": ["Multiple", "Multiple", "LivingRoom"],
+        "baseline_comparison": true,
+        "metrics_focus": ["task_completion", "llm_performance"]
+      },
+      {
+        "name": "Error Handling",
+        "tasks": ["Go to garage", "Find the basement", "Navigate unclear"],
+        "expected_rooms": ["None", "None", "Best_guess"],
+        "baseline_comparison": false,
+        "metrics_focus": ["error_recovery", "fallback_behavior"]
+      }
+    ],
+    
+    "measurement_criteria": {
+      "navigation_accuracy": {
+        "room_selection_correctness": "percentage",
+        "final_position_error": "euclidean_distance",
+        "tolerance_threshold": 0.5
+      },
+      "task_completion": {
+        "successful_completions": "percentage",
+        "partial_completions": "percentage", 
+        "failed_attempts": "percentage"
+      },
+      "llm_performance": {
+        "response_success_rate": "percentage",
+        "average_response_time": "seconds",
+        "command_accuracy": "percentage"
+      },
+      "movement_quality": {
+        "step_consistency": "standard_deviation",
+        "human_likeness": "composite_score",
+        "path_smoothness": "curvature_analysis"
+      }
+    },
+    
+    "baseline_methods": {
+      "random_navigation": {
+        "description": "Random movement until target found",
+        "expected_performance": {
+          "completion_rate": 0.45,
+          "average_steps": 35,
+          "human_likeness": 0.2
+        }
+      },
+      "rule_based_navigation": {
+        "description": "Predefined rules for room navigation",
+        "expected_performance": {
+          "completion_rate": 0.75,
+          "average_steps": 18,
+          "human_likeness": 0.6
+        }
+      }
+    },
+    
+    "statistical_analysis": {
+      "significance_level": 0.05,
+      "minimum_sample_size": 30,
+      "confidence_interval": 0.95,
+      "effect_size_threshold": 0.3
+    },
+    
+    "output_formats": {
+      "research_paper": {
+        "tables": ["performance_comparison", "statistical_significance"],
+        "figures": ["success_rate_by_difficulty", "movement_quality_radar"],
+        "metrics": ["mean", "std_dev", "confidence_intervals"]
+      },
+      "detailed_analysis": {
+        "raw_data": true,
+        "path_visualizations": true,
+        "llm_conversation_logs": true
+      }
+    }
+  }
+}

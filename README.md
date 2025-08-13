@@ -15,6 +15,7 @@ VESPER LLM is an intelligent house navigation system that combines Large Languag
 - **🚶 Realistic Human Movement**: Step-by-step movement with human-like timing and pace
 - **🎯 Task-Based Planning**: 6 different daily routine types (Morning, Evening, Cleaning, etc.)
 - **🏠 Smart House Integration**: Pre-configured room layouts with navigation logic
+- **📊 LLM Evaluation System**: Comprehensive correctness testing with 6 evaluation methods
 
 ### Technical Features
 - **Real-time LLM Integration**: OpenAI-compatible API support
@@ -22,6 +23,7 @@ VESPER LLM is an intelligent house navigation system that combines Large Languag
 - **Visual Feedback Loop**: Screenshot → LLM Analysis → Movement Commands
 - **Fallback System**: Works offline with rule-based navigation
 - **Game Engine Integration**: Smooth transition to Blender Game Engine
+- **Standalone Evaluation**: Independent LLM testing without Blender dependency
 
 ## 🏗️ Architecture
 
@@ -36,6 +38,10 @@ vesper_llm/
 │   └── addons/
 │       └── vesper_tools/
 │           └── __init__.py  # Main Blender addon
+├── evaluation/              # LLM correctness evaluation system
+│   ├── simple_evaluator.py # Standalone evaluation with 6 methods
+│   ├── metrics.py          # Research metrics and statistics
+│   └── quick_eval.py       # Quick evaluation runner
 ├── configs/                 # Configuration files
 ├── scripts/                 # Utility scripts
 └── requirements.txt         # Python dependencies
@@ -167,6 +173,166 @@ The system includes comprehensive fallback mechanisms:
 - **Screenshot Failure**: Continues with direct pathfinding
 - **Movement Blocked**: Skips to next room after timeout
 - **Game Engine Issues**: Continues in Edit mode
+
+## 📊 LLM Correctness Evaluation
+
+### Overview
+
+VESPER includes a comprehensive **standalone evaluation system** that measures LLM correctness in navigation tasks through 6 different testing methods. This evaluation framework is perfect for research papers and system validation.
+
+### 🔬 Evaluation Methods
+
+The evaluation system assesses LLM performance across multiple dimensions:
+
+1. **📍 Task-to-Room Mapping Accuracy** - Tests basic navigation understanding
+2. **🗺️ Spatial Reasoning Assessment** - Evaluates logical spatial decision making
+3. **📋 Multi-step Task Planning** - Measures complex sequence planning capability
+4. **🧠 Context Understanding** - Tests implicit reasoning from situational context
+5. **⚠️ Error Handling and Edge Cases** - Validates robustness with invalid inputs
+6. **⏱️ Response Consistency and Reliability** - Ensures repeatable performance
+
+### 🚀 Running the Evaluation
+
+#### Quick Evaluation (Standalone)
+```bash
+# Navigate to evaluation directory
+cd evaluation
+
+# Run standalone evaluation (no external dependencies)
+python simple_evaluator.py
+```
+
+#### Expected Output
+```
+🔬 VESPER LLM Navigation Evaluation
+==================================================
+📍 Method 1: Task-to-Room Mapping Accuracy
+  Testing systematic task-to-room associations...
+    ✅ 'make coffee' → Kitchen (confidence: 0.95)
+    ✅ 'watch television' → LivingRoom (confidence: 0.92)
+    📊 Task-Room Mapping Accuracy: 90.0%
+
+🗺️ Method 2: Spatial Reasoning Assessment
+  Testing spatial reasoning and navigation planning...
+    ✅ Closest room to Kitchen for water → DiningRoom
+    📊 Spatial Reasoning Accuracy: 100.0%
+
+📋 Method 3: Multi-step Task Planning
+  Testing multi-step task planning and sequencing...
+    Task: Morning routine
+      Predicted: ['Bedroom', 'Bathroom', 'Kitchen', 'Office']
+      Expected:  ['Bedroom', 'Bathroom', 'Kitchen', 'Office']
+      Similarity: 1.00
+    📊 Multi-step Planning Accuracy: 84.4%
+
+📊 LLM CORRECTNESS EVALUATION RESULTS
+============================================================
+🎯 Overall LLM Correctness Score: 85.0%
+📍 Task Mapping Accuracy: 90.0%
+🗺️ Spatial Reasoning: 100.0%
+📋 Multi-step Planning: 84.4%
+🧠 Context Understanding: 80.0%
+⚠️ Error Handling: 83.3%
+⏱️ Response Consistency: 93.3%
+
+💡 Assessment: Good
+📁 Full report saved: vesper_llm_evaluation_20250813_154305.json
+```
+
+### 📈 Research Integration
+
+#### Generated Report Structure
+```json
+{
+  "metadata": {
+    "evaluation_type": "LLM Navigation Correctness Assessment",
+    "evaluation_date": "2025-08-13T15:43:05.629462",
+    "vesper_version": "2.3.0",
+    "evaluation_methods": 6,
+    "total_test_cases": 44
+  },
+  "llm_correctness_metrics": {
+    "overall_correctness_score": 0.85,
+    "task_mapping_accuracy": 0.90,
+    "spatial_reasoning_accuracy": 1.00,
+    "multi_step_planning_accuracy": 0.84,
+    "context_understanding_accuracy": 0.80,
+    "error_handling_rate": 0.83,
+    "response_consistency": 0.93
+  }
+}
+```
+
+#### For Research Papers
+
+The evaluation system provides:
+- **✅ Quantitative Metrics** - Statistical validation with confidence scores
+- **✅ Comprehensive Testing** - 44+ test cases across 6 different methods
+- **✅ Research-Ready Data** - JSON reports with metadata and detailed results
+- **✅ Reproducible Results** - Consistent evaluation framework
+- **✅ Baseline Comparisons** - Performance benchmarking
+
+### 🎯 Evaluation Test Cases
+
+#### Task-to-Room Mapping Tests
+```python
+# Clear mappings
+"make coffee" → Kitchen (95% confidence)
+"brush teeth" → Bathroom (98% confidence)
+"watch television" → LivingRoom (92% confidence)
+
+# Ambiguous cases
+"read a book" → [LivingRoom, Bedroom] (75% confidence)
+"make a phone call" → [Office, LivingRoom] (72% confidence)
+```
+
+#### Spatial Reasoning Tests
+- Proximity analysis: "Closest room to Kitchen for water"
+- Path optimization: "Most efficient route planning"
+- Activity sequences: "Morning routine spatial logic"
+
+#### Multi-step Planning Tests
+- **Morning Routine**: Bedroom → Bathroom → Kitchen → Office
+- **Evening Routine**: Office → DiningRoom → LivingRoom → Bedroom
+- **Work Break**: Office → Kitchen → Office
+- **Guest Preparation**: Kitchen → DiningRoom → LivingRoom
+
+### 📋 Evaluation Configuration
+
+#### Custom Test Cases
+You can extend the evaluation by modifying `simple_evaluator.py`:
+
+```python
+# Add custom task mappings
+custom_tests = [
+    {"task": "your_custom_task", "expected": "TargetRoom", "confidence": 0.85},
+    # Add more test cases...
+]
+```
+
+#### Performance Benchmarks
+- **Excellent**: Overall score > 90%
+- **Good**: Overall score 80-90%
+- **Needs Improvement**: Overall score < 80%
+
+### 🔧 Advanced Evaluation
+
+#### With Real LLM Server
+```python
+# Configure LLM server in evaluator
+LLM_SERVER = "http://cci-siscluster1.charlotte.edu:8080/api/chat/completions"
+MODEL = "openai/gpt-oss-20b"
+
+# Run evaluation with live LLM queries
+python standalone_evaluator.py  # Full server integration
+```
+
+#### Batch Testing
+```python
+# Run multiple evaluation rounds for statistical analysis
+for i in range(10):
+    evaluator.run_evaluation_suite()
+```
 
 ## 🤝 Contributing
 

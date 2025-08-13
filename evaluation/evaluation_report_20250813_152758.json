@@ -1,0 +1,51 @@
+{
+  "evaluation_metadata": {
+    "timestamp": "20250813_152758",
+    "vesper_version": "2.3.0",
+    "test_environment": "Blender 4.4.3 + UPBGE",
+    "llm_model": "openai/gpt-oss-20b"
+  },
+  "metrics": {
+    "success_metrics": {
+      "task_completion_rate": 0.925,
+      "navigation_accuracy": 1.0,
+      "average_distance_error": 0.18996293669893374
+    },
+    "efficiency_metrics": {
+      "average_steps_per_task": 15,
+      "average_completion_time": 6.0,
+      "path_efficiency_score": 0.5
+    },
+    "llm_performance": {
+      "llm_response_rate": 0.9,
+      "command_accuracy": 0.8666666666666667,
+      "screenshot_success_rate": 0.95
+    },
+    "movement_quality": {
+      "movement_smoothness": 0.98,
+      "human_likeness_score": 1.0,
+      "collision_avoidance": 0.98
+    }
+  },
+  "research_insights": {
+    "key_findings": [
+      "LLM achieved 100.0% room selection accuracy",
+      "Human-like movement scored 100.0%",
+      "Task completion rate: 92.5%",
+      "Average distance error: 0.19 units"
+    ],
+    "performance_summary": {
+      "overall_score": 0.975,
+      "strengths": [
+        "High human-likeness",
+        "Robust fallback system",
+        "Real-time visual feedback"
+      ],
+      "areas_for_improvement": [
+        "LLM response consistency",
+        "Path optimization",
+        "Screenshot processing speed"
+      ]
+    }
+  }
+}
