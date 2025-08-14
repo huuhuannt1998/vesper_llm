@@ -8,11 +8,11 @@ from typing import Dict, Any
 load_dotenv()
 
 # Defaults tuned to the user's LLM server and model; override via env vars if needed
-API_URL  = os.getenv("LLM_API_URL", "http://cci-siscluster1.charlotte.edu:8080/api/chat/completions")
-# API_URL  = os.getenv("LLM_API_URL", "http://100.98.151.66:1234/api/chat/completions")
-# 100.98.151.66
+# API_URL  = os.getenv("LLM_API_URL", "http://cci-siscluster1.charlotte.edu:8080/api/chat/completions")
+API_URL  = os.getenv("LLM_API_URL", "http://100.98.151.66:1234/v1/chat/completions")
+# 100.98.151.66 - Fixed: Use /v1/chat/completions instead of /api/chat/completions
 API_KEY  = os.getenv("LLM_API_KEY", "sk-a6af2053d49649d2925ff91fef71cb65")
-MODEL    = os.getenv("LLM_MODEL", "openai/gpt-oss-20b")
+MODEL    = os.getenv("LLM_MODEL", "openai/gpt-oss-120b")  # Fixed: 120b not 20b
 TIMEOUT  = float(os.getenv("LLM_REQUEST_TIMEOUT", "30"))
 MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "256"))
 DEBUG = os.getenv("LLM_DEBUG", "0") not in ("", "0", "false", "False")

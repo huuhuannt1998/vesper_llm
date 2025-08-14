@@ -5,6 +5,7 @@ VESPER Game Engine Test - Run this in Blender's Text Editor
 import bpy
 
 def test_game_engine():
+    print("=============================================")
     print("🎮 GAME ENGINE TEST STARTED")
     print("=" * 40)
     

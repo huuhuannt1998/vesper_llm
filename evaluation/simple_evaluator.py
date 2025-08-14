@@ -1,14 +1,3 @@
-"""
-Simple VESPER LLM Evaluation System
-===================================
-
-A standalone evaluation system that measures LLM correctness without
-requiring external dependencies or Blender integration.
-
-Usage:
-    python simple_evaluator.py
-"""
-
 import json
 import time
 import random
