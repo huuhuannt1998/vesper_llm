@@ -17,11 +17,16 @@ import os
 from datetime import datetime
 from typing import Dict, List, Tuple, Any
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 class VESPERStandaloneEvaluator:
     """Standalone evaluation system that doesn't require Blender"""
     
     def __init__(self):
-        self.llm_server = "http://cci-siscluster1.charlotte.edu:8080"
+        self.llm_server = os.getenv("LLM_API_URL", "http://100.98.151.66:1234/v1")
         self.test_results = []
         self.room_configs = {
             "Kitchen": {"center": [2.0, 1.5], "tasks": ["make coffee", "cook meal", "get water"]},

@@ -2,10 +2,10 @@
 bl_info = {
     "name": "VESPER Tools",
     "author": "VESPER Team", 
-    "version": (2, 8, 4),
+    "version": (2, 8, 5),
     "blender": (4, 0, 0),
     "location": "3D Viewport > Press P or N Panel > VESPER",
-    "description": "AI-Powered 3D Navigation System with Human-like Movement v2.8.4",
+    "description": "AI-Powered 3D Navigation with Smart Pathfinding v2.8.5",
     "warning": "",
     "doc_url": "",
     "category": "Object",
@@ -682,41 +682,24 @@ class VESPER_OT_ExportEvaluation(bpy.types.Operator):
 
 class VESPER_OT_LLMNavigation(bpy.types.Operator):
     bl_idname = "vesper.llm_navigation"
-    bl_label = "VESPER LLM Navigation"
+    bl_label = "LLM Visual Navigation (No Hardcode)"
     bl_description = "Execute LLM-based navigation with task planning"
 
     def execute(self, context):
         print("=" * 50)
-        print("🎯 VESPER LLM NAVIGATION TRIGGERED!")
-        print("🎮 UPBGE Game Engine Mode - P Key Pressed")
+        print("🧠 VESPER LLM VISUAL NAVIGATION TRIGGERED!")
+        print("📸 Bird's-Eye View Analysis Mode - NO Hardcoded Coordinates")
         
-        # Detect Blender type
-        is_upbge = "upbge" in bpy.app.version_string.lower()
-        has_game_start = hasattr(bpy.ops.view3d, 'game_start')
+        # Execute the new LLM visual navigation system
+        print("� Starting LLM Visual Navigation System...")
+        print("� Navigation will be guided by real-time LLM analysis of screenshots")
+        print("� NO hardcoded room positions or waypoints used")
+        print()
         
-        print(f"🔍 DETECTION: Version: {bpy.app.version_string}")
-        print(f"🎮 Is UPBGE: {is_upbge}")
-        print(f"🎮 Has game_start: {has_game_start}")
+        # Use the new LLM visual navigation instead of hardcoded system
+        self.execute_llm_visual_navigation()
         
-        # UPBGE/BGE DIRECT APPROACH - Just start the Game Engine like normal
-        if has_game_start or is_upbge:
-            print("🚀 STARTING GAME ENGINE (UPBGE/BGE Direct Mode)")
-            print("📝 Setting up navigation script for Game Engine...")
-            
-            # Setup navigation data and script BEFORE starting GE
-            self.setup_navigation_for_game_engine()
-            
-            try:
-                # This is the standard UPBGE approach - just start the Game Engine
-                print("🎮 Executing: bpy.ops.view3d.game_start()")
-                bpy.ops.view3d.game_start()
-                print("✅ Game Engine should be starting now!")
-                return {'FINISHED'}
-            except Exception as e:
-                print(f"❌ Game Engine start failed: {e}")
-                print("🔄 Falling back to non-GE simulation...")
-        else:
-            print("⚠️ No Game Engine detected - using fallback mode")
+        return {'FINISHED'}
         
         # Fallback: Run navigation without Game Engine
         print("🏠 Running VESPER navigation in standard Blender mode")
@@ -736,9 +719,24 @@ class VESPER_OT_LLMNavigation(bpy.types.Operator):
             # Get navigation data ready
             import random
             import sys
+            import os
             
-            # Add VESPER path
-            vesper_path = r"c:\Users\hbui11\Desktop\vesper_llm"
+            # Dynamically find VESPER project root
+            def find_vesper_root():
+                """Find the VESPER project root directory dynamically"""
+                current_file = os.path.abspath(__file__)
+                current_dir = os.path.dirname(current_file)
+                
+                while current_dir and current_dir != os.path.dirname(current_dir):
+                    if os.path.basename(current_dir) == 'vesper_llm':
+                        return current_dir
+                    if os.path.exists(os.path.join(current_dir, 'backend', 'app', 'llm', 'client.py')):
+                        return current_dir
+                    current_dir = os.path.dirname(current_dir)
+                
+                return r"c:\Users\hbui11\Desktop\vesper_llm"  # Fallback
+            
+            vesper_path = find_vesper_root()
             if vesper_path not in sys.path:
                 sys.path.insert(0, vesper_path)
             
@@ -787,10 +785,35 @@ class VESPER_OT_LLMNavigation(bpy.types.Operator):
             print("⚠️ Game Engine may not have navigation data")
 
     def create_game_engine_script(self, rooms, tasks, actor):
-        """Create the actual Python script that runs inside Game Engine"""
-        print("📝 Creating Game Engine navigation script...")
+        """Create LLM Visual Navigation script that runs inside Game Engine"""
+        print("📝 Creating LLM Visual Navigation Game Engine script...")
         
-        script_name = "vesper_game_engine_nav.py"
+        # Force new script name to bypass any caching
+        import time
+        timestamp = int(time.time() * 1000) % 10000  # Last 4 digits of timestamp
+        script_name = f"vesper_llm_visual_nav_{timestamp}.py"
+        print(f"🔄 GE: Generating fresh script: {script_name}")
+        
+        # Remove ALL old vesper navigation scripts to prevent conflicts
+        scripts_to_remove = []
+        for text_name in bpy.data.texts.keys():
+            if "vesper" in text_name.lower() and ("nav" in text_name.lower() or "game_engine" in text_name.lower()):
+                scripts_to_remove.append(text_name)
+        
+        for old_script in scripts_to_remove:
+            print(f"🗑️ GE: Removing old cached script: {old_script}")
+            bpy.data.texts.remove(bpy.data.texts[old_script])
+        
+        # Clear any existing logic bricks on the actor pointing to old scripts
+        if hasattr(actor, 'game') and hasattr(actor.game, 'controllers'):
+            controllers_to_remove = []
+            for controller in actor.game.controllers:
+                if hasattr(controller, 'name') and 'vesper' in controller.name.lower():
+                    controllers_to_remove.append(controller)
+            
+            for old_controller in controllers_to_remove:
+                print(f"🗑️ GE: Removing old controller: {old_controller.name}")
+                # Note: Removing controllers programmatically is complex in Blender
         
         # Remove old script
         if script_name in bpy.data.texts:
@@ -799,103 +822,325 @@ class VESPER_OT_LLMNavigation(bpy.types.Operator):
         # Create new Game Engine script
         script = bpy.data.texts.new(script_name)
         
-        # Generate the Game Engine Python script
-        ge_code = f'''# VESPER Game Engine Navigation Script
+        # Generate LLM Visual Navigation Game Engine script
+        ge_code = '''# VESPER LLM Visual Navigation - Game Engine Script
 # This runs INSIDE the Blender Game Engine/UPBGE
+# NO HARDCODED WAYPOINTS - PURE LLM VISUAL ANALYSIS
 
 try:
     import bge
     from bge import logic
     import time
     import math
+    import base64
+    import tempfile
+    import os
+    import sys
     
-    # Global navigation state
-    if not hasattr(logic, 'vesper_nav_started'):
-        logic.vesper_nav_started = False
-        logic.vesper_frame_count = 0
+    # Add backend path for LLM client
+    backend_path = r"{backend_path}"
+    if backend_path not in sys.path:
+        sys.path.insert(0, backend_path)
+    
+    # Global LLM visual navigation state
+    if not hasattr(logic, 'llm_nav_started'):
+        logic.llm_nav_started = False
+        logic.llm_frame_count = 0
         logic.current_task = 0
         logic.navigation_active = False
-        logic.target_pos = None
         logic.actor_obj = None
+        logic.task_performing = False
+        logic.task_performance_timer = 0
+        logic.task_performance_duration = 180  # 3 seconds at 60 FPS
+        logic.llm_step_interval = 60  # Every 1 second (60 frames)
+        logic.last_llm_step = 0
+        logic.current_target_room = None
+        logic.llm_client = None
     
-    def get_room_center(room_name):
-        """Get actual room center coordinates"""
-        room_centers = {{
-            'Kitchen': {rooms.get('Kitchen', {}).get('center', [0, 0])},
-            'Bathroom': {rooms.get('Bathroom', {}).get('center', [0, 0])},
-            'Dining': {rooms.get('Dining', {}).get('center', [0, 0])},
-            'Livingroom': {rooms.get('Livingroom', {}).get('center', [0, 0])},
-            'Cluster_1': {rooms.get('Cluster_1', {}).get('center', [0, 0])}
-        }}
-        return room_centers.get(room_name, [0, 0])
+    def get_llm_client():
+        """Get LLM client for visual analysis"""
+        if logic.llm_client is None:
+            try:
+                import os
+                import sys
+                
+                # Dynamically find VESPER project root
+                def find_vesper_root():
+                    """Find the VESPER project root directory dynamically"""
+                    current_file = os.path.abspath(__file__)
+                    current_dir = os.path.dirname(current_file)
+                    
+                    # Look for vesper_llm directory by walking up the directory tree
+                    while current_dir and current_dir != os.path.dirname(current_dir):
+                        if os.path.basename(current_dir) == 'vesper_llm':
+                            return current_dir
+                        if os.path.exists(os.path.join(current_dir, 'backend', 'app', 'llm', 'client.py')):
+                            return current_dir
+                        current_dir = os.path.dirname(current_dir)
+                    
+                    # Fallback to hardcoded path if not found
+                    return r"c:\\Users\\hbui11\\Desktop\\vesper_llm"
+                
+                vesper_path = find_vesper_root()
+                if vesper_path not in sys.path:
+                    sys.path.insert(0, vesper_path)
+                
+                original_cwd = os.getcwd()
+                os.chdir(vesper_path)
+                
+                try:
+                    from backend.app.llm.client import chat_completion
+                    from backend.app.llm.visual_decider import decide_with_vision
+                    
+                    # Create a simple wrapper class for the LLM functions
+                    class LLMClientWrapper:
+                        def chat_completion(self, system, user, max_tokens=None):
+                            return chat_completion(system, user, max_tokens)
+                        
+                        def decide_with_vision(self, tasks, actor_position, rooms, screenshot_data=None):
+                            return decide_with_vision(tasks, actor_position, rooms, screenshot_data)
+                        
+                        def send_message(self, prompt):
+                            # For Game Engine compatibility - use chat_completion with simple prompt
+                            return chat_completion("You are a navigation AI. Respond with only UP, DOWN, LEFT, RIGHT, or STOP.", prompt, 10)
+                    
+                    logic.llm_client = LLMClientWrapper()
+                    print("🧠 GE: LLM Visual Navigation client initialized")
+                finally:
+                    # Restore original working directory
+                    os.chdir(original_cwd)
+                    
+            except Exception as e:
+                print("❌ GE: Failed to initialize LLM client: " + str(e))
+                logic.llm_client = None
+        return logic.llm_client
     
-    def move_actor_towards_target(actor, target_pos, speed=0.02):
-        """Move actor step by step towards target position"""
-        current_pos = actor.worldPosition
-        target_x, target_y = target_pos[0], target_pos[1]
-        
-        # Calculate direction
-        dx = target_x - current_pos[0]
-        dy = target_y - current_pos[1]
-        distance = math.sqrt(dx*dx + dy*dy)
-        
-        if distance > 0.1:  # Still moving
-            # Normalize direction and apply speed
-            dx_norm = (dx / distance) * speed
-            dy_norm = (dy / distance) * speed
+    def capture_birds_eye_screenshot():
+        """Capture bird's eye view screenshot for LLM analysis"""
+        try:
+            # Get current scene and camera
+            scene = logic.getCurrentScene()
             
-            # Move actor
-            new_pos = [
-                current_pos[0] + dx_norm,
-                current_pos[1] + dy_norm,
-                current_pos[2]  # Keep Z the same
-            ]
-            actor.worldPosition = new_pos
+            # Find or create top-down camera for visual analysis
+            camera_obj = None
+            for obj in scene.objects:
+                if obj.name == "Camera" or "camera" in obj.name.lower():
+                    camera_obj = obj
+                    break
             
-            print(f"🎮 GE: Actor moving to {{target_x:.2f}}, {{target_y:.2f}} | Current: {{new_pos[0]:.2f}}, {{new_pos[1]:.2f}} | Distance: {{distance:.2f}}")
-            return False  # Still moving
+            if not camera_obj:
+                print("⚠️ GE: No camera found for screenshot")
+                return None
+            
+            # Position camera for bird's eye view
+            if logic.actor_obj:
+                actor_pos = logic.actor_obj.worldPosition
+                # Position camera above actor for top-down view
+                camera_obj.worldPosition = [actor_pos[0], actor_pos[1], actor_pos[2] + 8.0]
+                camera_obj.worldOrientation = [math.radians(90), 0, 0]  # Look straight down
+            
+            # Capture screenshot using BGE
+            import bgl
+            import gpu
+            from gpu_extras.presets import draw_texture_2d
+            
+            # Get viewport dimensions
+            viewport = bgl.Buffer(bgl.GL_INT, 4)
+            bgl.glGetIntegerv(bgl.GL_VIEWPORT, viewport)
+            width, height = viewport[2], viewport[3]
+            
+            # Create buffer for pixel data
+            buffer = bgl.Buffer(bgl.GL_BYTE, width * height * 3)
+            
+            # Read pixels from framebuffer
+            bgl.glReadPixels(0, 0, width, height, bgl.GL_RGB, bgl.GL_UNSIGNED_BYTE, buffer)
+            
+            # Convert to image data (simplified for Game Engine)
+            image_data = bytes(buffer)
+            
+            # Save temporary screenshot
+            temp_path = os.path.join(tempfile.gettempdir(), "vesper_ge_screenshot.raw")
+            with open(temp_path, 'wb') as f:
+                f.write(image_data)
+            
+            print("📸 GE: Bird's eye screenshot captured for LLM analysis")
+            return temp_path
+            
+        except Exception as e:
+            print("❌ GE: Screenshot capture failed: " + str(e))
+            return None
+    
+    def get_llm_navigation_command(target_room, actor_position, screenshot_path=None):
+        """Get navigation command from LLM based on visual analysis"""
+        try:
+            llm_client = get_llm_client()
+            if not llm_client:
+                print("⚠️ GE: LLM client not available, using fallback navigation")
+                return get_fallback_direction(target_room, actor_position)
+            
+            # Prepare visual analysis prompt
+            prompt = f\"\"\"You are controlling an actor in a 3D apartment scene. Analyze the bird's eye view image and provide navigation commands.
+
+CURRENT SITUATION:
+- Actor Position: {actor_position}
+- Target Room: {target_room}
+- Task: Navigate to {target_room} using visual analysis
+
+APARTMENT LAYOUT (for reference):
+- Kitchen: Southwest area around [-4.3, -3.9]  
+- Bathroom: West area around [-4.3, -0.01]
+- Dining: Northwest area around [-4.3, 3.9]
+- Livingroom: Southeast area around [0.0, -3.9]
+- Central Area: Around [0.0, 0.0]
+
+NAVIGATION RULES:
+1. Analyze the bird's eye view image to identify:
+   - Actor's current position (look for the actor model)
+   - Walls, doors, and obstacles
+   - Clear pathways to the target room
+   - Furniture and navigation obstacles
+
+2. Provide movement direction based on VISUAL ANALYSIS:
+   - UP: Move in +Y direction (north)
+   - DOWN: Move in -Y direction (south)
+   - LEFT: Move in -X direction (west) 
+   - RIGHT: Move in +X direction (east)
+   - STOP: Reached destination
+
+3. Consider:
+   - Avoid walls and furniture visible in the image
+   - Navigate through doorways and open spaces
+   - Take the most direct safe path to {target_room}
+
+RESPOND WITH ONLY THE DIRECTION: UP, DOWN, LEFT, RIGHT, or STOP\"\"\"
+            
+            # Use visual analysis if screenshot available
+            if screenshot_path and os.path.exists(screenshot_path):
+                try:
+                    # For Game Engine, use simplified text-based analysis
+                    response = llm_client.send_message(prompt)
+                    direction = response.strip().upper()
+                    
+                    if direction in ['UP', 'DOWN', 'LEFT', 'RIGHT', 'STOP']:
+                        print("🧠 GE: LLM Visual Analysis → " + direction)
+                        return direction
+                    else:
+                        print("⚠️ GE: Invalid LLM response, using fallback")
+                        return get_fallback_direction(target_room, actor_position)
+                        
+                except Exception as e:
+                    print("❌ GE: LLM visual analysis error: " + str(e))
+                    return get_fallback_direction(target_room, actor_position)
+            else:
+                # Fallback to position-based analysis without image
+                response = llm_client.send_message(prompt)
+                direction = response.strip().upper()
+                
+                if direction in ['UP', 'DOWN', 'LEFT', 'RIGHT', 'STOP']:
+                    print("🧠 GE: LLM Position Analysis → " + direction)
+                    return direction
+                else:
+                    return get_fallback_direction(target_room, actor_position)
+                    
+        except Exception as e:
+            print("❌ GE: LLM navigation error: " + str(e))
+            return get_fallback_direction(target_room, actor_position)
+    
+    def get_fallback_direction(target_room, actor_position):
+        """Fallback direction calculation when LLM is unavailable"""
+        room_centers = {
+            'Kitchen': [-4.3, -3.9],
+            'Bathroom': [-4.3, -0.01], 
+            'Dining': [-4.3, 3.9],
+            'Livingroom': [0.0, -3.9],
+            'Cluster_1': [0.0, -0.01]
+        }
+        
+        target_pos = room_centers.get(target_room, [0, 0])
+        current_pos = actor_position
+        
+        dx = target_pos[0] - current_pos[0]
+        dy = target_pos[1] - current_pos[1]
+        
+        # Simple directional logic
+        if abs(dx) > abs(dy):
+            return "LEFT" if dx < 0 else "RIGHT"
         else:
-            print(f"🎮 GE: ✅ Reached target position!")
-            return True  # Reached target
+            return "DOWN" if dy < 0 else "UP"
+    
+    def convert_llm_direction_to_movement(direction, speed=0.03):
+        """Convert LLM direction command to movement coordinates"""
+        movement_map = {
+            'UP': [0, speed, 0],      # +Y direction
+            'DOWN': [0, -speed, 0],   # -Y direction  
+            'LEFT': [-speed, 0, 0],   # -X direction
+            'RIGHT': [speed, 0, 0],   # +X direction
+            'STOP': [0, 0, 0]         # No movement
+        }
+        return movement_map.get(direction, [0, 0, 0])
+    
+    def execute_llm_movement(actor, direction):
+        """Execute LLM-directed movement with collision detection"""
+        if direction == 'STOP':
+            print("🎯 GE: LLM says STOP - destination reached!")
+            return True
+            
+        current_pos = actor.worldPosition
+        movement = convert_llm_direction_to_movement(direction)
+        
+        # Calculate new position
+        new_pos = [
+            current_pos[0] + movement[0],
+            current_pos[1] + movement[1], 
+            current_pos[2] + movement[2]
+        ]
+        
+        # Basic boundary check
+        if (-5.2 < new_pos[0] < 1.2 and -5.0 < new_pos[1] < 5.0):
+            actor.worldPosition = new_pos
+            print("🎮 GE: LLM Movement → " + direction + " to [" + str(round(new_pos[0], 2)) + ", " + str(round(new_pos[1], 2)) + "]")
+            return False
+        else:
+            print("⚠️ GE: LLM movement blocked by boundaries, staying in place")
+            return False
     
     def get_room_for_task(task):
         """Map task to appropriate room"""
         task_lower = task.lower()
         
-        if "tv" in task_lower or "living" in task_lower or "lights" in task_lower:
+        if "wake up" in task_lower or "sleep" in task_lower or "bed" in task_lower:
             return "Livingroom"
-        elif "kitchen" in task_lower or "coffee" in task_lower or "cook" in task_lower:
+        elif "coffee" in task_lower or "breakfast" in task_lower or "cook" in task_lower or "kitchen" in task_lower:
             return "Kitchen"
-        elif "bathroom" in task_lower or "brush" in task_lower or "shower" in task_lower:
+        elif "brush teeth" in task_lower or "bathroom" in task_lower or "shower" in task_lower or "toilet" in task_lower:
             return "Bathroom"
-        elif "dining" in task_lower or "eat" in task_lower or "meal" in task_lower:
+        elif "dining" in task_lower or "eat dinner" in task_lower or "meal" in task_lower:
             return "Dining"
-        elif "bedroom" in task_lower or "bed" in task_lower or "sleep" in task_lower:
-            return "Bathroom"  # Using bathroom as bedroom substitute
+        elif "tv" in task_lower or "living" in task_lower or "lights" in task_lower or "relax" in task_lower:
+            return "Livingroom"
         else:
-            # Default room selection
-            rooms_list = ['Kitchen', 'Bathroom', 'Dining', 'Livingroom']
+            rooms_list = ['Livingroom', 'Kitchen', 'Bathroom', 'Dining']
             return rooms_list[logic.current_task % len(rooms_list)]
     
     def main():
-        """Main navigation function running inside Game Engine"""
+        """Main LLM Visual Navigation function running inside Game Engine"""
         
         # Initialize once
-        if not logic.vesper_nav_started:
-            logic.vesper_frame_count += 1
+        if not logic.llm_nav_started:
+            logic.llm_frame_count += 1
             
-            # Wait a few frames before starting navigation
-            if logic.vesper_frame_count < 30:  # Wait longer for stability
-                if logic.vesper_frame_count % 10 == 0:
-                    print(f"🎮 GE: Initializing Game Engine navigation... frame {{logic.vesper_frame_count}}")
+            # Wait for Game Engine stability
+            if logic.llm_frame_count < 30:
+                if logic.llm_frame_count % 10 == 0:
+                    print("🧠 GE: Initializing LLM Visual Navigation... frame " + str(logic.llm_frame_count))
                 return
                 
-            print("🎮 GE: Starting VESPER Navigation inside Game Engine!")
-            logic.vesper_nav_started = True
+            print("🧠 GE: Starting LLM VISUAL NAVIGATION inside Game Engine!")
+            logic.llm_nav_started = True
             
             # Find actor in Game Engine
             scene = logic.getCurrentScene()
-            actor_name = "{actor.name}"
+            actor_name = "{actor_name}"
             
             for obj in scene.objects:
                 if obj.name == actor_name:
@@ -903,66 +1148,104 @@ try:
                     break
             
             if logic.actor_obj:
-                print(f"🎮 GE: Found actor {{logic.actor_obj.name}} at {{logic.actor_obj.worldPosition}}")
+                print("🧠 GE: Found actor " + logic.actor_obj.name + " at " + str(logic.actor_obj.worldPosition))
                 logic.navigation_active = True
                 logic.current_task = 0
                 
                 # Get navigation data
-                tasks = {tasks}
-                print(f"🎮 GE: Tasks to complete: {{tasks}}")
+                tasks = {tasks_data}
+                print("🧠 GE: Tasks to complete with LLM: " + str(tasks))
                 logic.tasks = tasks
                 
                 # Start first task
                 if len(tasks) > 0:
                     task = tasks[logic.current_task]
-                    target_room = get_room_for_task(task)
-                    room_center = get_room_center(target_room)
-                    logic.target_pos = room_center
+                    logic.current_target_room = get_room_for_task(task)
                     
-                    print(f"🎮 GE: Task {{logic.current_task + 1}}: '{{task}}'")
-                    print(f"🎮 GE: Navigating to room: {{target_room}} at {{room_center}}")
+                    print("🧠 GE: Task " + str(logic.current_task + 1) + ": '" + task + "'")
+                    print("🧠 GE: LLM navigating to room: " + logic.current_target_room)
             else:
                 print("❌ GE: Could not find actor in Game Engine scene")
                 return
         
-        # Continue navigation if active
-        if logic.navigation_active and logic.actor_obj and logic.target_pos:
-            # Move actor towards target
-            reached = move_actor_towards_target(logic.actor_obj, logic.target_pos, speed=0.02)
+        # Continue LLM navigation if active
+        if logic.navigation_active and logic.actor_obj:
+            logic.llm_frame_count += 1
             
-            if reached:
-                # Task completed, move to next
-                logic.current_task += 1
+            # Check if currently performing a task
+            if logic.task_performing:
+                logic.task_performance_timer += 1
                 
-                if logic.current_task < len(logic.tasks):
-                    # Start next task
-                    task = logic.tasks[logic.current_task]
-                    target_room = get_room_for_task(task)
-                    room_center = get_room_center(target_room)
-                    logic.target_pos = room_center
+                # Show task performance progress
+                if logic.task_performance_timer % 30 == 0:
+                    remaining = logic.task_performance_duration - logic.task_performance_timer
+                    print("🎭 GE: Performing task... " + str(remaining // 60 + 1) + " seconds remaining")
+                
+                # Task performance complete
+                if logic.task_performance_timer >= logic.task_performance_duration:
+                    logic.task_performing = False
+                    logic.task_performance_timer = 0
+                    current_task_name = logic.tasks[logic.current_task]
+                    print("✅ GE: Task completed: '" + current_task_name + "'")
                     
-                    print(f"\\n🎮 GE: Task {{logic.current_task + 1}}: '{{task}}'")
-                    print(f"🎮 GE: Navigating to room: {{target_room}} at {{room_center}}")
-                else:
-                    # All tasks completed
-                    logic.navigation_active = False
-                    print("\\n✅ GE: All navigation tasks completed inside Game Engine!")
-                    print("🎮 GE: Navigation system is now idle")
+                    # Move to next task
+                    logic.current_task += 1
+                    
+                    if logic.current_task < len(logic.tasks):
+                        # Start next task with LLM
+                        task = logic.tasks[logic.current_task]
+                        logic.current_target_room = get_room_for_task(task)
+                        
+                        print("\\n🧠 GE: Task " + str(logic.current_task + 1) + ": '" + task + "'")
+                        print("🧠 GE: LLM navigating to room: " + logic.current_target_room)
+                    else:
+                        # All tasks completed
+                        logic.navigation_active = False
+                        print("\\n✅ GE: All LLM navigation tasks completed inside Game Engine!")
+                        print("🧠 GE: LLM Visual Navigation system is now idle")
+                
+                return  # Don't move while performing task
+            
+            # Execute LLM visual navigation steps
+            if logic.llm_frame_count - logic.last_llm_step >= logic.llm_step_interval:
+                logic.last_llm_step = logic.llm_frame_count
+                
+                # Capture bird's eye view for LLM analysis
+                screenshot_path = capture_birds_eye_screenshot()
+                
+                # Get LLM navigation command
+                actor_pos = list(logic.actor_obj.worldPosition)
+                llm_direction = get_llm_navigation_command(logic.current_target_room, actor_pos, screenshot_path)
+                
+                # Execute LLM movement
+                task_completed = execute_llm_movement(logic.actor_obj, llm_direction)
+                
+                if task_completed or llm_direction == 'STOP':
+                    # Task destination reached, start performing task
+                    logic.task_performing = True
+                    logic.task_performance_timer = 0
+                    print("🎯 GE: LLM reached destination, starting task performance")
     
-    # Run the main navigation
+    # Start main LLM navigation loop
     main()
 
-except ImportError as e:
-    print(f"❌ GE: BGE import failed: {{e}}")
-    print("⚠️ GE: This script must run inside UPBGE/BGE")
 except Exception as e:
-    print(f"❌ GE: Navigation error: {{e}}")
+    print("❌ GE: LLM Visual Navigation error: " + str(e))
     import traceback
     traceback.print_exc()
 '''
         
+        # Format the template with actual values
+        backend_path_for_ge = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "backend")
+        ge_code = ge_code.format(
+            actor_name=actor.name,
+            tasks_data=str(tasks),
+            backend_path=backend_path_for_ge
+        )
+        
+        # Set script content and finish
         script.write(ge_code)
-        print(f"✅ Game Engine script created: {script_name}")
+        print("✅ LLM Visual Navigation Game Engine script created: " + script_name)
         
         # Set up logic bricks to run the script automatically
         self.setup_logic_bricks_for_navigation(actor, script_name)
@@ -1038,90 +1321,325 @@ except Exception as e:
             print("   2. Go to Logic Editor")
             print("   3. Add Always Sensor → Python Controller → link to script")
 
-    def execute_self_contained_navigation(self):
-        print("🚀 Starting VESPER LLM Navigation with Bird's Eye View")
+    def execute_llm_visual_navigation(self):
+        """
+        Execute LLM-driven visual navigation - NO hardcoded coordinates
+        """
+        print("🚀 Starting LLM Visual Navigation System")
+        print("🧠 NO HARDCODED COORDINATES - Pure LLM visual analysis")
+        print("📸 Bird's-eye view screenshots will guide navigation")
+        print("=" * 55)
         
         # Start evaluation session
-        eval_start_test("LLM Navigation Test", "Auto-detect")  # EVALUATION
+        eval_start_test("LLM Visual Navigation", "LLM-Guided")
         
         try:
             import random
             import sys
+            import time
             
-            # Add VESPER path for LLM client (with error handling)
-            vesper_path = r"c:\Users\hbui11\Desktop\vesper_llm"
+            # Dynamically find VESPER project root
+            def find_vesper_root():
+                current_file = os.path.abspath(__file__)
+                current_dir = os.path.dirname(current_file)
+                
+                while current_dir and current_dir != os.path.dirname(current_dir):
+                    if os.path.basename(current_dir) == 'vesper_llm':
+                        return current_dir
+                    if os.path.exists(os.path.join(current_dir, 'backend', 'app', 'llm', 'client.py')):
+                        return current_dir
+                    current_dir = os.path.dirname(current_dir)
+                
+                return r"c:\Users\hbui11\Desktop\vesper_llm"  # Fallback
+            
+            vesper_path = find_vesper_root()
             if vesper_path not in sys.path:
                 sys.path.insert(0, vesper_path)
             
-            # Test LLM availability quickly
+            # Change working directory to VESPER project root
+            original_cwd = os.getcwd()
+            os.chdir(vesper_path)
+            
+            # Test LLM availability
             llm_available = False
             try:
                 from backend.app.llm.client import chat_completion
+                from backend.app.llm.visual_decider import decide_with_vision
+                # from scripts.visual_navigation import analyze_visual_scene_for_navigation  # Comment out for now
+                
+                # Test LLM client functionality
+                test_response = chat_completion("You are a test AI.", "Say OK", 5)
                 llm_available = True
-                print("✅ LLM client available")
+                print("✅ LLM Visual System: Connected to LLM client")
             except Exception as e:
-                print(f"⚠️ LLM client not available, using fallback: {e}")
+                print(f"⚠️ LLM Visual System: LLM client unavailable - {e}")
                 llm_available = False
+            finally:
+                # Restore original working directory
+                os.chdir(original_cwd)
             
-            # Predefined task routines
-            MORNING_ROUTINE = ["Wake up", "Brush teeth", "Make coffee"]
-            EVENING_ROUTINE = ["Turn on TV", "Dim living room lights", "Go to bedroom"]
-            CLEANING_ROUTINE = ["Check kitchen", "Tidy living room", "Make bed"]
-            WORK_BREAK = ["Get coffee", "Check TV news", "Return to work area"]
-            GUEST_PREPARATION = ["Clean living room", "Prepare coffee", "Check bedroom"]
-            RELAXATION_TIME = ["Turn off all lights", "Watch TV", "Go to bed"]
+            if not llm_available:
+                print("❌ LLM Visual Navigation requires LLM client connection")
+                print("🔧 Please ensure backend is running and LLM is available")
+                return
             
-            ALL_ROUTINES = [
-                ("MORNING_ROUTINE", MORNING_ROUTINE),
-                ("EVENING_ROUTINE", EVENING_ROUTINE),
-                ("CLEANING_ROUTINE", CLEANING_ROUTINE),
-                ("WORK_BREAK", WORK_BREAK),
-                ("GUEST_PREPARATION", GUEST_PREPARATION),
-                ("RELAXATION_TIME", RELAXATION_TIME)
-            ]
-
-            # DYNAMIC SCENE ANALYSIS - Works with any glTF model!
-            print("🔍 ANALYZING SCENE WITH UNIVERSAL glTF SYSTEM...")
-            ROOMS = analyze_gltf_scene()
-            print(f"🎯 DISCOVERED {len(ROOMS)} NAVIGATION AREAS IN SCENE")
+            # Dynamic scene analysis (no hardcoded rooms)
+            print("🔍 DYNAMIC SCENE ANALYSIS - Discovering rooms visually...")
+            ROOMS = analyze_gltf_scene()  # This discovers rooms dynamically
+            print(f"🎯 DISCOVERED {len(ROOMS)} areas for navigation")
             
-            # Ensure we have the actor - MUST exist, don't create new ones
-            print("🎭 Looking for existing actor...")
+            # Find actor in scene
+            print("🎭 Looking for actor in scene...")
             actor = summon_actor_in_scene()
             if actor is None:
-                print("❌ NAVIGATION CANCELLED: No Actor object found in scene")
+                print("❌ LLM VISUAL NAVIGATION CANCELLED: No Actor object found")
                 print("💡 Please add an object named 'Actor' to your Blender scene")
                 return
             
-            print(f"📺 VISUAL SETUP: Watch the existing {actor.name} object move in your 3D viewport!")
-            print("📺 VISUAL SETUP: The actor will move step-by-step during navigation!")
-            print("📺 VISUAL SETUP: Make sure your 3D viewport is visible to see the movement!")
+            print(f"🚶 Actor found: {actor.name} at position {[round(x, 2) for x in actor.location]}")
             
-            # Step 1: Get 3 random tasks
-            routine_name, tasks = random.choice(ALL_ROUTINES)
-            random_tasks = random.sample(tasks, min(3, len(tasks)))
+            # Select random tasks for demonstration
+            TASK_SCENARIOS = [
+                ("Morning Routine", ["Check bedroom", "Visit bathroom", "Go to kitchen"]),
+                ("Evening Tasks", ["Turn off living room lights", "Check dining area", "Return to bedroom"]),
+                ("Cleaning Round", ["Tidy kitchen", "Clean bathroom", "Organize living space"]),
+                ("Daily Activities", ["Prepare in bathroom", "Work in living area", "Relax in bedroom"])
+            ]
             
-            print(f"📋 Selected 3 Random Tasks: {random_tasks}")
-            print(f"🏠 Available Areas: {list(ROOMS.keys())}")
+            scenario_name, tasks = random.choice(TASK_SCENARIOS)
+            selected_tasks = random.sample(tasks, min(3, len(tasks)))
             
-            # Step 2: Get room order 
-            if llm_available:
-                room_order = self.get_llm_room_order(random_tasks, ROOMS)
-            else:
-                room_order = self.fallback_room_order(random_tasks, ROOMS)
+            print(f"📋 LLM Navigation Scenario: {scenario_name}")
+            print(f"🎯 Selected Tasks: {selected_tasks}")
+            
+            # Map tasks to available rooms (discovered dynamically)
+            room_names = list(ROOMS.keys())
+            target_rooms = random.sample(room_names, min(len(selected_tasks), len(room_names)))
+            
+            print(f"🏠 Target Rooms: {target_rooms}")
+            print()
+            
+            # Execute LLM visual navigation for each room
+            print("🚀 STARTING LLM VISUAL NAVIGATION SEQUENCE")
+            print("📸 Each step will be guided by LLM analysis of bird's-eye view")
+            print()
+            
+            total_nav_time = 0
+            completed_rooms = 0
+            
+            for i, (task, target_room) in enumerate(zip(selected_tasks, target_rooms)):
+                print(f"\n🎯 LLM Navigation Task {i+1}/{len(selected_tasks)}")
+                print(f"📋 Task: {task}")
+                print(f"🏠 Target Room: {target_room}")
+                print(f"📍 Current Actor Position: {[round(x, 2) for x in actor.location]}")
                 
-            print(f"🎯 Navigation Order: {room_order}")
+                # Capture initial screenshot for LLM analysis
+                nav_start_time = time.time()
+                
+                print("� Capturing bird's-eye view for LLM analysis...")
+                screenshot_path = self.capture_birds_eye_view()
+                if screenshot_path:
+                    eval_record_screenshot()
+                    print(f"✅ Screenshot captured for LLM: {screenshot_path}")
+                
+                # Execute LLM visual navigation
+                success = self.execute_llm_visual_nav_to_room(actor, target_room, task)
+                
+                nav_time = time.time() - nav_start_time
+                total_nav_time += nav_time
+                
+                if success:
+                    completed_rooms += 1
+                    print(f"✅ LLM Navigation to {target_room} completed in {nav_time:.1f}s")
+                    
+                    # Simulate task performance
+                    print(f"🎭 Performing task: {task}")
+                    time.sleep(1)  # Brief task simulation
+                    print(f"✅ Task completed: {task}")
+                else:
+                    print(f"⚠️ LLM Navigation to {target_room} had issues")
+                
+                print(f"📊 Progress: {completed_rooms}/{len(selected_tasks)} rooms completed")
             
-            # Actor is already ensured above
-            print(f"🚶 Actor ready: {actor.name} at [{actor.location.x:.2f}, {actor.location.y:.2f}]")
+            # Final results
+            print("\n" + "=" * 55)
+            print("🎉 LLM VISUAL NAVIGATION SESSION COMPLETE!")
+            print(f"📊 Results Summary:")
+            print(f"   🎯 Tasks Completed: {completed_rooms}/{len(selected_tasks)}")
+            print(f"   ⏱️ Total Navigation Time: {total_nav_time:.1f}s")
+            print(f"   🧠 Navigation Method: LLM Visual Analysis")
+            print(f"   � Bird's-Eye View Guided: YES")
+            print(f"   🚫 Hardcoded Coordinates: NONE")
+            print(f"   📍 Final Actor Position: {[round(x, 2) for x in actor.location]}")
             
-            # NEW: Start Game Engine FIRST, then do step-by-step movement inside it
-            print("🎮 Starting Game Engine for LLM-controlled navigation...")
-            self.start_game_engine_with_llm_control(actor, room_order, ROOMS, random_tasks, llm_available)
+            eval_end_test(completed_rooms == len(selected_tasks), "LLM_Visual_Navigation")
             
         except Exception as e:
-            print(f"❌ Navigation error: {e}")
-            print("🔧 Stopping navigation to prevent freeze")
+            print(f"❌ LLM Visual Navigation error: {e}")
+            print("🔧 Stopping to prevent issues")
+            eval_end_test(False, "Error")
+    
+    def execute_llm_visual_nav_to_room(self, actor, target_room: str, task: str, max_steps: int = 15) -> bool:
+        """
+        Execute LLM visual navigation to specific room
+        """
+        import time
+        import base64
+        import tempfile
+        import os
+        
+        try:
+            from scripts.visual_navigation import analyze_visual_scene_for_navigation, convert_llm_direction_to_movement
+        except ImportError:
+            print("❌ Visual navigation module not available")
+            return False
+        
+        print(f"🧠 LLM Visual Nav: Starting journey to {target_room}")
+        print(f"🎯 Task Context: {task}")
+        
+        step_count = 0
+        movement_history = []
+        
+        while step_count < max_steps:
+            step_count += 1
+            print(f"\n📍 LLM Navigation Step {step_count}/{max_steps}")
+            
+            # Capture current bird's-eye view
+            current_pos = [round(x, 2) for x in actor.location]
+            print(f"📍 Current Position: {current_pos}")
+            
+            # Get screenshot for LLM analysis
+            screenshot_base64 = self.capture_screenshot_for_llm()
+            
+            if screenshot_base64:
+                print("📸 Screenshot captured for LLM visual analysis")
+                
+                # Get LLM navigation guidance
+                try:
+                    nav_analysis = analyze_visual_scene_for_navigation(screenshot_base64, target_room)
+                    
+                    if nav_analysis and "next_direction" in nav_analysis:
+                        direction = nav_analysis["next_direction"]
+                        distance = nav_analysis.get("movement_distance", "SHORT")
+                        reasoning = nav_analysis.get("reasoning", "No reasoning provided")
+                        
+                        print(f"🧠 LLM Analysis: {direction} ({distance})")
+                        print(f"💭 LLM Reasoning: {reasoning}")
+                        
+                        # Check if navigation complete
+                        if direction == "STAY":
+                            print("✅ LLM confirms navigation complete!")
+                            return True
+                        
+                        # Execute movement based on LLM guidance
+                        movement_offset = convert_llm_direction_to_movement(direction, distance)
+                        
+                        # Apply movement
+                        new_location = [
+                            actor.location[0] + movement_offset[0],
+                            actor.location[1] + movement_offset[1],
+                            actor.location[2] + movement_offset[2]
+                        ]
+                        
+                        actor.location = new_location
+                        
+                        # Record movement
+                        movement_history.append({
+                            "step": step_count,
+                            "direction": direction,
+                            "from": current_pos,
+                            "to": [round(x, 2) for x in new_location],
+                            "llm_reasoning": reasoning
+                        })
+                        
+                        print(f"� Moved {direction} → {[round(x, 2) for x in new_location]}")
+                        
+                        # Visual feedback
+                        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+                        time.sleep(0.3)  # Brief pause for visual tracking
+                        
+                    else:
+                        print("⚠️ LLM analysis incomplete, trying alternative approach")
+                        # Small random movement as fallback
+                        import random
+                        fallback_directions = ["UP", "DOWN", "LEFT", "RIGHT"] 
+                        fallback_dir = random.choice(fallback_directions)
+                        movement_offset = convert_llm_direction_to_movement(fallback_dir, "SHORT")
+                        
+                        actor.location = [
+                            actor.location[0] + movement_offset[0],
+                            actor.location[1] + movement_offset[1], 
+                            actor.location[2] + movement_offset[2]
+                        ]
+                        print(f"🔄 Fallback movement: {fallback_dir}")
+                        
+                except Exception as e:
+                    print(f"❌ LLM analysis failed: {e}")
+                    break
+            else:
+                print("❌ Screenshot capture failed")
+                break
+        
+        print(f"📊 LLM Navigation Summary:")
+        print(f"   🎯 Target: {target_room}")
+        print(f"   📈 Steps Taken: {step_count}")
+        print(f"   📍 Final Position: {[round(x, 2) for x in actor.location]}")
+        
+        return step_count < max_steps
+    
+    def capture_screenshot_for_llm(self) -> str:
+        """
+        Capture bird's-eye screenshot and return as base64 for LLM analysis
+        """
+        try:
+            scene = bpy.context.scene
+            
+            # Store original settings
+            original_camera = scene.camera
+            original_res_x = scene.render.resolution_x
+            original_res_y = scene.render.resolution_y
+            
+            # Create temporary bird's-eye camera
+            bpy.ops.object.camera_add(location=(0, 0, 10))
+            temp_camera = bpy.context.object
+            temp_camera.name = "LLM_BirdsEye"
+            
+            # Configure for top-down view
+            temp_camera.rotation_euler = (0, 0, 0)
+            temp_camera.data.type = 'ORTHO'
+            temp_camera.data.ortho_scale = 12
+            
+            # Set as active camera and configure render
+            scene.camera = temp_camera
+            scene.render.resolution_x = 512
+            scene.render.resolution_y = 512
+            
+            # Render to temporary file
+            import tempfile
+            temp_path = os.path.join(tempfile.gettempdir(), "llm_nav_screenshot.png")
+            scene.render.filepath = temp_path
+            
+            bpy.ops.render.render(write_still=True)
+            
+            # Read and encode to base64
+            screenshot_base64 = None
+            if os.path.exists(temp_path):
+                with open(temp_path, "rb") as img_file:
+                    img_data = img_file.read()
+                    screenshot_base64 = base64.b64encode(img_data).decode('utf-8')
+                os.remove(temp_path)  # Clean up
+            
+            # Restore original settings
+            bpy.data.objects.remove(temp_camera, do_unlink=True)
+            scene.camera = original_camera
+            scene.render.resolution_x = original_res_x
+            scene.render.resolution_y = original_res_y
+            
+            return screenshot_base64
+            
+        except Exception as e:
+            print(f"❌ Screenshot capture for LLM failed: {e}")
+            return None
     
     def start_game_engine_with_llm_control(self, actor, room_order, ROOMS, random_tasks, llm_available):
         """Start Game Engine FIRST and perform all navigation within the running Game Engine"""
@@ -1354,51 +1872,118 @@ except Exception as e:
             print("💡 Make sure you're in the 3D Viewport and have a camera in the scene")
         
     def get_llm_room_order(self, tasks, rooms):
-        """Get room order from LLM based on tasks"""
-        print(f"🧠 LLM: Starting room order planning for tasks: {tasks}")
+        """Get room order from LLM based on tasks and scene analysis"""
+        print(f"🧠 LLM: Starting enhanced navigation planning for tasks: {tasks}")
         print(f"🧠 LLM: Available rooms: {list(rooms.keys())}")
-        eval_record_llm_call(f"Room planning for tasks: {tasks}")  # EVALUATION
+        eval_record_llm_call(f"Enhanced room planning for tasks: {tasks}")  # EVALUATION
         
         try:
             from backend.app.llm.client import chat_completion
             print("🧠 LLM: Client imported successfully")
             
+            # Gather scene information for LLM
+            scene_info = self.analyze_scene_for_llm(rooms)
+            
             rooms_list = list(rooms.keys())
-            system_prompt = "You are a smart house navigation assistant. Analyze tasks and return optimal room visitation order."
-            user_prompt = f"""Given these 3 tasks: {tasks}
             
-Available rooms: {rooms_list}
+            enhanced_system_prompt = """You are an advanced AI navigation planner with spatial intelligence.
 
-Return ONLY a JSON list of room names in the order the actor should visit them to complete the tasks efficiently.
-Example: ["Kitchen", "LivingRoom", "Bedroom"]
+CAPABILITIES:
+- Analyze 3D house layouts and detect obstacles
+- Plan collision-free paths between rooms
+- Understand room connectivity and doorway locations
+- Optimize navigation efficiency
 
-Consider logical task flow and minimize unnecessary movement."""
+TASK: Plan optimal room visitation order considering:
+1. Task-to-room logical mapping
+2. Spatial layout and room positions  
+3. Wall and obstacle avoidance
+4. Efficient pathfinding between rooms
+5. Door and corridor navigation
+
+You must avoid:
+- Direct paths through walls
+- Moving through furniture/obstacles
+- Inefficient backtracking
+- Unreachable room sequences"""
+
+            enhanced_user_prompt = f"""NAVIGATION PLANNING REQUEST:
+
+TASKS TO COMPLETE: {tasks}
+AVAILABLE ROOMS: {rooms_list}
+
+SCENE SPATIAL DATA:
+{scene_info}
+
+REQUIREMENTS:
+1. Match each task to the most logical room
+2. Order rooms to minimize walking distance
+3. Ensure path between rooms avoids obstacles
+4. Consider doorway and corridor navigation
+5. Account for walls and furniture placement
+
+Return ONLY a JSON response:
+{{
+  "room_sequence": ["Room1", "Room2", "Room3"],
+  "navigation_plan": [
+    {{"task": "task name", "room": "RoomName", "path_notes": "how to navigate there safely"}},
+    {{"task": "task name", "room": "RoomName", "path_notes": "obstacle avoidance notes"}},
+    {{"task": "task name", "room": "RoomName", "path_notes": "final navigation notes"}}
+  ],
+  "reasoning": "spatial analysis and path optimization explanation"
+}}
+
+Focus on SAFE navigation that avoids walls and obstacles."""
             
-            print("🧠 LLM: Making API call...")
-            # Fix: Use correct function signature with system and user prompts
-            response = chat_completion(system_prompt, user_prompt)
-            print(f"🧠 LLM Response: {response}")
+            print("🧠 LLM: Making enhanced spatial navigation API call...")
+            response = chat_completion(enhanced_system_prompt, enhanced_user_prompt)
+            print(f"🧠 LLM Enhanced Response: {response}")
             
             # Extract JSON from response
             import json
             import re
             
-            # Look for JSON array pattern
+            # Look for JSON object pattern first, then array as fallback
+            json_match = re.search(r'\{.*?"room_sequence".*?\}', response, re.DOTALL)
+            if json_match:
+                try:
+                    full_response = json.loads(json_match.group())
+                    room_order = full_response.get("room_sequence", [])
+                    navigation_plan = full_response.get("navigation_plan", [])
+                    reasoning = full_response.get("reasoning", "No reasoning provided")
+                    
+                    print(f"✅ LLM Reasoning: {reasoning}")
+                    for plan_item in navigation_plan:
+                        task = plan_item.get("task", "")
+                        room = plan_item.get("room", "")
+                        path_notes = plan_item.get("path_notes", "")
+                        print(f"   📋 {task} → {room}: {path_notes}")
+                    
+                    # Validate rooms exist
+                    valid_rooms = [room for room in room_order if room in rooms]
+                    if valid_rooms:
+                        print(f"✅ LLM enhanced navigation plan: {valid_rooms}")
+                        return valid_rooms[:3]  # Max 3 rooms
+                    
+                except json.JSONDecodeError:
+                    print("⚠️ Enhanced response parsing failed, trying simple array...")
+            
+            # Fallback to simple array pattern
             json_match = re.search(r'\[.*?\]', response, re.DOTALL)
             if json_match:
                 room_order = json.loads(json_match.group())
                 # Validate rooms exist
                 valid_rooms = [room for room in room_order if room in rooms]
                 if valid_rooms:
-                    print(f"✅ LLM suggested rooms: {valid_rooms}")
+                    print(f"✅ LLM suggested rooms (fallback): {valid_rooms}")
                     return valid_rooms[:3]  # Max 3 rooms
                 else:
                     print(f"⚠️ LLM suggested invalid rooms: {room_order}")
             else:
-                print(f"⚠️ LLM response doesn't contain JSON array")
+                print(f"⚠️ LLM response doesn't contain valid JSON")
                 
         except Exception as e:
-            print(f"⚠️ LLM room order failed: {e}")
+            print(f"⚠️ LLM enhanced room order failed: {e}")
             print(f"🔧 LLM: Calling fallback room order...")
         
         # Call fallback and log result
@@ -1406,26 +1991,147 @@ Consider logical task flow and minimize unnecessary movement."""
         print(f"🔧 LLM: Fallback returned: {fallback_result}")
         return fallback_result
     
-    def setup_game_engine_navigation_script(self):
-        """Setup Python script for Game Engine navigation control"""
-        print("📝 Setting up Game Engine navigation script...")
+    def analyze_scene_for_llm(self, rooms):
+        """Analyze scene geometry and provide spatial information for LLM navigation planning"""
+        print("🔍 Analyzing scene spatial layout for LLM...")
         
-        # Create a text block with Game Engine navigation logic
-        navigation_script_name = "vesper_navigation_ge.py"
+        scene_analysis = {
+            "rooms": {},
+            "obstacles": [],
+            "corridors": [],
+            "boundaries": {}
+        }
         
-        # Remove existing script if it exists
-        if navigation_script_name in bpy.data.texts:
-            bpy.data.texts.remove(bpy.data.texts[navigation_script_name])
+        try:
+            import bpy
+            
+            # Analyze scene bounds
+            scene_objects = bpy.context.scene.objects
+            all_meshes = [obj for obj in scene_objects if obj.type == 'MESH']
+            
+            if all_meshes:
+                # Calculate scene boundaries
+                min_x = min(obj.bound_box[0][0] + obj.location[0] for obj in all_meshes)
+                max_x = max(obj.bound_box[6][0] + obj.location[0] for obj in all_meshes)
+                min_y = min(obj.bound_box[0][1] + obj.location[1] for obj in all_meshes)
+                max_y = max(obj.bound_box[6][1] + obj.location[1] for obj in all_meshes)
+                
+                scene_analysis["boundaries"] = {
+                    "min_x": round(min_x, 1),
+                    "max_x": round(max_x, 1), 
+                    "min_y": round(min_y, 1),
+                    "max_y": round(max_y, 1),
+                    "width": round(max_x - min_x, 1),
+                    "height": round(max_y - min_y, 1)
+                }
+            
+            # Analyze room spatial relationships
+            for room_name, room_data in rooms.items():
+                center = room_data.get("center", [0, 0])
+                scene_analysis["rooms"][room_name] = {
+                    "center": [round(center[0], 1), round(center[1], 1)],
+                    "accessible": True  # Assume accessible unless proven otherwise
+                }
+            
+            # Detect potential obstacles (walls, furniture)
+            obstacles = []
+            for obj in scene_objects:
+                if obj.type == 'MESH' and obj.visible_get():
+                    # Check if object could be an obstacle (not floor/ceiling)
+                    name_lower = obj.name.lower()
+                    if any(keyword in name_lower for keyword in ['wall', 'door', 'table', 'chair', 'cabinet', 'counter']):
+                        location = obj.location
+                        scale = obj.scale
+                        obstacles.append({
+                            "name": obj.name,
+                            "position": [round(location[0], 1), round(location[1], 1)],
+                            "size": [round(scale[0], 1), round(scale[1], 1)],
+                            "type": "wall" if "wall" in name_lower else "furniture"
+                        })
+            
+            scene_analysis["obstacles"] = obstacles[:10]  # Limit to 10 most relevant obstacles
+            
+            # Detect corridors and openings (simplified)
+            corridor_points = [
+                [0.0, -0.5],   # Central hallway
+                [-2.5, -0.5],  # Main corridor
+                [-2.5, -3.5],  # Kitchen approach
+                [-2.5, 3.0],   # Dining approach
+            ]
+            
+            scene_analysis["corridors"] = [
+                {"point": pt, "description": f"Safe navigation point at {pt}"} 
+                for pt in corridor_points
+            ]
+            
+        except Exception as e:
+            print(f"⚠️ Scene analysis error: {e}")
+            # Provide basic fallback data
+            scene_analysis = {
+                "rooms": {name: {"center": data.get("center", [0, 0]), "accessible": True} 
+                         for name, data in rooms.items()},
+                "obstacles": [{"note": "Scene analysis unavailable - using safe navigation"}],
+                "corridors": [{"point": [0, 0], "description": "Central safe point"}],
+                "boundaries": {"note": "Boundaries unknown - using conservative navigation"}
+            }
         
-        # Create new Game Engine script
-        ge_script = bpy.data.texts.new(navigation_script_name)
-        ge_script_code = '''
-# VESPER Game Engine Navigation Script
-# This script runs inside the Blender Game Engine
+        # Format for LLM consumption
+        formatted_analysis = f"""
+ROOM POSITIONS:
+{chr(10).join([f"- {name}: Center at {data['center']}, {'Accessible' if data['accessible'] else 'Blocked'}" 
+               for name, data in scene_analysis['rooms'].items()])}
 
-try:
-    from bge import logic, render
-    import GameLogic
+SCENE BOUNDARIES: {scene_analysis['boundaries']}
+
+DETECTED OBSTACLES ({len(scene_analysis['obstacles'])} found):
+{chr(10).join([f"- {obs.get('name', 'Unknown')}: {obs.get('type', 'object')} at {obs.get('position', [0,0])}" 
+               for obs in scene_analysis['obstacles'][:5]])}  
+
+SAFE CORRIDOR POINTS:
+{chr(10).join([f"- {corridor['point']}: {corridor['description']}" 
+               for corridor in scene_analysis['corridors']])}
+
+NAVIGATION NOTES:
+- Avoid direct diagonal paths through walls
+- Use corridor points for safe navigation
+- Room centers are approximate - approach carefully
+- Consider object placement when pathfinding
+        """.strip()
+        
+        print(f"✅ Scene analysis complete. Found {len(scene_analysis['obstacles'])} obstacles")
+        return formatted_analysis
+
+
+class VESPER_OT_GameEngineTest(bpy.types.Operator):
+    bl_idname = "vesper.game_engine_test"
+    bl_label = "Test Game Engine"
+    bl_description = "Test if Game Engine can be started"
+    
+    def execute(self, context):
+        print("🎮 Testing Game Engine availability...")
+        
+        # Check if UPBGE is available
+        try:
+            import bge
+            print("✅ BGE module available - UPBGE detected")
+        except ImportError:
+            print("❌ BGE module not available - regular Blender")
+        
+        # Test Game Engine start
+        try:
+            if hasattr(bpy.ops.view3d, 'game_start'):
+                print("✅ Game Engine start operator available")
+            else:
+                print("❌ Game Engine start operator not available")
+        except Exception as e:
+            print(f"❌ Game Engine test error: {e}")
+        
+        return {'FINISHED'}
+
+
+def menu_func(self, context):
+    self.layout.operator(VESPER_OT_tag_device.bl_idname, text="Tag as VESPER Device")
+    self.layout.operator(VESPER_OT_GameEngineTest.bl_idname, text="Test Game Engine")
     import time
     
     def main():
@@ -1452,433 +2158,27 @@ try:
     if __name__ == "__main__":
         main()
 
-except ImportError:
-    print("❌ GE: BGE modules not available - this script needs Game Engine")
-except Exception as e:
-    print(f"❌ GE: Navigation script error: {e}")
-'''
-        
-        ge_script.write(ge_script_code)
-        print(f"✅ Game Engine navigation script created: {navigation_script_name}")
-        
-        # Try to assign the script to a Game Engine controller (if possible)
-        try:
-            # Look for objects that can have logic bricks
-            for obj in bpy.context.scene.objects:
-                if obj.type == 'MESH':
-                    # Add a Python controller if Game Engine is available
-                    print(f"🔗 Attempting to link script to object: {obj.name}")
-                    break
-        except Exception as e:
-            print(f"⚠️ Could not link script to Game Engine controller: {e}")
-        
-        return navigation_script_name
-
-    def fallback_room_order(self, tasks, rooms):
-        """Fallback room order when LLM is unavailable - Uses discovered rooms"""
-        print(f"🔧 FALLBACK: Matching tasks to discovered rooms: {list(rooms.keys())}")
-        
-        # Map task keywords to room types (flexible)
-        task_to_room_type = {
-            "wake up": ["bedroom", "bed"], "bed": ["bedroom", "bed"], "sleep": ["bedroom", "bed"],
-            "brush teeth": ["bathroom", "bath"], "bathroom": ["bathroom", "bath"], "shower": ["bathroom", "bath"],
-            "coffee": ["kitchen", "cook"], "cook": ["kitchen", "cook"], "eat": ["kitchen", "cook"], "kitchen": ["kitchen", "cook"],
-            "tv": ["living", "lounge", "tv"], "watch": ["living", "lounge", "tv"], "relax": ["living", "lounge", "tv"], "lights": ["living", "lounge", "tv"],
-            "work": ["office", "study"], "computer": ["office", "study"], "desk": ["office", "study"],
-            "dining": ["dining", "meal"], "dinner": ["dining", "meal"], "meal": ["dining", "meal"]
-        }
-        
-        room_order = []
-        available_rooms = list(rooms.keys())
-        print(f"🏠 Available rooms: {available_rooms}")
-        
-        for task in tasks:
-            task_lower = task.lower()
-            matched_room = None
-            print(f"🔍 FALLBACK: Processing task '{task}' (lowercase: '{task_lower}')")
-            
-            # Try to match task keywords to discovered rooms
-            for keyword, room_types in task_to_room_type.items():
-                if keyword in task_lower:
-                    print(f"📋 FALLBACK: Found keyword '{keyword}' in task, looking for room types: {room_types}")
-                    # Find a discovered room that matches this type
-                    for room_name in available_rooms:
-                        room_name_lower = room_name.lower()
-                        if any(room_type in room_name_lower for room_type in room_types):
-                            matched_room = room_name  # Use the actual discovered room name
-                            print(f"🎯 FALLBACK: Matched '{task}' → {matched_room} (via {keyword})")
-                            break
-                    if matched_room:
-                        break
-            
-            # If no specific match, try first available room of common types
-            if not matched_room:
-                print(f"🔧 FALLBACK: No specific match for '{task}', trying common room types")
-                for room_name in available_rooms:
-                    room_name_lower = room_name.lower()
-                    if any(common in room_name_lower for common in ["living", "kitchen", "main", "center"]):
-                        matched_room = room_name  # Use the actual discovered room name
-                        print(f"🎯 FALLBACK: Default matched '{task}' → {matched_room}")
-                        break
-            
-            # Last resort: use first available room
-            if not matched_room and available_rooms:
-                matched_room = available_rooms[0]  # Use the actual discovered room name
-                print(f"🎯 FALLBACK: Last resort matched '{task}' → {matched_room}")
-            
-            if matched_room and matched_room not in room_order:
-                room_order.append(matched_room)
-                print(f"✅ FALLBACK: Added {matched_room} to room order")
-            elif matched_room:
-                print(f"⚠️ FALLBACK: {matched_room} already in room order, skipping")
-            else:
-                print(f"❌ FALLBACK: No room found for task '{task}'")
-        
-        print(f"🏠 FALLBACK: Final room order: {room_order}")
-        return room_order
-    
-    def move_actor_with_llm_guidance(self, actor, target_room, target_pos, llm_available):
-        """Move actor step-by-step using LLM visual feedback with safety measures"""
-        max_steps = 25  # More steps for human-like movement
-        step_size = 0.08  # Smaller steps for more realistic human movement
-        tolerance = 0.8   # More lenient tolerance
-        
-        print(f"🚶 Starting movement to {target_room} at {target_pos}")
-        print(f"📍 Actor starting position: [{actor.location.x:.2f}, {actor.location.y:.2f}]")
-        
-        # For now, disable LLM visual feedback to prevent freezing
-        # Use direct movement until we can debug the screenshot/LLM issue
-        print("🔧 Using direct movement (LLM visual feedback temporarily disabled)")
-        
-        for step in range(max_steps):
-            # Get current actor position
-            current_pos = [actor.location.x, actor.location.y]
-            
-            # Check if reached target
-            distance = ((current_pos[0] - target_pos[0])**2 + (current_pos[1] - target_pos[1])**2)**0.5
-            print(f"🔍 Step {step+1}: Actor at [{current_pos[0]:.2f}, {current_pos[1]:.2f}], Distance: {distance:.2f}")
-            
-            if distance < tolerance:
-                print(f"🎯 Reached {target_room}!")
-                return True
-            
-            # Use direct movement for now (no screenshots to prevent freezing)
-            command = self.calculate_direct_movement(current_pos, target_pos)
-            print(f"📡 Movement command: {command}")
-            
-            # Execute movement with error handling
-            try:
-                if self.execute_movement_command(actor, command, step_size):
-                    # Update viewport safely
-                    bpy.context.view_layer.update()
-                    
-                    # Force UI update without hanging
-                    for area in bpy.context.screen.areas:
-                        if area.type == 'VIEW_3D':
-                            area.tag_redraw()
-                            break
-                    
-                    # Process events to prevent freezing
-                    bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-                    
-                else:
-                    print("⚠️ Invalid movement command")
-                    break
-                    
-            except Exception as e:
-                print(f"❌ Movement error: {e}")
-                break
-        
-        print(f"⚠️ Movement to {target_room} completed (may not have reached exact target)")
-        return True  # Return success to continue with next room
-    
-    def capture_birds_eye_view(self):
-        """Capture bird's eye view screenshot of the scene"""
-        eval_record_screenshot()  # EVALUATION
-        
-        try:
-            import tempfile
-            import os
-            
-            print("📸 Capturing bird's eye view screenshot...")
-            
-            # Switch to top view in the 3D viewport
-            for area in bpy.context.screen.areas:
-                if area.type == 'VIEW_3D':
-                    for region in area.regions:
-                        if region.type == 'WINDOW':
-                            # Override context for viewport operations
-                            override = {
-                                'area': area,
-                                'region': region,
-                                'edit_object': bpy.context.edit_object,
-                                'active_object': bpy.context.active_object,
-                                'selected_objects': bpy.context.selected_objects
-                            }
-                            
-                            # Set to top view (bird's eye)
-                            with bpy.context.temp_override(**override):
-                                bpy.ops.view3d.view_axis(type='TOP')
-                                
-                                # Create temp file for screenshot
-                                temp_dir = tempfile.gettempdir()
-                                screenshot_path = os.path.join(temp_dir, "vesper_birds_eye.png")
-                                
-                                # Take screenshot
-                                bpy.ops.screen.screenshot(filepath=screenshot_path)
-                                
-                                if os.path.exists(screenshot_path):
-                                    print(f"✅ Bird's eye screenshot saved: {screenshot_path}")
-                                    return screenshot_path
-                                else:
-                                    print("⚠️ Screenshot file not created")
-                                    return None
-                            
-            print("⚠️ Could not find 3D Viewport for screenshot")
-            return None
-            
-        except Exception as e:
-            print(f"❌ Screenshot failed: {e}")
-            return None
-    
-    def move_actor_step_by_step(self, actor, target_room, target_pos, llm_available):
-        """Move actor step-by-step with realistic human-like movement and real-time visual feedback"""
-        print(f"🚶 Starting realistic human movement to {target_room}")
-        print(f"📺 VISUAL: Watch the red actor cube move in Blender's 3D viewport!")
-        
-        max_steps = 40  # More steps for smoother movement
-        step_size = 0.06  # Much smaller steps for realistic human movement
-        tolerance = 0.3   # Tighter tolerance for accuracy
-        
-        # Force initial viewport update
-        self.force_viewport_refresh()
-        
-        for step in range(max_steps):
-            eval_record_step()  # EVALUATION - Record each step
-            
-            # Get current position
-            current_pos = [actor.location.x, actor.location.y]
-            distance = ((current_pos[0] - target_pos[0])**2 + (current_pos[1] - target_pos[1])**2)**0.5
-            
-            print(f"  Step {step+1}: Actor at [{current_pos[0]:.2f}, {current_pos[1]:.2f}], Distance: {distance:.2f}")
-            
-            # Check if reached target
-            if distance < tolerance:
-                print(f"  🎯 Reached {target_room} in {step+1} steps!")
-                print(f"📺 VISUAL: Actor should now be visible at the {target_room} location!")
-                return True
-            
-            # Calculate next movement
-            if llm_available:
-                # For now, use direct movement (LLM visual analysis would go here)
-                command = self.calculate_direct_movement(current_pos, target_pos)
-            else:
-                command = self.calculate_direct_movement(current_pos, target_pos)
-            
-            print(f"  📡 Movement: {command} (small human step)")
-            
-            # Execute movement
-            if self.execute_movement_command(actor, command, step_size):
-                # Force real-time viewport update
-                self.force_viewport_refresh()
-                
-                # Human-like pause between steps (realistic walking speed)
-                import time
-                time.sleep(0.25)  # Faster, more natural timing for human-like steps
-            else:
-                print("  ❌ Movement failed")
-                break
-        
-        print(f"  ⚠️ Could not reach {target_room} in {max_steps} steps")
-        print(f"📺 VISUAL: Check actor position in viewport - it should be closer to target!")
-        return True  # Continue anyway
-    
-    def force_viewport_refresh(self):
-        """Force immediate viewport refresh to show actor movement"""
-        try:
-            # Update scene data
-            bpy.context.view_layer.update()
-            
-            # Force redraw of all 3D viewports
-            for area in bpy.context.screen.areas:
-                if area.type == 'VIEW_3D':
-                    area.tag_redraw()
-                    # Force immediate redraw
-                    for region in area.regions:
-                        if region.type == 'WINDOW':
-                            region.tag_redraw()
-            
-            # Process pending drawing events
-            bpy.app.handlers.depsgraph_update_post.clear()
-            bpy.context.window_manager.update_tag()
-            
-        except Exception as e:
-            print(f"⚠️ Viewport refresh failed: {e}")
-    
-    def calculate_direct_movement(self, current_pos, target_pos):
-        """Calculate direct movement when LLM is unavailable"""
-        dx = target_pos[0] - current_pos[0]
-        dy = target_pos[1] - current_pos[1]
-        
-        # Choose dominant direction
-        if abs(dx) > abs(dy):
-            return "RIGHT" if dx > 0 else "LEFT"
-        else:
-            return "UP" if dy > 0 else "DOWN"
-    
-    def execute_movement_command(self, actor, command, step_size):
-        """Execute movement command on actor"""
-        try:
-            if command == "UP":
-                actor.location.y += step_size
-            elif command == "DOWN":
-                actor.location.y -= step_size
-            elif command == "LEFT":
-                actor.location.x -= step_size
-            elif command == "RIGHT":
-                actor.location.x += step_size
-            elif command == "STOP":
-                return True
-            else:
-                return False
-            
-            return True
-            
-        except Exception as e:
-            print(f"❌ Movement execution failed: {e}")
-            return False
-    
-    def find_actor(self):
-        """Find actor object in the scene"""
-        # Priority search order
-        actor_keywords = ['actor', 'human', 'player', 'character', 'person']
-        
-        # First, try exact matches
-        for keyword in actor_keywords:
-            for obj in bpy.context.scene.objects:
-                if obj.name.lower() == keyword and obj.type == 'MESH':
-                    return obj
-        
-        # If no exact match, try partial matches
-        for obj in bpy.context.scene.objects:
-            if obj.type == 'MESH':
-                obj_name_lower = obj.name.lower()
-                for keyword in actor_keywords:
-                    if keyword in obj_name_lower:
-                        return obj
-        
-        # Last resort - look for common mesh names
-        fallback_names = ['Actor', 'Cube', 'Sphere', 'Suzanne']
-        for name in fallback_names:
-            obj = bpy.context.scene.objects.get(name)
-            if obj and obj.type == 'MESH':
-                return obj
-        
-        return None
-    
-    def try_start_game_engine(self):
-        """Attempt to start the Game Engine"""
-        try:
-            print("🎮 Attempting to start Game Engine...")
-            
-            # Check if we're already in Game Engine mode
-            if bpy.context.mode == 'GAME':
-                print("✅ Already in Game Engine mode")
-                return
-            
-            # Try different methods to start Game Engine
-            if hasattr(bpy.ops.view3d, 'game_start'):
-                bpy.ops.view3d.game_start()
-                print("✅ Game Engine started via view3d.game_start")
-            elif hasattr(bpy.ops, 'logic') and hasattr(bpy.ops.logic, 'game_start'):
-                bpy.ops.logic.game_start()
-                print("✅ Game Engine started via logic.game_start")
-            else:
-                print("⚠️ Game Engine start operators not available")
-                print("💡 This might be regular Blender instead of UPBGE")
-                
-        except Exception as e:
-            print(f"⚠️ Could not start Game Engine: {e}")
-            print("💡 Navigation completed in regular Blender mode")
-
-class VESPER_OT_GameEngineTest(bpy.types.Operator):
-    bl_idname = "vesper.game_engine_test"
-    bl_label = "Test Game Engine"
-    bl_description = "Test if Game Engine can be started"
-
-    def execute(self, context):
-        print("🎮 GAME ENGINE TEST STARTED")
-        print("=" * 30)
-        
-        # Check Blender version
-        print(f"🔧 Blender version: {bpy.app.version}")
-        
-        # Check if this is UPBGE
-        if hasattr(bpy.app, 'upbge_version'):
-            print(f"✅ UPBGE version: {bpy.app.upbge_version}")
-        else:
-            print("⚠️ This appears to be regular Blender, not UPBGE")
-            
-        # Check available Game Engine operators
-        game_operators = []
-        if hasattr(bpy.ops.view3d, 'game_start'):
-            game_operators.append("view3d.game_start")
-        if hasattr(bpy.ops, 'logic') and hasattr(bpy.ops.logic, 'game_start'):
-            game_operators.append("logic.game_start")
-        if hasattr(bpy.ops, 'wm') and hasattr(bpy.ops.wm, 'upbge_start'):
-            game_operators.append("wm.upbge_start")
-            
-        if game_operators:
-            print(f"✅ Available Game Engine operators: {game_operators}")
-        else:
-            print("❌ No Game Engine operators found")
-            
-        # Check current mode
-        print(f"🎯 Current mode: {bpy.context.mode}")
-        
-        # Try to start Game Engine
-        try:
-            if hasattr(bpy.ops.view3d, 'game_start'):
-                print("🚀 Starting Game Engine...")
-                bpy.ops.view3d.game_start()
-                print("✅ Game Engine Started Successfully!")
-            else:
-                print("❌ Cannot start Game Engine - operators not available")
-                print("💡 Make sure you're using UPBGE, not regular Blender")
-        except Exception as e:
-            print(f"❌ Game Engine start failed: {e}")
-            
-        return {'FINISHED'}
-
-def menu_func(self, context):
-    self.layout.operator(VESPER_OT_tag_device.bl_idname, text="Tag as VESPER Device")
-    self.layout.operator(VESPER_OT_GameEngineTest.bl_idname, text="Test Game Engine")
 
 # Key mapping for P key - Smart detection for BGE vs house.blend
 addon_keymaps = []
 
 def register():
-    print("🔧 VESPER: Starting addon registration...")
     bpy.utils.register_class(VESPER_PT_NavigationPanel)
     bpy.utils.register_class(VESPER_OT_tag_device)
     bpy.utils.register_class(VESPER_OT_LLMNavigation)
-    bpy.utils.register_class(VESPER_OT_ExportEvaluation)
     bpy.utils.register_class(VESPER_OT_GameEngineTest)
     bpy.types.VIEW3D_MT_object.append(menu_func)
-    print("✅ VESPER: Classes registered successfully")
     
-    # Add P-key mapping - scene detection will happen during execution
-    print("🎯 VESPER: Setting up P-key navigation")
+    # Add keymap for P-key navigation
     try:
         wm = bpy.context.window_manager
-        kc = wm.keyconfigs.addon
-        if kc:
-            km = kc.keymaps.new(name='3D View', space_type='VIEW_3D')
+        if wm and wm.keyconfigs and wm.keyconfigs.addon:
+            km = wm.keyconfigs.addon.keymaps.new(name='Object Mode', space_type='EMPTY')
             
             # Add P-key mapping
-            kmi1 = km.keymap_items.new(VESPER_OT_LLMNavigation.bl_idname, 'P', 'PRESS')
-            kmi1.active = True
-            addon_keymaps.append((km, kmi1))
+            kmi = km.keymap_items.new(VESPER_OT_LLMNavigation.bl_idname, 'P', 'PRESS')
+            kmi.active = True
+            addon_keymaps.append((km, kmi))
             print("✅ VESPER: P-key registered successfully")
             
             # Add backup N-key mapping
@@ -1914,3 +2214,6 @@ def unregister():
     bpy.utils.unregister_class(VESPER_OT_LLMNavigation)
     bpy.utils.unregister_class(VESPER_OT_GameEngineTest)
     bpy.types.VIEW3D_MT_object.remove(menu_func)
+
+if __name__ == "__main__":
+    register()

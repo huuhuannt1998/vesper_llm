@@ -4,13 +4,29 @@ Generates 3 random tasks that require visiting different rooms
 """
 import random
 import yaml
+import os
 
-# Load room and device configurations
-with open("configs/rooms.yaml", "r") as f:
-    ROOMS = yaml.safe_load(f)
+# Get project root
+project_root = os.path.dirname(os.path.dirname(__file__))
 
-with open("configs/devices.yaml", "r") as f:
-    DEVICES = yaml.safe_load(f)
+# Load room and device configurations with absolute paths
+try:
+    rooms_path = os.path.join(project_root, "configs", "rooms.yaml")
+    devices_path = os.path.join(project_root, "configs", "devices.yaml")
+    
+    with open(rooms_path, "r") as f:
+        ROOMS = yaml.safe_load(f)
+    
+    with open(devices_path, "r") as f:
+        DEVICES = yaml.safe_load(f)
+except FileNotFoundError:
+    ROOMS = {
+        "Kitchen": {"center": [3.0, -1.0]},
+        "LivingRoom": {"center": [-2.0, 1.5]},
+        "Bedroom": {"center": [-3.0, -2.0]},
+        "Bathroom": {"center": [1.0, 3.0]}
+    }
+    DEVICES = {}
 
 # Predefined task sequences that the LLM will plan room order for
 MORNING_ROUTINE = ["Wake up", "Brush teeth", "Make coffee"]

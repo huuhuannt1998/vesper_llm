@@ -2,15 +2,27 @@
 VESPER Navigation Integration - Connect task planning with Blender navigation
 """
 import os, sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+# Get project root and add to path
+project_root = os.path.dirname(os.path.dirname(__file__))
+sys.path.insert(0, project_root)
 
 from scripts.llm_planner import get_random_routine, create_fallback_plan, MORNING_ROUTINE
 from backend.app.llm.client import chat_completion
 import yaml
 
-# Load room configurations
-with open("configs/rooms.yaml", "r") as f:
-    ROOMS = yaml.safe_load(f)
+# Load room configurations with absolute path
+try:
+    rooms_path = os.path.join(project_root, "configs", "rooms.yaml")
+    with open(rooms_path, "r") as f:
+        ROOMS = yaml.safe_load(f)
+except FileNotFoundError:
+    ROOMS = {
+        "Kitchen": {"center": [3.0, -1.0]},
+        "LivingRoom": {"center": [-2.0, 1.5]},
+        "Bedroom": {"center": [-3.0, -2.0]},
+        "Bathroom": {"center": [1.0, 3.0]}
+    }
 
 def get_navigation_plan():
     """Get a task routine and create navigation plan"""

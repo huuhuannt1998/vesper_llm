@@ -1,11 +1,36 @@
 
 from __future__ import annotations
-import json, yaml
+import json, yaml, os
 from typing import Dict, Any, List
 from .client import chat_completion
 
-ROOMS = yaml.safe_load(open("configs/rooms.yaml", "r", encoding="utf-8"))
-DEVICES = yaml.safe_load(open("configs/devices.yaml", "r", encoding="utf-8"))
+# Get the project root directory
+def get_project_root():
+    """Get the absolute path to the project root directory."""
+    current_file = os.path.abspath(__file__)
+    # Navigate from backend/app/llm/planner.py to project root
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
+    return project_root
+
+PROJECT_ROOT = get_project_root()
+
+# Load configuration files with absolute paths
+try:
+    rooms_path = os.path.join(PROJECT_ROOT, "configs", "rooms.yaml")
+    devices_path = os.path.join(PROJECT_ROOT, "configs", "devices.yaml")
+    
+    ROOMS = yaml.safe_load(open(rooms_path, "r", encoding="utf-8"))
+    DEVICES = yaml.safe_load(open(devices_path, "r", encoding="utf-8"))
+except FileNotFoundError as e:
+    print(f"Configuration file not found: {e}")
+    # Fallback configuration
+    ROOMS = {
+        "Kitchen": {"center": [3.0, -1.0]},
+        "LivingRoom": {"center": [-2.0, 1.5]},
+        "Bedroom": {"center": [-3.0, -2.0]},
+        "Bathroom": {"center": [1.0, 3.0]}
+    }
+    DEVICES = {}
 
 SYSTEM_PROMPT = """You are a planning module for a home simulation.
 You must output ONLY a JSON object that conforms to the schema shown in the user message.

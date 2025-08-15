@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "evaluation_type": "LLM Navigation Correctness Assessment",
+    "evaluation_date": "2025-08-14T21:40:15.265763",
+    "vesper_version": "2.3.0",
+    "evaluation_methods": 6,
+    "total_test_cases": 44
+  },
+  "llm_correctness_metrics": {
+    "overall_correctness_score": 0.7870416666666666,
+    "task_mapping_accuracy": 0.7,
+    "spatial_reasoning_accuracy": 1.0,
+    "multi_step_planning_accuracy": 0.84375,
+    "context_understanding_accuracy": 0.8,
+    "error_handling_rate": 0.8333333333333334,
+    "response_consistency": 0.9333333333333332,
+    "average_response_time": 0.0
+  },
+  "detailed_results": {
+    "overall_llm_correctness_score": 0.7870416666666666,
+    "method_1_task_mapping": {
+      "accuracy": 0.7,
+      "correct_mappings": 7,
+      "total_tests": 10,
+      "average_confidence": 0.6950000000000001,
+      "method_score": 0.4865
+    },
+    "method_2_spatial_reasoning": {
+      "spatial_accuracy": 1.0,
+      "correct_reasoning": 4,
+      "total_tests": 4,
+      "method_score": 1.0
+    },
+    "method_3_multi_step_planning": {
+      "planning_accuracy": 0.84375,
+      "individual_scores": [
+        1.0,
+        1.0,
+        0.8333333333333333,
+        0.5416666666666666
+      ],
+      "total_tests": 4,
+      "method_score": 0.84375
+    },
+    "method_4_context_understanding": {
+      "context_accuracy": 0.8,
+      "correct_interpretations": 4,
+      "total_tests": 5,
+      "method_score": 0.8
+    },
+    "method_5_error_handling": {
+      "error_handling_rate": 0.8333333333333334,
+      "good_handling": 5,
+      "total_tests": 6,
+      "method_score": 0.8333333333333334
+    },
+    "method_6_consistency": {
+      "consistency_rate": 0.9333333333333332,
+      "average_response_time": 0.0,
+      "individual_consistency": [
+        1.0,
+        0.8,
+        1.0
+      ],
+      "method_score": 0.9333333333333332
+    },
+    "summary": {
+      "total_tests": 44,
+      "average_response_time": 0.0,
+      "recommendation": "Needs improvement"
+    }
+  },
+  "research_insights": {
+    "key_findings": [
+      "LLM task-to-room mapping: 70.0%",
+      "Spatial reasoning capability: 100.0%",
+      "Multi-step planning accuracy: 84.4%",
+      "Context understanding: 80.0%",
+      "Error handling capability: 83.3%",
+      "Response consistency: 93.3%"
+    ],
+    "overall_assessment": "LLM correctness score: 78.7%",
+    "recommendation": "Needs improvement"
+  },
+  "statistical_summary": {
+    "sample_size": 44,
+    "confidence_assessment": "Medium",
+    "reliability_rating": "Excellent"
+  }
+}
