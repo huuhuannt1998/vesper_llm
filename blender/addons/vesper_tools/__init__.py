@@ -2,10 +2,10 @@
 bl_info = {
     "name": "VESPER Tools",
     "author": "VESPER Team", 
-    "version": (2, 8, 3),
+    "version": (2, 8, 4),
     "blender": (4, 0, 0),
     "location": "3D Viewport > Press P or N Panel > VESPER",
-    "description": "AI-Powered 3D Navigation System with Game Engine Integration v2.8.3",
+    "description": "AI-Powered 3D Navigation System with Human-like Movement v2.8.4",
     "warning": "",
     "doc_url": "",
     "category": "Object",
@@ -829,7 +829,7 @@ try:
         }}
         return room_centers.get(room_name, [0, 0])
     
-    def move_actor_towards_target(actor, target_pos, speed=0.1):
+    def move_actor_towards_target(actor, target_pos, speed=0.02):
         """Move actor step by step towards target position"""
         current_pos = actor.worldPosition
         target_x, target_y = target_pos[0], target_pos[1]
@@ -928,7 +928,7 @@ try:
         # Continue navigation if active
         if logic.navigation_active and logic.actor_obj and logic.target_pos:
             # Move actor towards target
-            reached = move_actor_towards_target(logic.actor_obj, logic.target_pos, speed=0.05)
+            reached = move_actor_towards_target(logic.actor_obj, logic.target_pos, speed=0.02)
             
             if reached:
                 # Task completed, move to next
@@ -1539,8 +1539,8 @@ except Exception as e:
     
     def move_actor_with_llm_guidance(self, actor, target_room, target_pos, llm_available):
         """Move actor step-by-step using LLM visual feedback with safety measures"""
-        max_steps = 15  # Reduced to prevent freezing
-        step_size = 0.5  # Larger steps for faster movement
+        max_steps = 25  # More steps for human-like movement
+        step_size = 0.08  # Smaller steps for more realistic human movement
         tolerance = 0.8   # More lenient tolerance
         
         print(f"🚶 Starting movement to {target_room} at {target_pos}")
@@ -1646,8 +1646,8 @@ except Exception as e:
         print(f"🚶 Starting realistic human movement to {target_room}")
         print(f"📺 VISUAL: Watch the red actor cube move in Blender's 3D viewport!")
         
-        max_steps = 25  # More steps for smoother movement
-        step_size = 0.12  # Much smaller steps for realistic movement
+        max_steps = 40  # More steps for smoother movement
+        step_size = 0.06  # Much smaller steps for realistic human movement
         tolerance = 0.3   # Tighter tolerance for accuracy
         
         # Force initial viewport update
@@ -1684,7 +1684,7 @@ except Exception as e:
                 
                 # Human-like pause between steps (realistic walking speed)
                 import time
-                time.sleep(0.4)  # Slower, more realistic timing for visual feedback
+                time.sleep(0.25)  # Faster, more natural timing for human-like steps
             else:
                 print("  ❌ Movement failed")
                 break
