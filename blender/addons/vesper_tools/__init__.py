@@ -1,7 +1,6 @@
-
 bl_info = {
     "name": "VESPER Tools",
-    "author": "VESPER Team", 
+    "author": "VESPER Team",
     "version": (2, 8, 5),
     "blender": (4, 0, 0),
     "location": "3D Viewport > Press P or N Panel > VESPER",
@@ -10,14 +9,51 @@ bl_info = {
     "doc_url": "",
     "category": "Object",
 }
-
-import bpy
-import tempfile
-import base64
+import math
 import os
-import sys
-import json
-import time
+import tempfile
+
+# =============================================================================
+# GLOBAL SCREENSHOT CAPTURE FUNCTION (must be defined before any use)
+# =============================================================================
+def try_start_game_engine(self):
+    # Must be running in UPBGE
+    try:
+        import bge  # if this fails, you’re not in UPBGE
+    except ImportError:
+        print("❌ UPBGE not detected; cannot start Game Engine")
+        return False
+
+    # Find a 3D View area + its WINDOW region
+    win = bpy.context.window
+    screen = win.screen if win else None
+    if not screen:
+        print("❌ No active screen/window to start Game Engine")
+        return False
+
+    area = next((a for a in screen.areas if a.type == 'VIEW_3D'), None)
+    if not area:
+        print("❌ No VIEW_3D area found to start Game Engine")
+        return False
+
+    region = next((r for r in area.regions if r.type == 'WINDOW'), None)
+    if not region:
+        print("❌ No WINDOW region in VIEW_3D area to start Game Engine")
+        return False
+
+    # Call the operator in a valid context
+    try:
+        with bpy.context.temp_override(window=win, area=area, region=region):
+            print("🎮 Starting Game Engine…")
+            result = bpy.ops.view3d.game_start('INVOKE_DEFAULT')
+            print(f"🎮 game_start returned: {result}")
+            return True
+    except Exception as e:
+        print(f"⚠️ Could not start Game Engine: {e}")
+        return False
+
+
+
 import random
 from datetime import datetime
 from mathutils import Vector
@@ -653,14 +689,24 @@ class VESPER_OT_tag_device(bpy.types.Operator):
         ('light','Light',''),('switch','Switch',''),('sensor','Sensor','')])
     device_id: bpy.props.StringProperty()
 
-    def execute(self, ctx):
-        for obj in ctx.selected_objects:
-            obj["vesper_device"] = {
-                "id": self.device_id,
-                "type": self.device_type,
-                "room": ctx.scene.get("vesper_room","Unknown")
-            }
-        return {'FINISHED'}
+    def execute(self, context):
+        print("=" * 50)
+        print("🧠 VESPER LLM VISUAL NAVIGATION (GE-first)")
+
+        # 1) Prepare everything the GE script will need **before** starting GE
+        self.setup_navigation_for_game_engine()  # (your existing prep function)
+        # NOTE: ensure this creates the GE script via create_game_engine_script(...)
+
+        # 2) Try to start GE; if it starts, the embedded script runs inside GE.
+        if self.try_start_game_engine():
+            print("✅ Game Engine started. All navigation will run INSIDE the GE script.")
+            return {'FINISHED'}
+
+        # 3) If GE can’t start (e.g., not UPBGE), stop and report.
+        self.report({'ERROR'}, "Game Engine not available. Open in UPBGE to run GE mode.")
+        print("❌ GE not available; aborting (no Blender fallback as requested).")
+        return {'CANCELLED'}
+
 
 class VESPER_OT_ExportEvaluation(bpy.types.Operator):
     bl_idname = "vesper.export_evaluation"
@@ -679,6 +725,7 @@ class VESPER_OT_ExportEvaluation(bpy.types.Operator):
             print("⚠️ Run some navigation tests first (P key)")
         
         return {'FINISHED'}
+
 
 class VESPER_OT_LLMNavigation(bpy.types.Operator):
     bl_idname = "vesper.llm_navigation"
@@ -915,59 +962,52 @@ try:
                 logic.llm_client = None
         return logic.llm_client
     
-    def capture_birds_eye_screenshot():
-        """Capture bird's eye view screenshot for LLM analysis"""
-        try:
-            # Get current scene and camera
-            scene = logic.getCurrentScene()
-            
-            # Find or create top-down camera for visual analysis
-            camera_obj = None
-            for obj in scene.objects:
-                if obj.name == "Camera" or "camera" in obj.name.lower():
-                    camera_obj = obj
-                    break
-            
-            if not camera_obj:
-                print("⚠️ GE: No camera found for screenshot")
-                return None
-            
-            # Position camera for bird's eye view
-            if logic.actor_obj:
-                actor_pos = logic.actor_obj.worldPosition
-                # Position camera above actor for top-down view
-                camera_obj.worldPosition = [actor_pos[0], actor_pos[1], actor_pos[2] + 8.0]
-                camera_obj.worldOrientation = [math.radians(90), 0, 0]  # Look straight down
-            
-            # Capture screenshot using BGE
-            import bgl
-            import gpu
-            from gpu_extras.presets import draw_texture_2d
-            
-            # Get viewport dimensions
-            viewport = bgl.Buffer(bgl.GL_INT, 4)
-            bgl.glGetIntegerv(bgl.GL_VIEWPORT, viewport)
-            width, height = viewport[2], viewport[3]
-            
-            # Create buffer for pixel data
-            buffer = bgl.Buffer(bgl.GL_BYTE, width * height * 3)
-            
-            # Read pixels from framebuffer
-            bgl.glReadPixels(0, 0, width, height, bgl.GL_RGB, bgl.GL_UNSIGNED_BYTE, buffer)
-            
-            # Convert to image data (simplified for Game Engine)
-            image_data = bytes(buffer)
-            
-            # Save temporary screenshot
-            temp_path = os.path.join(tempfile.gettempdir(), "vesper_ge_screenshot.raw")
-            with open(temp_path, 'wb') as f:
-                f.write(image_data)
-            
-            print("📸 GE: Bird's eye screenshot captured for LLM analysis")
-            return temp_path
-            
-        except Exception as e:
-            print("❌ GE: Screenshot capture failed: " + str(e))
+
+# =============================================================================
+# GLOBAL SCREENSHOT CAPTURE FUNCTION
+# =============================================================================
+def capture_birds_eye_screenshot():
+    """Capture bird's eye view screenshot for LLM analysis"""
+    try:
+        # Get current scene and camera
+        scene = logic.getCurrentScene()
+        # Find or create top-down camera for visual analysis
+        camera_obj = None
+        for obj in scene.objects:
+            if obj.name == "Camera" or "camera" in obj.name.lower():
+                camera_obj = obj
+                break
+        if not camera_obj:
+            print("⚠️ GE: No camera found for screenshot")
+            return None
+        # Position camera for bird's eye view
+        if logic.actor_obj:
+            actor_pos = logic.actor_obj.worldPosition
+            # Position camera above actor for top-down view
+            camera_obj.worldPosition = [actor_pos[0], actor_pos[1], actor_pos[2] + 8.0]
+            camera_obj.worldOrientation = [math.radians(90), 0, 0]  # Look straight down
+        # Capture screenshot using BGE
+        import bgl
+        import gpu
+        from gpu_extras.presets import draw_texture_2d
+        # Get viewport dimensions
+        viewport = bgl.Buffer(bgl.GL_INT, 4)
+        bgl.glGetIntegerv(bgl.GL_VIEWPORT, viewport)
+        width, height = viewport[2], viewport[3]
+        # Create buffer for pixel data
+        buffer = bgl.Buffer(bgl.GL_BYTE, width * height * 3)
+        # Read pixels from framebuffer
+        bgl.glReadPixels(0, 0, width, height, bgl.GL_RGB, bgl.GL_UNSIGNED_BYTE, buffer)
+        # Convert to image data (simplified for Game Engine)
+        image_data = bytes(buffer)
+        # Save temporary screenshot
+        temp_path = os.path.join(tempfile.gettempdir(), "vesper_ge_screenshot.raw")
+        with open(temp_path, 'wb') as f:
+            f.write(image_data)
+        print("📸 GE: Bird's eye screenshot captured for LLM analysis")
+        return temp_path
+    except Exception as e:
+        print("❌ GE: Screenshot capture failed: " + str(e))
             return None
     
     def get_llm_navigation_command(target_room, actor_position, screenshot_path=None):
@@ -1437,7 +1477,7 @@ except Exception as e:
                 nav_start_time = time.time()
                 
                 print("� Capturing bird's-eye view for LLM analysis...")
-                screenshot_path = self.capture_birds_eye_view()
+                screenshot_path = capture_birds_eye_screenshot()
                 if screenshot_path:
                     eval_record_screenshot()
                     print(f"✅ Screenshot captured for LLM: {screenshot_path}")
@@ -1727,7 +1767,7 @@ except Exception as e:
                 print(f"📍 Real-time Target: {target_room} at {target_pos}")
                 
                 # Real-time screenshot capture
-                screenshot_path = self.capture_birds_eye_view()
+                screenshot_path = capture_birds_eye_screenshot()
                 if screenshot_path:
                     print(f"📸 Real-time screenshot captured: {screenshot_path}")
                     eval_record_screenshot()
@@ -1757,7 +1797,7 @@ except Exception as e:
                     print(f"✅ REAL-TIME: Activity '{task}' completed in {activity_time:.1f}s")
                     
                     # Real-time final screenshot
-                    final_screenshot = self.capture_birds_eye_view()
+                    final_screenshot = capture_birds_eye_screenshot()
                     if final_screenshot:
                         print(f"📸 Real-time final screenshot: {final_screenshot}")
                         eval_record_screenshot()
@@ -1808,7 +1848,7 @@ except Exception as e:
                 print(f"📍 Target: {target_room} at {target_pos}")
                 
                 # Take bird's eye screenshot BEFORE movement
-                screenshot_path = self.capture_birds_eye_view()
+                screenshot_path = capture_birds_eye_screenshot()
                 if screenshot_path:
                     print(f"📸 Bird's eye screenshot captured: {screenshot_path}")
                     eval_record_screenshot()  # EVALUATION
@@ -1838,7 +1878,7 @@ except Exception as e:
                     print(f"✅ Activity '{task}' completed in {actual_activity_time:.1f}s")
                     
                     # Take screenshot AFTER activity
-                    final_screenshot = self.capture_birds_eye_view()
+                    final_screenshot = capture_birds_eye_screenshot()
                     if final_screenshot:
                         print(f"📸 Final position screenshot: {final_screenshot}")
                         eval_record_screenshot()  # EVALUATION
