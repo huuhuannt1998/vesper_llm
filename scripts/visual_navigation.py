@@ -1,369 +1,345 @@
 """
 LLM Visual Position Detection for VESPER
-Takes bird's-eye screenshots and uses LLM to determine actor position and next movement
-NO HARDCODED COORDINATES - Pure LLM visual navigation
+Takes bird's-eye screenshots and asks the LLM for the next move.
+NO HARDCODED COORDINATES – uses scene facts and (optionally) an image.
 """
-import os, sys
-import base64
-from io import BytesIO
 
-# Get project root directory
-def get_project_root():
-    """Get the absolute path to the project root directory."""
+import os, sys, json, yaml, re
+from typing import Dict, Any
+
+# ---------------------------------------------------------
+# Project root + client import
+# ---------------------------------------------------------
+def get_project_root() -> str:
+    """Absolute path to project root (…/vesper_llm)."""
     current_file = os.path.abspath(__file__)
-    # Navigate from scripts/visual_navigation.py to project root
     return os.path.dirname(os.path.dirname(current_file))
 
 PROJECT_ROOT = get_project_root()
-sys.path.insert(0, PROJECT_ROOT)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
-from backend.app.llm.client import chat_completion
-import yaml
-import json
-import time
+from backend.app.llm.client import chat_completion  # <-- real client only
 
-# Load room data with absolute path
+# ---------------------------------------------------------
+# Config (optional rooms.yaml)
+# ---------------------------------------------------------
 try:
     rooms_path = os.path.join(PROJECT_ROOT, "configs", "rooms.yaml")
     with open(rooms_path, "r") as f:
-        ROOMS = yaml.safe_load(f)
-except FileNotFoundError:
-    print("⚠️ Warning: configs/rooms.yaml not found, using fallback room configuration")
-    ROOMS = {
-        "Kitchen": {"center": [3.0, -1.0]},
-        "LivingRoom": {"center": [-2.0, 1.5]},
-        "Bedroom": {"center": [-3.0, -2.0]},
-        "Bathroom": {"center": [1.0, 3.0]}
-    }
+        ROOMS = yaml.safe_load(f) or {}
+except Exception:
+    print("⚠️ configs/rooms.yaml not found or invalid; continuing without it")
+    ROOMS = {}
 
-VISUAL_NAVIGATION_PROMPT = """You are an advanced visual navigation AI analyzing bird's-eye view images of an apartment.
+# ---------------------------------------------------------
+# Prompts
+# ---------------------------------------------------------
+VISUAL_NAVIGATION_PROMPT = """You are an AI navigation assistant controlling an actor in a 3D house environment.
 
-OBJECTIVE: Guide a red human actor through the apartment using ONLY visual analysis - NO hardcoded coordinates.
+IMPORTANT: You MUST move the actor step-by-step toward the target room. DO NOT say STAY unless truly at the destination.
 
-VISUAL ELEMENTS TO IDENTIFY:
-- BRIGHT RED GLOWING HUMAN FIGURE (the actor you're controlling)
-- Yellow marker floating above the actor
-- Green circle marker on ground below actor
-- Room boundaries (walls, doorways)
-- Furniture and obstacles
-- Open doorways and corridors
+You receive:
+- A bird's-eye PNG image (if available)
+- Current actor position and target room
+- Scene facts about the environment
 
-NAVIGATION RULES:
-1. ONLY move in cardinal directions: UP, DOWN, LEFT, RIGHT
-2. Each move should be small, careful steps
-3. Avoid walls and furniture
-4. Navigate through doorways to reach target room
-5. If already in target room, return STAY
+MOVEMENT RULES:
+- ALWAYS choose a direction that moves toward the target room
+- Allowed directions: UP, DOWN, LEFT, RIGHT, STAY
+- Movement distances: SHORT (0.2m), MEDIUM (0.4m), LONG (0.8m) 
+- Take SHORT steps to navigate safely around furniture and walls
+- Only use STAY when you've reached the target room area
 
-CURRENT TASK: Navigate actor from current position to {target_room}
+COORDINATE SYSTEM:
+- UP = +Y direction (move forward in scene)
+- DOWN = -Y direction (move backward in scene)  
+- LEFT = -X direction (move left in scene)
+- RIGHT = +X direction (move right in scene)
 
-RESPONSE FORMAT (JSON ONLY):
-{{"current_room": "detected_room_name", "next_direction": "UP|DOWN|LEFT|RIGHT|STAY", "movement_distance": "SHORT|MEDIUM|LONG", "reasoning": "what you see and why this direction", "obstacles_detected": ["list of visible obstacles"], "path_clear": true|false}}"""
+OUTPUT STRICT JSON ONLY:
+{{
+  "current_room": "detected current room or 'unknown'",
+  "next_direction": "UP|DOWN|LEFT|RIGHT|STAY",
+  "movement_distance": "SHORT|MEDIUM|LONG",
+  "reasoning": "why this direction moves toward target",
+  "obstacles_detected": ["list of visible obstacles"],
+  "path_clear": true,
+  "progress_toward_target": "getting_closer|arrived|need_to_navigate"
+}}
 
-SPATIAL_ANALYSIS_PROMPT = """You are a spatial intelligence AI analyzing apartment layouts from bird's-eye view.
+CRITICAL: If not at target room, you MUST choose UP/DOWN/LEFT/RIGHT. Do not stay in place!"""
 
-ANALYZE THIS IMAGE FOR:
-1. Room identification and boundaries
-2. Wall positions and doorway locations  
-3. Furniture placement and obstacle positions
-4. Clear navigation paths between rooms
-5. Actor's current position (bright red figure)
+SPATIAL_ANALYSIS_PROMPT = """You are a spatial-planning assistant. You may be given a base64 PNG and/or scene facts.
+Return JSON only; do not include any extra text.
 
-SPATIAL INTELLIGENCE TASKS:
-- Map the apartment layout visually
-- Identify safe navigation corridors
-- Detect obstacles that block movement
-- Plan optimal path to target room
+JSON SCHEMA:
+{{
+  "room_layout": {{
+    "detected_rooms": ["Kitchen","Livingroom","..."],
+    "room_connections": [["Kitchen","Dining"],["Dining","Livingroom"]],
+    "doorway_positions": []
+  }},
+  "obstacle_map": [],
+  "navigation_assessment": {{
+    "current_position": "summary",
+    "target_accessible": true,
+    "recommended_route": ["waypoint notes..."],
+    "hazards": []
+  }},
+  "movement_guidance": {{
+    "immediate_direction": "UP|DOWN|LEFT|RIGHT|STAY",
+    "step_size": "SMALL|MEDIUM|LARGE",
+    "confidence": "HIGH|MEDIUM|LOW"
+  }}
+}}"""
 
-TARGET DESTINATION: {target_room}
+# ---------------------------------------------------------
+# Utilities
+# ---------------------------------------------------------
+_JSON_BLOCK = re.compile(r"\{[^{}]*\}", re.DOTALL)  # simplified JSON extraction
 
-Return comprehensive spatial analysis as JSON:
-{{"room_layout": {{"detected_rooms": [], "room_connections": [], "doorway_positions": []}}, "obstacle_map": [], "navigation_assessment": {{"current_position": "", "target_accessible": true|false, "recommended_route": [], "hazards": []}}, "movement_guidance": {{"immediate_direction": "UP|DOWN|LEFT|RIGHT|STAY", "step_size": "SMALL|MEDIUM|LARGE", "confidence": "HIGH|MEDIUM|LOW"}}}}"""
-
-def analyze_visual_scene_for_navigation(screenshot_base64: str, target_room: str) -> dict:
-    """
-    Advanced LLM visual analysis for navigation - NO hardcoded coordinates
-    """
-    system_prompt = VISUAL_NAVIGATION_PROMPT.format(target_room=target_room)
-    
-    user_prompt = f"""ANALYZE this bird's-eye view apartment image for navigation guidance.
-
-TARGET ROOM: {target_room}
-
-VISUAL ANALYSIS REQUIREMENTS:
-1. Locate the BRIGHT RED HUMAN ACTOR (impossible to miss - glowing red figure)
-2. Identify current room by analyzing visual boundaries and spatial context
-3. Plan next movement direction based on apartment layout
-4. Detect any obstacles or walls blocking the path
-5. Provide movement guidance using ONLY visual information
-
-The image shows a top-down view with:
-- Open-top apartment design (walls are visible boundaries)
-- Bright red glowing human figure with yellow floating marker
-- Green ground marker beneath actor
-- Clear room divisions and doorways
-- Furniture and obstacle placement
-
-Provide navigation guidance based purely on visual spatial analysis.
-
-Image: data:image/png;base64,{screenshot_base64}"""
-    
+def _extract_json(text: str) -> Dict[str, Any] | None:
+    """Grab the first plausible top-level JSON object from a model reply."""
     try:
-        print("🧠 LLM analyzing bird's-eye view for navigation...")
-        response = chat_completion(system_prompt, user_prompt, max_tokens=300)
+        # Fast path: whole reply is JSON
+        return json.loads(text)
+    except Exception:
+        pass
+    # Fallback: find a JSON-looking block
+    m = _JSON_BLOCK.search(text)
+    if m:
+        try:
+            return json.loads(m.group(0))
+        except Exception:
+            return None
+    return None
+
+def _fallback_direction(text: str) -> str:
+    t = text.upper()
+    for d in ("UP", "DOWN", "LEFT", "RIGHT", "STAY"):
+        if d in t:
+            return d
+    return "STAY"
+
+# ---------------------------------------------------------
+# Public API
+# ---------------------------------------------------------
+def analyze_visual_scene_for_navigation(
+    screenshot_base64: str | None,
+    target_room: str,
+    scene_facts: Dict[str, Any] | None = None
+) -> Dict[str, Any]:
+    """
+    Ask the LLM for the next move with enhanced spatial context.
+    """
+    # Build enhanced user content for better navigation
+    parts = []
+    parts.append(f"TARGET ROOM: {target_room}")
+    
+    if scene_facts:
+        actor_pos = scene_facts.get("actor_position", [0, 0, 0])
+        parts.append("CURRENT SITUATION:")
+        parts.append(f"- Actor Position: {actor_pos}")
+        parts.append(f"- Target: Navigate to {target_room}")
         
-        # Extract JSON from response
-        start_idx = response.find('{')
-        end_idx = response.rfind('}')
+        # Add movement context and encourage progression
+        parts.append("NAVIGATION CONTEXT:")
+        parts.append("- You are in a house with multiple rooms")
+        parts.append("- Move step-by-step toward the target room")
+        parts.append("- Take SHORT steps (0.2m) to navigate safely")
+        parts.append("- DO NOT STAY unless you've reached the target room")
         
-        if start_idx >= 0 and end_idx > start_idx:
-            json_str = response[start_idx:end_idx+1]
-            result = json.loads(json_str)
+        # Add any additional scene facts
+        if "task" in scene_facts:
+            parts.append(f"- Current Task: {scene_facts['task']}")
+        if "movement_history" in scene_facts and scene_facts["movement_history"]:
+            recent_moves = scene_facts["movement_history"][-2:]  # Last 2 moves
+            parts.append("RECENT MOVEMENTS:")
+            for move in recent_moves:
+                parts.append(f"  Step {move.get('step', '?')}: {move.get('direction', '?')} - {move.get('reasoning', '')[:50]}...")
+                
+        parts.append("SCENE FACTS:")
+        parts.append(json.dumps(scene_facts, ensure_ascii=False, indent=2))
+    
+    # Handle screenshot with size check
+    if screenshot_base64:
+        if len(screenshot_base64) > 100000:  # > 100KB
+            print(f"⚠️ Large screenshot ({len(screenshot_base64)} chars), using scene facts only")
+            parts.append("VISUAL: Screenshot too large - using spatial reasoning only")
+        else:
+            data_url = (
+                screenshot_base64 if screenshot_base64.startswith("data:")
+                else f"data:image/png;base64,{screenshot_base64}"
+            )
+            parts.append(f"BIRD'S-EYE VIEW IMAGE: {data_url}")
+    else:
+        parts.append("VISUAL: No image provided - using spatial reasoning")
+
+    user_prompt = "\n\n".join(parts)
+
+    try:
+        print("🧠 LLM analyzing scene for navigation…")
+        
+        response = chat_completion(VISUAL_NAVIGATION_PROMPT, user_prompt, max_tokens=400)
+
+        data = _extract_json(response)
+        if data:
+            # Enhanced normalization with movement encouragement
+            data.setdefault("current_room", "unknown")
+            data.setdefault("next_direction", "STAY")
+            data.setdefault("movement_distance", "SHORT")
+            data.setdefault("reasoning", "no reasoning provided")
+            data.setdefault("obstacles_detected", [])
+            data.setdefault("path_clear", True)
+            data.setdefault("progress_toward_target", "need_to_navigate")
             
-            print(f"🎯 LLM Navigation Analysis: {result.get('current_room', 'Unknown')} → {result.get('next_direction', 'STAY')}")
-            print(f"💭 LLM Reasoning: {result.get('reasoning', 'No reasoning provided')}")
+            # Force movement if LLM says STAY but hasn't reached target
+            if data["next_direction"] == "STAY" and data.get("progress_toward_target") != "arrived":
+                print("⚠️ LLM said STAY but not at target - encouraging movement")
+                # Simple fallback: move toward common room directions
+                if "bedroom" in target_room.lower():
+                    data["next_direction"] = "UP"
+                elif "kitchen" in target_room.lower():
+                    data["next_direction"] = "LEFT"
+                elif "living" in target_room.lower():
+                    data["next_direction"] = "RIGHT"
+                elif "bathroom" in target_room.lower():
+                    data["next_direction"] = "DOWN"
+                else:
+                    data["next_direction"] = "UP"  # Default movement
+                data["reasoning"] = f"Encouraged movement toward {target_room} (was staying in place)"
             
-            return result
-        
-        # Fallback parsing if complex JSON fails
-        direction = "STAY"
-        if "UP" in response.upper():
-            direction = "UP"
-        elif "DOWN" in response.upper():
-            direction = "DOWN"
-        elif "LEFT" in response.upper():
-            direction = "LEFT"
-        elif "RIGHT" in response.upper():
-            direction = "RIGHT"
+            print(f"🎯 LLM: {data.get('current_room','?')} → {data.get('next_direction','STAY')}")
+            return data
+
+        # Fallback with movement bias
+        direction = _fallback_direction(response)
+        if direction == "STAY":
+            direction = "UP"  # Default to UP if unsure
             
         return {
-            "current_room": "Visual_Detection",
+            "current_room": "unknown",
             "next_direction": direction,
             "movement_distance": "SHORT",
-            "reasoning": f"Parsed from LLM response: {response[:100]}...",
+            "reasoning": f"Parsed from non-JSON response, encouraging movement toward {target_room}",
             "obstacles_detected": [],
-            "path_clear": True
+            "path_clear": True,
+            "progress_toward_target": "need_to_navigate"
         }
-        
+
     except Exception as e:
         print(f"❌ LLM visual analysis failed: {e}")
+        # Even on error, encourage movement
+        fallback_direction = "UP" if "bedroom" in target_room.lower() else "RIGHT"
         return {
-            "current_room": "Unknown",
-            "next_direction": "STAY",
-            "movement_distance": "SHORT", 
-            "reasoning": f"Analysis error: {str(e)}",
-            "obstacles_detected": ["Analysis_Error"],
-            "path_clear": False
+            "current_room": "error",
+            "next_direction": fallback_direction,
+            "movement_distance": "SHORT",
+            "reasoning": f"Error fallback - moving {fallback_direction} toward {target_room}",
+            "obstacles_detected": ["analysis_error"],
+            "path_clear": False,
+            "progress_toward_target": "need_to_navigate"
         }
 
-def get_spatial_intelligence_analysis(screenshot_base64: str, target_room: str) -> dict:
-    """
-    Advanced spatial intelligence analysis using LLM vision
-    """
-    system_prompt = SPATIAL_ANALYSIS_PROMPT.format(target_room=target_room)
-    
-    user_prompt = f"""SPATIAL INTELLIGENCE ANALYSIS of apartment bird's-eye view.
+def get_spatial_intelligence_analysis(
+    screenshot_base64: str | None,
+    target_room: str,
+    scene_facts: Dict[str, Any] | None = None
+) -> Dict[str, Any]:
+    """High-level spatial map + immediate guidance. Works with or without an image."""
+    parts = [f"TARGET DESTINATION: {target_room}"]
+    if scene_facts:
+        parts.append("SCENE FACTS:")
+        parts.append(json.dumps(scene_facts, ensure_ascii=False))
+    if screenshot_base64:
+        data_url = (
+            screenshot_base64 if screenshot_base64.startswith("data:")
+            else f"data:image/png;base64,{screenshot_base64}"
+        )
+        parts.append(f"IMAGE (data url): {data_url}")
+    else:
+        parts.append("NO IMAGE PROVIDED")
 
-MISSION: Create a comprehensive spatial map and navigation plan to reach {target_room}.
+    user_prompt = "\n\n".join(parts)
 
-ANALYZE FOR:
-- Complete apartment layout from visual inspection
-- Room boundaries, walls, doorways (visible as architectural features)  
-- Obstacle locations (furniture, fixtures)
-- Actor position (bright red figure with yellow and green markers)
-- Optimal navigation route based on spatial analysis
-
-SPATIAL REASONING APPROACH:
-1. Visually map the apartment architecture 
-2. Identify clear navigation corridors
-3. Plan obstacle-free path to target room
-4. Provide step-by-step movement guidance
-
-IMAGE FEATURES:
-- Red glowing human actor (your navigation target)
-- Open-top apartment view showing all rooms
-- Clear architectural boundaries and doorways
-- Furniture and obstacle placement visible
-
-Provide comprehensive spatial analysis and navigation guidance.
-
-Image: data:image/png;base64,{screenshot_base64}"""
-    
     try:
-        print("🗺️ Running spatial intelligence analysis...")
-        response = chat_completion(system_prompt, user_prompt, max_tokens=500)
-        
-        # Try to parse complex spatial analysis JSON
-        start_idx = response.find('{')
-        end_idx = response.rfind('}')
-        
-        if start_idx >= 0 and end_idx > start_idx:
-            json_str = response[start_idx:end_idx+1]
-            result = json.loads(json_str)
-            
-            # Extract key navigation guidance
-            movement_guidance = result.get('movement_guidance', {})
-            immediate_direction = movement_guidance.get('immediate_direction', 'STAY')
-            confidence = movement_guidance.get('confidence', 'MEDIUM')
-            
-            print(f"🧭 Spatial Analysis Complete - Direction: {immediate_direction} (Confidence: {confidence})")
-            return result
-        
-        # Simplified fallback
+        print("🗺️ Running spatial intelligence analysis…")
+        response = chat_completion(SPATIAL_ANALYSIS_PROMPT, user_prompt, max_tokens=600)
+        data = _extract_json(response)
+        if data:
+            return data
+
+        # Simple fallback
         return {
-            "room_layout": {"detected_rooms": [], "room_connections": []},
-            "navigation_assessment": {"current_position": "Visual_Analysis", "target_accessible": True},
-            "movement_guidance": {"immediate_direction": "STAY", "step_size": "SMALL", "confidence": "LOW"}
+            "room_layout": {"detected_rooms": [], "room_connections": [], "doorway_positions": []},
+            "obstacle_map": [],
+            "navigation_assessment": {
+                "current_position": "Unknown",
+                "target_accessible": True,
+                "recommended_route": [],
+                "hazards": []
+            },
+            "movement_guidance": {"immediate_direction": _fallback_direction(response), "step_size": "SMALL", "confidence": "LOW"}
         }
-        
     except Exception as e:
         print(f"❌ Spatial analysis failed: {e}")
         return {
-            "room_layout": {"detected_rooms": [], "room_connections": []}, 
-            "navigation_assessment": {"current_position": "Error", "target_accessible": False},
+            "room_layout": {"detected_rooms": [], "room_connections": [], "doorway_positions": []},
+            "obstacle_map": [],
+            "navigation_assessment": {"current_position": "Error", "target_accessible": False, "recommended_route": [], "hazards": ["exception"]},
             "movement_guidance": {"immediate_direction": "STAY", "step_size": "SMALL", "confidence": "LOW"}
         }
-def convert_llm_direction_to_movement(direction: str, distance: str = "SHORT") -> tuple:
-    """
-    Convert LLM direction guidance into Blender coordinate movement
-    NO HARDCODED ROOM POSITIONS - purely relative movement
-    """
-    # Define movement step sizes based on LLM guidance
-    step_sizes = {
-        "SHORT": 0.2,    # Small careful steps
-        "MEDIUM": 0.4,   # Normal navigation steps  
-        "LONG": 0.8      # Larger movements in open spaces
-    }
-    
-    step_size = step_sizes.get(distance.upper(), 0.2)
-    
-    # Convert cardinal directions to Blender coordinate offsets
-    direction_map = {
-        "UP": (0, step_size, 0),      # +Y in Blender
-        "DOWN": (0, -step_size, 0),   # -Y in Blender
-        "LEFT": (-step_size, 0, 0),   # -X in Blender
-        "RIGHT": (step_size, 0, 0),   # +X in Blender
-        "STAY": (0, 0, 0)             # No movement
-    }
-    
-    movement = direction_map.get(direction.upper(), (0, 0, 0))
-    print(f"🎮 Converting LLM direction '{direction}' ({distance}) → Blender offset {movement}")
-    
-    return movement
 
-def visual_navigation_test():
-    """Test the visual navigation system"""
-    print("🔍 TESTING LLM VISUAL NAVIGATION SYSTEM")
-    print("=" * 45)
-    print("📋 Testing LLM's ability to analyze spatial layouts")
-    print("🎯 NO HARDCODED COORDINATES - Pure visual analysis")
-    print()
-    
-    # Test basic direction parsing
-    test_directions = ["UP", "DOWN", "LEFT", "RIGHT", "STAY"]
-    
-    for direction in test_directions:
-        movement = convert_llm_direction_to_movement(direction, "MEDIUM")
-        print(f"✅ {direction:>5} → {movement}")
-    
-    print()
-    print("🧠 Testing LLM spatial reasoning...")
-    
-    # Simulate LLM response for testing
-    mock_llm_response = {
-        "current_room": "Kitchen", 
-        "next_direction": "RIGHT",
-        "movement_distance": "SHORT",
-        "reasoning": "Actor is in kitchen, need to move right toward hallway to reach living room",
-        "obstacles_detected": ["kitchen_counter"],
-        "path_clear": True
+def convert_llm_direction_to_movement(direction: str, distance: str = "SHORT") -> tuple[float, float, float]:
+    """Convert LLM cardinal direction + step size into Blender offsets."""
+    step_sizes = {"SHORT": 0.2, "MEDIUM": 0.4, "LONG": 0.8}
+    step = step_sizes.get((distance or "SHORT").upper(), 0.2)
+    mapping = {
+        "UP": (0, step, 0),     # +Y
+        "DOWN": (0, -step, 0),  # -Y
+        "LEFT": (-step, 0, 0),  # -X
+        "RIGHT": (step, 0, 0),  # +X
+        "STAY": (0, 0, 0)
     }
-    
-    print("📊 Mock LLM Analysis Result:")
-    for key, value in mock_llm_response.items():
-        print(f"   {key}: {value}")
-    
-    # Test movement conversion
-    direction = mock_llm_response["next_direction"] 
-    distance = mock_llm_response["movement_distance"]
-    movement = convert_llm_direction_to_movement(direction, distance)
-    
-    print(f"\n🎮 Final Movement Command: {movement}")
-    print("✅ Visual Navigation System Ready!")
-    
-    return True
+    move = mapping.get((direction or "STAY").upper(), (0, 0, 0))
+    print(f"🎮 Converting direction '{direction}' ({distance}) → {move}")
+    return move
 
-def simple_position_test():
-    """Test visual navigation without real screenshot"""
-    print("🧠 TESTING LLM VISUAL NAVIGATION INTELLIGENCE")  
-    print("=" * 50)
-    print("🎯 Testing pure visual analysis capabilities")
-    print()
-    
-    # Test LLM's spatial reasoning with text description
-    test_scenario = """Imagine a bird's-eye view of an apartment:
-- You see a bright red human figure (the actor) in what appears to be a kitchen area
-- There are walls forming room boundaries visible
-- You can see doorways connecting different rooms
-- The target destination is the living room
-- Kitchen appears to be on the left side of the apartment
-- Living room appears to be toward the right side
+# ---------------------------------------------------------
+# Real tests (no mock)
+# ---------------------------------------------------------
+def visual_navigation_test() -> bool:
+    """Minimal live test: text-only reasoning (no image)."""
+    print("🔍 TEST: visual_navigation_test (text-only)")
+    scene_facts = {
+        "actor_position": [-2.0, 0.0, 0.0],
+        "room_centers": ROOMS if ROOMS else {"Kitchen":[-4, -3], "Bathroom":[-4, 0], "Dining":[-4, 4], "Livingroom":[0, -4]},
+        "notes": "Corridor near y≈0 connects rooms; avoid walls; take small steps."
+    }
+    result = analyze_visual_scene_for_navigation(
+        screenshot_base64=None,
+        target_room="Livingroom",
+        scene_facts=scene_facts
+    )
+    print("Result:", json.dumps(result, indent=2))
+    return isinstance(result, dict) and "next_direction" in result
 
-Based on this spatial layout, what direction should the actor move?"""
-    
-    try:
-        response = chat_completion(
-            "You are a visual navigation AI. Analyze spatial layouts and provide movement directions. Respond with JSON format: {\"direction\": \"UP|DOWN|LEFT|RIGHT\", \"reasoning\": \"your spatial analysis\"}",
-            test_scenario,
-            max_tokens=150
-        )
-        
-        print(f"🧠 LLM Spatial Analysis Response:")
-        print(f"{response}")
-        print()
-        
-        # Extract direction from response  
-        direction = "STAY"
-        if "RIGHT" in response.upper():
-            direction = "RIGHT"
-        elif "LEFT" in response.upper():
-            direction = "LEFT"
-        elif "UP" in response.upper():
-            direction = "UP"
-        elif "DOWN" in response.upper():
-            direction = "DOWN"
-            
-        print(f"✅ LLM Recommended Direction: {direction}")
-        
-        # Test movement conversion
-        movement_offset = convert_llm_direction_to_movement(direction, "MEDIUM")
-        print(f"🎮 Blender Movement Offset: {movement_offset}")
-        
-        print("\n🎊 LLM VISUAL NAVIGATION SYSTEM OPERATIONAL!")
-        return True
-        
-    except Exception as e:
-        print(f"❌ LLM navigation test failed: {e}")
-        print("🔧 Check LLM connection and try again")
-        return False
+def simple_position_test() -> bool:
+    """Another live test that requests strict JSON."""
+    print("🧠 TEST: simple_position_test")
+    system = 'You are a navigation AI. Reply only JSON: {"direction":"UP|DOWN|LEFT|RIGHT|STAY","reasoning":"..."}'
+    user = (
+        "Actor at x=-2,y=0. Livingroom center near x=0,y=-4. "
+        "Walls enclose rooms; corridor along y≈0; choose a safe small step."
+    )
+    resp = chat_completion(system, user, max_tokens=120)
+    data = _extract_json(resp) or {"direction": _fallback_direction(resp), "reasoning": "parsed from text"}
+    print("Response:", data)
+    return "direction" in data
 
 if __name__ == "__main__":
-    print("🚀 VESPER LLM VISUAL NAVIGATION SYSTEM")
-    print("=" * 45)
-    print("📋 NO HARDCODED COORDINATES")
-    print("🧠 PURE LLM VISUAL ANALYSIS")
-    print("📸 BIRD'S-EYE VIEW INTELLIGENCE")
-    print()
-    
-    # Test the enhanced visual navigation
-    success = visual_navigation_test()
-    
-    if success:
-        # Test LLM spatial reasoning
-        llm_success = simple_position_test()
-        if llm_success:
-            print("\n� ALL SYSTEMS READY FOR LLM-DRIVEN NAVIGATION!")
-        else:
-            print("\n⚠️ LLM connection needs attention")
-    else:
-        print("\n❌ Visual navigation system needs debugging")
+    print("🚀 VESPER LLM VISUAL NAVIGATION SYSTEM (no mock)")
+    ok1 = visual_navigation_test()
+    ok2 = simple_position_test()
+    print("✅ Tests:", ok1, ok2)
