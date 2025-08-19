@@ -136,8 +136,8 @@ def capture_bird_eye_screenshot():
             file_size = os.path.getsize(screenshot_path)
             print(f"📸 BGE: Screenshot captured: bge_{next_num:03d}.png ({file_size} bytes)")
         else:
-            print(f"❌ BGE: Screenshot file not visible: bge_{next_num:03d}.png")
-            
+            # print(f"❌ BGE: Screenshot file not visible: bge_{next_num:03d}.png")
+            print(f"")
         return screenshot_path
         
     except Exception as e:
@@ -253,6 +253,58 @@ def create_enhanced_screenshot(screenshot_path):
         print(f"⚠️ BGE: Could not enhance screenshot: {e}")
         return None
 
+def validate_movement_with_vlm(screenshot_path, direction, actor_position):
+    """Validate if a movement direction is safe using VLM collision detection
+    
+    NOTE: This function is now used only as a fallback when the main VLM
+    doesn't provide clear safety analysis. The primary navigation now uses
+    comprehensive single-call analysis to reduce VLM calls from 5 to 1-2 per step.
+    """
+    if not screenshot_path or not os.path.exists(screenshot_path):
+        return True  # Can't validate, allow movement
+    
+    try:
+        # Ask VLM specifically about collision detection for this direction
+        collision_prompt = f"""Look at this bird's eye view image. I can see a colored dot (the actor) at position [{actor_position[0]:.2f}, {actor_position[1]:.2f}].
+
+QUESTION: If the actor moves {direction} from their current position, will they hit a wall or obstacle?
+
+Analyze what is directly {direction.lower()} of the colored dot in the image.
+
+Answer ONLY with:
+- "SAFE" if the path is clear (no walls/obstacles)
+- "BLOCKED" if there are walls/obstacles in that direction
+
+Look carefully at the immediate area {direction.lower()} of the colored dot."""
+
+        collision_response = chat_completion_with_vision(collision_prompt, image_path=screenshot_path)
+        
+        is_safe = "SAFE" in collision_response.upper()
+        print(f"🛡️ BGE: Collision check for {direction}: {'SAFE' if is_safe else 'BLOCKED'}")
+        
+        return is_safe
+        
+    except Exception as e:
+        print(f"⚠️ BGE: Collision validation failed: {e}")
+        return True  # If validation fails, allow movement
+
+def find_alternative_direction(screenshot_path, original_direction, actor_position, current_task):
+    """Find an alternative safe direction when original direction is blocked"""
+    if not screenshot_path or not os.path.exists(screenshot_path):
+        return "STAY"
+    
+    # Try alternative directions in order of preference
+    directions = ["UP", "DOWN", "LEFT", "RIGHT"]
+    directions.remove(original_direction)  # Remove the blocked direction
+    
+    for direction in directions:
+        if validate_movement_with_vlm(screenshot_path, direction, actor_position):
+            print(f"🔄 BGE: Found alternative direction: {direction} (original {original_direction} was blocked)")
+            return direction
+    
+    print(f"🛑 BGE: All directions blocked, staying in place")
+    return "STAY"
+
 def get_llm_navigation_command(current_task, actor_position):
     """Get navigation command from LLM with vision support"""
     if not LLM_AVAILABLE:
@@ -290,59 +342,188 @@ def get_llm_navigation_command(current_task, actor_position):
                 print("❌ BGE: Captures folder doesn't exist")
                 screenshot_path = None
         
-        system_prompt = """You are controlling an actor in a house. Help navigate to complete the task.
+        system_prompt = """You are a navigation AI controlling an actor in a 3D house environment with advanced spatial reasoning for room identification.
+
+CRITICAL RULES:
+1. NEVER suggest moving into walls, obstacles, or blocked areas
+2. If you see a wall or obstacle in the direction you want to move, choose a different direction
+3. Always prioritize safe, open paths
+4. If all directions appear blocked, suggest staying in place
+
+SPATIAL REASONING FOR ROOM IDENTIFICATION:
+- Analyze the house layout to identify different room types
+- BATHROOM: Small, enclosed rectangular rooms (often 1x2 or 2x2 room size)
+- KITCHEN: Larger rooms with appliances/counters (distinctive furniture patterns)
+- LIVING ROOM: Open central areas with seating arrangements
+- BEDROOM: Private rooms with bed furniture, enclosed by walls
 
 MOVEMENT COMMANDS:
 - "UP" = move forward (+Y direction)
 - "DOWN" = move backward (-Y direction) 
 - "LEFT" = move left (-X direction)
 - "RIGHT" = move right (+X direction)
-- "STAY" = stop (task complete)
+- "STAY" = stop (task complete or in target room)
+
+COMPREHENSIVE ANALYSIS REQUIRED:
+You must analyze ALL four directions (UP, DOWN, LEFT, RIGHT) for obstacles/walls and provide:
+1. The PRIMARY recommended action based on task objective
+2. 2-3 SAFE ALTERNATIVE actions if the primary is blocked
+3. Detailed safety analysis for each direction
+4. Room identification reasoning when relevant
+
+NAVIGATION RULES:
+- NEVER move through walls (dark gray/black areas)
+- ONLY move through open doorways and corridors
+- Navigate around obstacles and furniture
+- Look for clear paths between rooms
+- The actor appears as a colored dot in the image
+- For bathroom tasks: prioritize movement toward small, enclosed rooms
+- Use spatial reasoning to identify room types by size and layout
 
 RESPONSE FORMAT (JSON only):
 {
   "next_direction": "UP|DOWN|LEFT|RIGHT|STAY",
-  "reasoning": "why this direction helps complete the task"
+  "alternatives": ["action1", "action2", "action3"],
+  "safety_analysis": {
+    "UP": "CLEAR|BLOCKED - reason and room identification if relevant",
+    "DOWN": "CLEAR|BLOCKED - reason and room identification if relevant", 
+    "LEFT": "CLEAR|BLOCKED - reason and room identification if relevant",
+    "RIGHT": "CLEAR|BLOCKED - reason and room identification if relevant"
+  },
+  "reasoning": "detailed explanation including room identification and task progression logic"
 }"""
 
         user_prompt = f"""Current Task: {current_task}
 Actor Position: [{actor_position[0]:.2f}, {actor_position[1]:.2f}]
 
-Look at the bird's eye view image and decide the next movement to complete this task. You can see the layout of the house, walls, doors, and rooms. The actor's current position should be visible in the image.
+Look at the bird's eye view image and decide the next movement to complete this task.
+
+ROOM IDENTIFICATION GUIDE:
+In this house layout, you can identify rooms by their characteristics:
+- BATHROOM: Usually a small, enclosed room with fixtures (often in corners or along walls)
+- KITCHEN: Larger room with appliances and counters (often has distinctive kitchen furniture)
+- LIVING ROOM: Open central area with seating furniture
+- BEDROOM: Private room with bed furniture, usually separated by walls
+
+NAVIGATION STRATEGY FOR BATHROOM TASKS:
+- Look for small, enclosed rooms that could be bathrooms
+- Bathrooms are typically accessed through doorways from hallways or main areas
+- If you see multiple small rooms, move toward the one that appears most bathroom-like
+- Small rectangular rooms along walls are often bathrooms
+
+You can see:
+- House layout with walls (dark areas) and open spaces (light areas)
+- Doorways and corridors for navigation
+- The actor's current position as a colored dot
+- Room layouts and furniture that help identify room types
+
+CRITICAL: Analyze the image carefully and AVOID WALLS. Only move through open doorways and clear paths. If you see walls blocking the direct path, navigate around them through available doorways.
 
 IMPORTANT: If the actor appears to be AT or VERY CLOSE to the target room/area for the task, respond with "STAY" to complete the task. Don't keep moving if you're already in the right location.
 
+For bathroom tasks specifically:
+- Look for small, enclosed rectangular spaces
+- Move toward areas that appear to be private rooms
+- If uncertain about room identity, move toward unexplored small rooms
+- Use doorways and corridors to explore different areas of the house
+
 Examples:
 - If task is "Go to kitchen" and actor is in/near the kitchen area, use "STAY"
-- If task is "Go to bathroom" and actor is in/near the bathroom area, use "STAY"
-- If task is "Cook in kitchen" and actor is in the kitchen, use "STAY"""
+- If task is "Go to bathroom" and actor is in/near a small enclosed room, use "STAY"
+- If task is "Prepare in bathroom" and actor is inside what appears to be a bathroom, use "STAY"
+- If there's a wall in the direct path, find an alternative route through doorways"""
 
-        # Use vision if screenshot available, otherwise text-only
+        # Use vision if screenshot available, otherwise wait
         print(f"🔍 BGE: Checking screenshot: {screenshot_path}")
         print(f"🔍 BGE: Screenshot exists: {os.path.exists(screenshot_path) if screenshot_path else 'No path'}")
         
         if screenshot_path and os.path.exists(screenshot_path):
-            response = chat_completion_with_vision(
-                f"{system_prompt}\n\n{user_prompt}", 
-                image_path=screenshot_path
-            )
-            print("🔍 BGE: Using vision-based navigation")
+            try:
+                response = chat_completion_with_vision(
+                    f"{system_prompt}\n\n{user_prompt}", 
+                    image_path=screenshot_path
+                )
+                print("🔍 BGE: Using vision-based navigation")
+                
+                # Check if response indicates timeout or connection error
+                if "TIMEOUT_ERROR" in response or "CONNECTION_ERROR" in response:
+                    print(f"⏳ BGE: VLM timeout/connection issue - staying in place")
+                    return {"next_direction": "STAY", "reasoning": "VLM timeout - waiting for reconnection"}
+                    
+            except Exception as e:
+                print(f"❌ BGE: VLM call failed: {e}")
+                print("⏳ BGE: Waiting for VLM - no fallback navigation")
+                return {"next_direction": "STAY", "reasoning": f"VLM connection error: {e} - waiting for reconnection"}
         else:
-            print("❌ BGE: No screenshot available - cannot proceed without vision")
+            print("❌ BGE: No screenshot available")
             return {"next_direction": "STAY", "reasoning": "No screenshot available for vision analysis"}
         
-        # Parse JSON
+        # Parse JSON response
         try:
             start = response.find('{')
             end = response.rfind('}') + 1
             if start >= 0 and end > start:
                 json_str = response[start:end]
                 result = json.loads(json_str)
-                return result
+                
+                # Extract comprehensive navigation data
+                proposed_direction = result.get("next_direction", "STAY")
+                alternatives = result.get("alternatives", [])
+                safety_analysis = result.get("safety_analysis", {})
+                reasoning = result.get("reasoning", "No reasoning provided")
+                
+                print(f"🧠 BGE: VLM Analysis - Primary: {proposed_direction}")
+                print(f"🧠 BGE: Alternatives: {alternatives}")
+                for direction, analysis in safety_analysis.items():
+                    print(f"🔍 BGE: {direction}: {analysis}")
+                
+                # Use VLM's comprehensive analysis to select safe direction
+                if proposed_direction != "STAY":
+                    # Check if VLM marked the primary direction as safe
+                    primary_analysis = safety_analysis.get(proposed_direction, "")
+                    if "CLEAR" in primary_analysis.upper():
+                        print(f"✅ BGE: Primary direction {proposed_direction} verified as safe by VLM")
+                        return result
+                    elif "BLOCKED" in primary_analysis.upper():
+                        # VLM detected obstacle in primary direction, use alternatives
+                        print(f"⚠️ BGE: VLM detected obstacle in {proposed_direction}, checking alternatives")
+                        
+                        # Try alternatives in order, using VLM's safety analysis
+                        for alt_direction in alternatives:
+                            if alt_direction in safety_analysis:
+                                alt_analysis = safety_analysis[alt_direction]
+                                if "CLEAR" in alt_analysis.upper():
+                                    print(f"🔄 BGE: Using safe alternative: {alt_direction}")
+                                    result["next_direction"] = alt_direction
+                                    result["reasoning"] = f"Alternative route: {alt_analysis}"
+                                    return result
+                        
+                        # If no alternatives are clear, stay in place
+                        print(f"🛑 BGE: All directions blocked according to VLM, staying put")
+                        result["next_direction"] = "STAY"
+                        result["reasoning"] = "All paths blocked - safety override"
+                        return result
+                    else:
+                        # VLM didn't provide clear safety analysis, do minimal validation
+                        print(f"⚠️ BGE: Unclear VLM safety analysis, performing single validation check")
+                        is_safe = validate_movement_with_vlm(screenshot_path, proposed_direction, actor_position)
+                        if not is_safe:
+                            result["next_direction"] = "STAY"
+                            result["reasoning"] = "Safety validation failed"
+                        return result
+                else:
+                    # VLM chose STAY
+                    print(f"🏁 BGE: VLM chose to stay - task likely complete")
+                    return result
             else:
-                return {"next_direction": "UP", "reasoning": "JSON parse failed"}
-        except json.JSONDecodeError:
-            return {"next_direction": "UP", "reasoning": "JSON decode failed"}
+                print("❌ BGE: JSON structure not found in VLM response")
+                return {"next_direction": "STAY", "reasoning": "JSON parse failed - waiting for valid VLM response"}
+        except json.JSONDecodeError as e:
+            print(f"❌ BGE: JSON decode error: {e}")
+            return {"next_direction": "STAY", "reasoning": "JSON decode failed - waiting for valid VLM response"}
+        except Exception as e:
+            print(f"❌ BGE: Response processing error: {e}")
+            return {"next_direction": "STAY", "reasoning": f"Processing error: {e} - waiting for valid VLM response"}
             
     except Exception as e:
         print(f"❌ BGE: LLM error: {e}")
@@ -350,6 +531,10 @@ Examples:
 
 def move_actor_bge(actor, direction, step_size=0.3):
     """Move actor in BGE coordinate system"""
+    if direction == "STAY":
+        print("🛑 BGE: Actor staying - task complete or waiting for VLM!")
+        return True
+    
     if direction == "UP":
         actor.worldPosition.y += step_size
     elif direction == "DOWN":
@@ -358,9 +543,6 @@ def move_actor_bge(actor, direction, step_size=0.3):
         actor.worldPosition.x -= step_size
     elif direction == "RIGHT":
         actor.worldPosition.x += step_size
-    elif direction == "STAY":
-        print("🛑 BGE: Actor staying - task complete!")
-        return True
     
     print(f"🎮 BGE: Actor moved {direction} to [{actor.worldPosition.x:.2f}, {actor.worldPosition.y:.2f}]")
     return False
@@ -465,6 +647,8 @@ def main():
     
     # Get navigation decision
     actor_pos = [actor.worldPosition.x, actor.worldPosition.y, actor.worldPosition.z]
+    
+    print(f"🎯 BGE: Actor at [{actor_pos[0]:.2f}, {actor_pos[1]:.2f}]")
     
     if LLM_AVAILABLE:
         # Use LLM for navigation

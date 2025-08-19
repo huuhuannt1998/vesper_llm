@@ -86,10 +86,10 @@ def chat_completion_with_vision(prompt, image_path=None, image_base64=None):
         
     except requests.exceptions.Timeout:
         print("VLM vision request timed out after 180 seconds")
-        return "ERROR: Vision processing timeout"
+        return "TIMEOUT_ERROR: Vision processing timeout - please wait for VLM reconnection"
     except Exception as e:
         print(f"VLM vision error: {e}")
-        return f"ERROR: {e}"
+        return f"CONNECTION_ERROR: {e} - please wait for VLM reconnection"
 
 # --- Simple CLI test ---
 if __name__ == "__main__":
