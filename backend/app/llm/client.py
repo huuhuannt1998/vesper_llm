@@ -7,19 +7,17 @@ from typing import Optional
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# --- Load .env if present ---
 load_dotenv()
 
-# --- Config ---
 BASE_URL = os.getenv("LLM_API_URL", "http://100.98.151.66:1234/v1").rstrip("/")
-API_KEY = os.getenv("OPENAI_API_KEY") or "not-needed"  # local server ignores this
+API_KEY = os.getenv("OPENAI_API_KEY") or "not-needed"  
 MODEL = "google/gemma-3-27b"
 
 MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "500"))
 OPENAI_TIMEOUT = os.getenv("OPENAI_TIMEOUT", "180")  # Increased from 120 to 180 for vision
 os.environ["OPENAI_TIMEOUT"] = OPENAI_TIMEOUT
 
-# --- Init client ---
+
 client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
 def chat_completion(
@@ -28,9 +26,9 @@ def chat_completion(
     *,
     max_tokens: Optional[int] = None,
     temperature: float = 0.3,
-    image_base64: Optional[str] = None,  # Backward compatibility
+    image_base64: Optional[str] = None, 
 ) -> str:
-    """Simple text-only chat using google/gemma-3-27b."""
+
     resp = client.chat.completions.create(
         model=MODEL,
         messages=[
@@ -43,9 +41,7 @@ def chat_completion(
     return (resp.choices[0].message.content or "").strip()
 
 def chat_completion_with_vision(prompt, image_path=None, image_base64=None):
-    """Chat completion with vision (backward compatible with image_base64 parameter)"""
     try:
-        # Support both image_path and image_base64 for backward compatibility
         if image_base64:
             encoded_image = image_base64
         elif image_path and os.path.exists(image_path):
