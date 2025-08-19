@@ -84,9 +84,17 @@ def capture_bird_eye_screenshot():
         # Find or create bird's eye camera
         bird_camera = None
         for obj in scene.objects:
-            if obj.name == "BirdEyeCamera" or obj.name == "Camera" or "camera" in obj.name.lower():
+            if obj.name == "BirdEyeCamera":
                 bird_camera = obj
                 break
+        
+        if not bird_camera:
+            print("⚠️ BGE: BirdEyeCamera not found - using any available camera")
+            # Fallback to any camera for screenshot
+            for obj in scene.objects:
+                if "camera" in obj.name.lower():
+                    bird_camera = obj
+                    break
         
         if not bird_camera:
             print("⚠️ BGE: No suitable camera found for screenshots")
@@ -547,17 +555,247 @@ def move_actor_bge(actor, direction, step_size=0.3):
     print(f"🎮 BGE: Actor moved {direction} to [{actor.worldPosition.x:.2f}, {actor.worldPosition.y:.2f}]")
     return False
 
+def find_or_create_actor(scene):
+    """Find existing actor named 'Actor' or rename/create one for consistent naming"""
+    actor = None
+    
+    # First, try to find an object specifically named "Actor"
+    for obj in scene.objects:
+        if obj.name == "Actor":
+            actor = obj
+            print(f"✅ BGE: Found Actor: {obj.name}")
+            break
+    
+    # If no "Actor" found, look for suitable objects to rename as "Actor"
+    if not actor:
+        # Try character-like objects first (prioritize character shapes)
+        character_objects = []
+        other_suitable = []
+        
+        for obj in scene.objects:
+            if (not obj.name.lower().startswith(('camera', 'light', 'lamp', 'floor', 'wall', 'ceiling')) 
+                and hasattr(obj, 'worldPosition')):
+                
+                # Check if it's a character-like object
+                if any(keyword in obj.name.lower() for keyword in ['character', 'player', 'human', 'person', 'suzanne', 'monkey']):
+                    character_objects.append(obj)
+                else:
+                    other_suitable.append(obj)
+        
+        # Prioritize character objects to preserve character-like appearance
+        if character_objects:
+            actor = character_objects[0]
+            old_name = actor.name
+            actor.name = "Actor"
+            print(f"✅ BGE: Renamed character '{old_name}' to 'Actor' for consistent naming")
+        elif other_suitable:
+            # Use other suitable objects if no character found
+            for obj in other_suitable:
+                if obj.name.lower().startswith(('player', 'cube', 'sphere')):
+                    actor = obj
+                    old_name = obj.name
+                    obj.name = "Actor"
+                    print(f"✅ BGE: Renamed '{old_name}' to 'Actor' for consistent naming")
+                    break
+            
+            # If no preferred objects, use first suitable
+            if not actor and other_suitable:
+                actor = other_suitable[0]
+                old_name = actor.name
+                actor.name = "Actor"
+                print(f"✅ BGE: Renamed '{old_name}' to 'Actor' for navigation")
+    
+    # Last resort: notify need for manual setup
+    if not actor:
+        print("⚠️ BGE: No suitable object found to use as 'Actor' - add a movable object to the scene")
+        print("💡 BGE: Consider adding a character, player, or any movable mesh object")
+        return None
+    
+    return actor
+
+def find_navigation_camera(scene):
+    """Find existing camera named 'BirdEyeCamera' or rename one for consistent naming"""
+    camera = None
+    
+    # First, try to find a camera specifically named "BirdEyeCamera"
+    for obj in scene.objects:
+        if obj.name == "BirdEyeCamera":
+            camera = obj
+            print(f"✅ BGE: Found BirdEyeCamera: {obj.name}")
+            break
+    
+    # If no "BirdEyeCamera" found, look for cameras to rename as "BirdEyeCamera"
+    if not camera:
+        # Try to find any camera and rename it to "BirdEyeCamera"
+        camera_priorities = ["TopCamera", "OverheadCamera", "NavCamera", "Camera"]
+        
+        # First, try preferred camera names
+        for preferred_name in camera_priorities:
+            for obj in scene.objects:
+                if obj.name.lower() == preferred_name.lower():
+                    old_name = obj.name
+                    obj.name = "BirdEyeCamera"
+                    camera = obj
+                    print(f"✅ BGE: Renamed camera '{old_name}' to 'BirdEyeCamera' for consistent naming")
+                    break
+            if camera:
+                break
+        
+        # If no preferred cameras found, use any camera
+        if not camera:
+            for obj in scene.objects:
+                if "camera" in obj.name.lower():
+                    old_name = obj.name
+                    obj.name = "BirdEyeCamera"
+                    camera = obj
+                    print(f"✅ BGE: Renamed camera '{old_name}' to 'BirdEyeCamera' for navigation")
+                    break
+    
+    if not camera:
+        print("⚠️ BGE: No camera found to rename as 'BirdEyeCamera' - add a camera to the scene")
+        print("💡 BGE: Position the camera above the house for best bird's eye view screenshots")
+    
+    return camera
+
+def analyze_scene_layout(scene):
+    """Analyze the imported scene to understand layout"""
+    layout_info = {
+        "total_objects": len(scene.objects),
+        "cameras": [],
+        "lights": [],
+        "static_objects": [],
+        "movable_objects": [],
+        "bounds": {"min_x": float('inf'), "max_x": float('-inf'), 
+                  "min_y": float('inf'), "max_y": float('-inf')}
+    }
+    
+    for obj in scene.objects:
+        name_lower = obj.name.lower()
+        
+        # Categorize objects
+        if "camera" in name_lower:
+            layout_info["cameras"].append(obj.name)
+        elif any(light_type in name_lower for light_type in ["light", "lamp", "sun"]):
+            layout_info["lights"].append(obj.name)
+        elif any(static_type in name_lower for static_type in ["floor", "wall", "ceiling", "door", "window"]):
+            layout_info["static_objects"].append(obj.name)
+        else:
+            layout_info["movable_objects"].append(obj.name)
+        
+        # Calculate scene bounds
+        if hasattr(obj, 'worldPosition'):
+            x, y = obj.worldPosition.x, obj.worldPosition.y
+            layout_info["bounds"]["min_x"] = min(layout_info["bounds"]["min_x"], x)
+            layout_info["bounds"]["max_x"] = max(layout_info["bounds"]["max_x"], x)
+            layout_info["bounds"]["min_y"] = min(layout_info["bounds"]["min_y"], y)
+            layout_info["bounds"]["max_y"] = max(layout_info["bounds"]["max_y"], y)
+    
+    return layout_info
+
+def setup_navigation_for_new_layout():
+    """Setup navigation system for newly imported glTF layout"""
+    scene = bge.logic.getCurrentScene()
+    
+    print("\n🏠 BGE: Setting up navigation for new layout...")
+    
+    # Analyze the scene
+    layout_info = analyze_scene_layout(scene)
+    
+    print(f"📊 BGE: Scene Analysis:")
+    print(f"   Objects: {layout_info['total_objects']}")
+    print(f"   Cameras: {len(layout_info['cameras'])} - {layout_info['cameras']}")
+    print(f"   Lights: {len(layout_info['lights'])}")
+    print(f"   Static: {len(layout_info['static_objects'])}")
+    print(f"   Movable: {len(layout_info['movable_objects'])}")
+    
+    # Calculate scene bounds
+    bounds = layout_info["bounds"]
+    if bounds["min_x"] != float('inf'):
+        width = bounds["max_x"] - bounds["min_x"]
+        height = bounds["max_y"] - bounds["min_y"]
+        center_x = (bounds["min_x"] + bounds["max_x"]) / 2
+        center_y = (bounds["min_y"] + bounds["max_y"]) / 2
+        
+        print(f"🗺️ BGE: Layout bounds:")
+        print(f"   X: {bounds['min_x']:.1f} to {bounds['max_x']:.1f} (width: {width:.1f})")
+        print(f"   Y: {bounds['min_y']:.1f} to {bounds['max_y']:.1f} (height: {height:.1f})")
+        print(f"   Center: ({center_x:.1f}, {center_y:.1f})")
+    
+    # Find/setup actor
+    actor = find_or_create_actor(scene)
+    if actor:
+        # Store original position before any modifications
+        original_pos = [actor.worldPosition.x, actor.worldPosition.y, actor.worldPosition.z]
+        print(f"📍 BGE: Actor original position: ({original_pos[0]:.1f}, {original_pos[1]:.1f}, {original_pos[2]:.1f})")
+        
+        # Check if auto-positioning is disabled
+        auto_position_disabled = False
+        try:
+            # Try to access scene properties to check positioning setting
+            if hasattr(bge.logic, 'globalDict') and 'vesper_disable_auto_position' in bge.logic.globalDict:
+                auto_position_disabled = bge.logic.globalDict['vesper_disable_auto_position']
+        except:
+            pass
+        
+        if auto_position_disabled:
+            print(f"📍 BGE: Auto-positioning disabled - keeping actor at current position")
+        else:
+            # Only reposition actor if it's at origin (0,0,0) or outside reasonable bounds
+            if bounds["min_x"] != float('inf'):
+                # Check if actor is at origin or outside scene bounds
+                at_origin = (abs(actor.worldPosition.x) < 0.1 and abs(actor.worldPosition.y) < 0.1)
+                outside_bounds = (actor.worldPosition.x < bounds["min_x"] - 2 or 
+                                actor.worldPosition.x > bounds["max_x"] + 2 or
+                                actor.worldPosition.y < bounds["min_y"] - 2 or 
+                                actor.worldPosition.y > bounds["max_y"] + 2)
+                
+                if at_origin or outside_bounds:
+                    center_x = (bounds["min_x"] + bounds["max_x"]) / 2
+                    center_y = (bounds["min_y"] + bounds["max_y"]) / 2
+                    actor.worldPosition.x = center_x
+                    actor.worldPosition.y = center_y
+                    print(f"📍 BGE: Repositioned actor from origin/outside bounds to center: ({center_x:.1f}, {center_y:.1f})")
+                else:
+                    print(f"📍 BGE: Keeping actor at current position: ({original_pos[0]:.1f}, {original_pos[1]:.1f})")
+            else:
+                print(f"📍 BGE: Keeping actor at current position (no scene bounds calculated)")
+    
+    # Find/setup camera
+    camera = find_navigation_camera(scene)
+    
+    # Store layout info for navigation system
+    bge.logic.vesper_layout_info = layout_info
+    
+    print("✅ BGE: Navigation setup complete for new layout!\n")
+    
+    return actor, camera, layout_info
+
 def main():
     """Main BGE navigation function"""
     controller = bge.logic.getCurrentController()
     owner = controller.owner
     scene = bge.logic.getCurrentScene()
     
-    # Find actor
-    actor = scene.objects.get("Actor") or owner
-    if not actor:
-        print("❌ BGE: No Actor found!")
-        return
+    # Check if this is a new scene/layout that needs setup
+    if not hasattr(bge.logic, "vesper_layout_setup_done"):
+        print("🔄 BGE: Detecting new layout - setting up navigation...")
+        actor, camera, layout_info = setup_navigation_for_new_layout()
+        bge.logic.vesper_layout_setup_done = True
+        
+        # Use the found/created actor instead of default owner
+        if actor:
+            owner = actor
+    else:
+        # Find actor for existing setup - always use "Actor" name
+        actor = None
+        for obj in scene.objects:
+            if obj.name == "Actor":
+                actor = obj
+                break
+        
+        if not actor:
+            print("❌ BGE: No 'Actor' object found! Run setup again or manually rename your actor to 'Actor'")
+            return
     
     # Initialize navigation state
     if not hasattr(bge.logic, "vesper_nav_state"):
