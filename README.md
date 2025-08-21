@@ -82,7 +82,20 @@ vesper_llm/
    pip install -r requirements.txt
    ```
 
-2. **Configure VLM Connection**
+2. **Configure LLM Connection**
+   
+   **Option A: Ollama (Local Models - Recommended)**
+   ```bash
+   # Install Ollama from https://ollama.ai
+   # Install vision-capable model for navigation
+   ollama pull llava:7b
+   
+   # Set environment variables (optional)
+   export OLLAMA_HOST=http://localhost:11434
+   export OLLAMA_MODEL=llava:7b
+   ```
+   
+   **Option B: Remote VLM Server**
    ```bash
    cp .env.example backend/app/llm/.env
    # Edit backend/app/llm/.env with your VLM server:
