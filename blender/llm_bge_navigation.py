@@ -138,13 +138,6 @@ def request_bird_eye_screenshot():
     return shot_path
 
 def poll_screenshot_ready(min_bytes: int = 1000, timeout_s: float = 5.0):
-    """
-    Check whether the requested screenshot is now on disk and looks valid.
-    Returns:
-      - None        -> not ready yet
-      - "TIMEOUT"   -> timed out; caller may re-request
-      - <path str>  -> valid file ready
-    """
     _init_shot_state()
     st = bge.logic._vesper_shot
     if not st["pending"]:
@@ -273,27 +266,27 @@ CURRENT POSITION: {current_pos}{position_context}
 Your PRIMARY job is to accurately identify which room the pink dot is currently in by analyzing the furniture around it.
 
 ROOM FEATURES TO LOOK FOR:
-🛏️ BEDROOM: {target_features if "bedroom" in current_task.lower() else "BED, dresser, wardrobe, pillows"}
-🍳 KITCHEN: {target_features if "kitchen" in current_task.lower() else "Stove/oven, refrigerator, sink, countertops, cabinets"}  
-🛋️ LIVING ROOM: {target_features if "living room" in current_task.lower() else "Sofa/couch, coffee table, TV, seating area"}
+BEDROOM: {target_features if "bedroom" in current_task.lower() else "BED, dresser, wardrobe, pillows"}
+KITCHEN: {target_features if "kitchen" in current_task.lower() else "Stove/oven, refrigerator, sink, countertops, cabinets"}  
+LIVING ROOM: {target_features if "living room" in current_task.lower() else "Sofa/couch, coffee table, TV, seating area"}
 
-🎯 TASK COMPLETION RULE:
-⚠️ ONLY use "STAY" if: {completion_criteria}
-⚠️ If the pink dot is NOT in the target room, continue navigating - do NOT use "STAY"
+TASK COMPLETION RULE:
+ONLY use "STAY" if: {completion_criteria}
+If the pink dot is NOT in the target room, continue navigating - do NOT use "STAY"
 
-🏠 VISUAL ANALYSIS STEPS:
+VISUAL ANALYSIS STEPS:
 1. LOCATE PINK DOT - Find the actor's current position
 2. ANALYZE FURNITURE AROUND PINK DOT - What furniture is immediately visible near the pink dot?
 3. IDENTIFY CURRENT ROOM - Based on furniture, which room contains the pink dot?
 4. CHECK IF TASK IS COMPLETE - Is the pink dot in the target room with correct furniture?
 5. PLAN MOVEMENT - If not in target room, navigate toward target area
 
-🚨 SAFETY BOUNDARIES:
+SAFETY BOUNDARIES:
 - SAFE AREAS: Rooms with floors, furniture, walls, textures (stay here!)
 - UNSAFE AREAS: Dark/black spaces, empty voids outside rooms (NEVER go here!)
 - If pink dot approaches dark edges → move back toward center/furniture
 
-⚡ MOVEMENT RULES:
+MOVEMENT RULES:
 - MAXIMUM 1-2 moves per sequence (be efficient!)
 - Only move through areas with visible floors and furniture
 - Stop immediately when you reach the correct room with target furniture
@@ -301,7 +294,7 @@ ROOM FEATURES TO LOOK FOR:
 - If image is unclear, use STAY and request new analysis rather than guessing directions
 - NEVER suggest moves that could lead outside the visible house structure
 
-🚨 CRITICAL SAFETY:
+CRITICAL SAFETY:
 - If you cannot clearly identify furniture or room boundaries, use "STAY" 
 - If the image is blurry/unclear, respond with current_room: "UNKNOWN" and movement_sequence: ["STAY"]
 - Focus on visible furniture landmarks to determine safe movement directions

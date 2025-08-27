@@ -8,9 +8,8 @@ import ollama
 
 load_dotenv()
 
-# Ollama expects OLLAMA_HOST (e.g., http://localhost:11434)
 HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
-MODEL = (os.getenv("OLLAMA_MODEL", "llava:7b")).strip()  # Default to vision model
+MODEL = (os.getenv("OLLAMA_MODEL", "llava:7b")).strip()
 MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "500"))
 
 # Create an Ollama client explicitly bound to host
