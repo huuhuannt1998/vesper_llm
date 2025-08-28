@@ -8,7 +8,24 @@ import ollama
 
 load_dotenv()
 
-HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+# Debug environment variables
+raw_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+print(f"🔍 DEBUG: Raw OLLAMA_HOST = '{raw_host}'")
+
+HOST = raw_host.rstrip("/")
+# Ensure the host has a proper scheme
+if not HOST.startswith(('http://', 'https://')):
+    if HOST.startswith('localhost:') or HOST.startswith('127.0.0.1:'):
+        HOST = f"http://{HOST}"
+    elif HOST in ['localhost', '127.0.0.1']:
+        HOST = f"http://{HOST}:11434"
+    else:
+        # Fallback to localhost if something went wrong
+        print(f"⚠️ Invalid HOST format: '{HOST}', falling back to localhost")
+        HOST = "http://localhost:11434"
+
+print(f"🔍 DEBUG: Final HOST = '{HOST}'")
+
 MODEL = (os.getenv("OLLAMA_MODEL", "llava:7b")).strip()
 MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "500"))
 
@@ -34,6 +51,7 @@ def _chat_via_http_chat(system: str, user: str, temperature: float) -> str:
     Fallback #1: direct HTTP to /api/chat (some environments prefer this).
     """
     url = f"{HOST}/api/chat"
+    print(f"🔍 DEBUG: Trying HTTP chat at: {url}")
     payload = {
         "model": MODEL,
         "messages": [
@@ -59,6 +77,7 @@ def _chat_via_http_generate(system: str, user: str, temperature: float) -> str:
     Uses /api/generate with a single prompt.
     """
     url = f"{HOST}/api/generate"
+    print(f"🔍 DEBUG: Trying HTTP generate at: {url}")
     prompt = (system + "\n\nUser:\n" + user).strip()
     payload = {
         "model": MODEL,
@@ -99,6 +118,8 @@ def chat_completion_with_vision(prompt, image_path=None, image_base64=None):
     Chat completion with vision support using Ollama vision models (llava, moondream, etc.)
     """
     try:
+        print(f"🔍 DEBUG: Vision completion starting with HOST='{HOST}', MODEL='{MODEL}'")
+        
         # Prepare the image for Ollama
         images = []
         if image_path and os.path.exists(image_path):
@@ -114,6 +135,7 @@ def chat_completion_with_vision(prompt, image_path=None, image_base64=None):
             return chat_completion("You are a helpful assistant.", prompt)
         
         # Use ollama.Client for vision
+        print(f"🔍 DEBUG: Sending vision request to Ollama client...")
         response = client.chat(
             model=MODEL,
             messages=[
@@ -125,10 +147,13 @@ def chat_completion_with_vision(prompt, image_path=None, image_base64=None):
             ],
             options={'temperature': 0.3}
         )
-        return response['message']['content'].strip()
+        result = response['message']['content'].strip()
+        print(f"🔍 DEBUG: Vision completion successful, response length: {len(result)}")
+        return result
         
     except Exception as e:
         print(f"❌ Vision completion failed: {e}")
+        print(f"🔍 DEBUG: Exception type: {type(e).__name__}")
         print("ℹ️ Falling back to text-only completion")
         return chat_completion("You are a helpful assistant.", prompt)
 
