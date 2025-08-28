@@ -5,13 +5,6 @@ import sys
 import json
 import time
 
-# =============================
-# BGE screenshot state
-# =============================
-
-# =============================
-# Python path & .env bootstrap
-# =============================
 def setup_python_path():
     """Setup path to access LLM client"""
     try:
@@ -603,13 +596,13 @@ ANALYSIS STRATEGY:
 - Cross-reference between images to make accurate room identification
 
 DUAL-IMAGE ROOM IDENTIFICATION:
-🏠 REFERENCE IMAGE shows you:
+REFERENCE IMAGE shows you:
 - Complete house layout with all rooms
 - Clear furniture details and placement
 - Room boundaries and connections
 - Kitchen appliances, bedroom furniture, living room setup
 
-🎯 RUNTIME IMAGE shows you:
+RUNTIME IMAGE shows you:
 - Pink dot (actor) current position
 - Real-time room view (may be lower quality)
 - Actual navigation context
@@ -626,13 +619,13 @@ CRITICAL PROCESS:
     system_prompt += """
 
 CRITICAL ROOM IDENTIFICATION RULES:
-🛏️ BEDROOM = Look for: bed (rectangular furniture), dresser, nightstand, wardrobe, pillows
-🍳 KITCHEN = Look for: stove/oven, refrigerator (large appliance), sink, countertops, cabinets
-🛋️ LIVING_ROOM = Look for: sofa/couch, coffee table, TV, chairs, entertainment center
-🏢 OFFICE = Look for: desk, computer, office chair, bookshelf, work area
-🚿 BATHROOM = Look for: toilet, sink, bathtub, shower, mirror
-🚗 GARAGE = Look for: car, garage door, tools, workbench
-❓ UNKNOWN = If furniture is unclear or you cannot identify room type
+BEDROOM = Look for: bed (rectangular furniture), dresser, nightstand, wardrobe, pillows
+KITCHEN = Look for: stove/oven, refrigerator (large appliance), sink, countertops, cabinets
+LIVING_ROOM = Look for: sofa/couch, coffee table, TV, chairs, entertainment center
+OFFICE = Look for: desk, computer, office chair, bookshelf, work area
+BATHROOM = Look for: toilet, sink, bathtub, shower, mirror
+GARAGE = Look for: car, garage door, tools, workbench
+UNKNOWN = If furniture is unclear or you cannot identify room type
 
 FURNITURE RECOGNITION GUIDE:
 - BED: Large rectangular furniture, usually with pillows/bedding
@@ -647,10 +640,10 @@ The pink dot shows the actor's current position. Identify the room by analyzing 
     # Add enhanced position context with spatial awareness
     position_context = ""
     if hasattr(bge.logic, 'position_history') and len(bge.logic.position_history) > 1:
-        recent_positions = bge.logic.position_history[-3:]  # last 3 positions
+        recent_positions = bge.logic.position_history[-3:]  
         position_context = f"\nRECENT POSITIONS: {recent_positions}"
         
-        # Add spatial awareness based on coordinates
+
         x, y = actor.worldPosition.x, actor.worldPosition.y
         spatial_hints = ""
         
@@ -670,11 +663,11 @@ The pink dot shows the actor's current position. Identify the room by analyzing 
             
         position_context += spatial_hints
         
-        # Check for drift detection
+ 
         if abs(x) > 5.0 or abs(y) > 5.0:
             position_context += " ⚠️ APPROACHING HOUSE BOUNDARIES!"
 
-    # Enhanced room identification based on task
+
     if "bedroom" in current_task.lower():
         target_features = "BED (rectangular furniture), DRESSER/WARDROBE (tall furniture), PILLOWS, or bedroom-specific items"
         completion_criteria = "You must see a BED or bedroom furniture near the pink dot"
@@ -701,7 +694,7 @@ The pink dot shows the actor's current position. Identify the room by analyzing 
     image_context = ""
     if has_reference:
         image_context = f"""
-🖼️ DUAL-IMAGE ANALYSIS AVAILABLE:
+DUAL-IMAGE ANALYSIS AVAILABLE:
 - REFERENCE IMAGE: Detailed house layout (use for furniture identification)
 - RUNTIME IMAGE: Current view with pink dot (use for position)
 
@@ -713,23 +706,23 @@ ENHANCED ANALYSIS PROCESS:
 5. Use both images together for accurate room and furniture identification
 """
     else:
-        image_context = "\n🖼️ SINGLE IMAGE ANALYSIS: Using runtime screenshot only\n"
+        image_context = "\nSINGLE IMAGE ANALYSIS: Using runtime screenshot only\n"
 
     user_prompt = f'''TASK: {current_task}
 ANALYSIS #{bge.logic.analysis_count} | POSITION: {current_pos}{position_context}
 {image_context}
-🎯 STEP-BY-STEP VISUAL ANALYSIS:
+STEP-BY-STEP VISUAL ANALYSIS:
 
-1️⃣ LOCATE PINK DOT: Find the pink/red dot showing actor position
+1️. LOCATE PINK DOT: Find the pink/red dot showing actor position
    {f"(Use RUNTIME IMAGE to find pink dot, REFERENCE IMAGE for context)" if has_reference else ""}
 
-2️⃣ FURNITURE SCAN: Look at furniture immediately around the pink dot
+2️. FURNITURE SCAN: Look at furniture immediately around the pink dot
    - What furniture is within 2-3 units of the pink dot?
    {f"- Cross-reference furniture details from REFERENCE IMAGE" if has_reference else ""}
    - Is it a BED (bedroom), SOFA (living room), STOVE (kitchen), or unclear?
    - CRITICAL: If image is blurry/unclear, describe what you actually see instead of using template text!
 
-3️⃣ ROOM IDENTIFICATION: Based on furniture near pink dot:
+3️. ROOM IDENTIFICATION: Based on furniture near pink dot:
    🛏️ If you see BED/dresser/nightstand → BEDROOM
    🍳 If you see STOVE/refrigerator/sink/counters → KITCHEN  
    🛋️ If you see SOFA/couch/coffee table/TV → LIVING_ROOM
@@ -738,7 +731,7 @@ ANALYSIS #{bge.logic.analysis_count} | POSITION: {current_pos}{position_context}
    🚗 If you see CAR/garage door/tools/workbench → GARAGE
    ❓ If furniture is unclear/blurry → UNKNOWN
 
-4️⃣ TASK CHECK: Does current room match task requirement?
+4️. TASK CHECK: Does current room match task requirement?
    CURRENT TASK: "{current_task}"
    
    COMPREHENSIVE TASK-ROOM MATCHING:
@@ -748,9 +741,9 @@ ANALYSIS #{bge.logic.analysis_count} | POSITION: {current_pos}{position_context}
    - Bedroom tasks ("sleep", "bedroom", "rest") → MUST be in BEDROOM (see bed/dresser/nightstand)
    - Office tasks ("work", "office", "study") → MUST be in OFFICE (see desk/computer/chair)
    - Garage tasks ("car", "garage", "park") → MUST be in GARAGE (see car/garage door/tools)
-
-5️⃣ NAVIGATION DECISION:
-   ✅ TASK COMPLETE ONLY IF: Current room type EXACTLY matches task requirement
+   
+5️. NAVIGATION DECISION:
+   TASK COMPLETE ONLY IF: Current room type EXACTLY matches task requirement
       - Kitchen task + KITCHEN room + kitchen furniture = task_complete: true
       - Bathroom task + BATHROOM room + bathroom fixtures = task_complete: true
       - Living room task + LIVING_ROOM room + living room furniture = task_complete: true
@@ -758,28 +751,28 @@ ANALYSIS #{bge.logic.analysis_count} | POSITION: {current_pos}{position_context}
       - Office task + OFFICE room + office furniture = task_complete: true
       - Garage task + GARAGE room + garage equipment = task_complete: true
    
-   ❌ TASK INCOMPLETE IF: Wrong room or unclear room
+   TASK INCOMPLETE IF: Wrong room or unclear room
       - Kitchen task but in BEDROOM/BATHROOM/LIVING_ROOM/OFFICE/GARAGE = task_complete: false
       - Bathroom task but in KITCHEN/BEDROOM/LIVING_ROOM/OFFICE/GARAGE = task_complete: false
       - Any task but UNKNOWN room = task_complete: false, try movement for clarity
 
-   ⚠️ CRITICAL: NEVER set task_complete: true unless room type perfectly matches task!
+   CRITICAL: NEVER set task_complete: true unless room type perfectly matches task!
 
 FURNITURE EXAMPLES TO RECOGNIZE:
-🛏️ BED: Large rectangular shape, often with pillows/headboard
-🛋️ SOFA: L-shaped or long rectangular seating, multiple cushions
-🍳 STOVE: Square/rectangular with cooking surfaces/burners
-📺 TV: Flat rectangular screen, often on stand or wall
-🪑 TABLE: Flat surface (coffee table = small round/square, dining = large)
-🏢 DESK: Flat work surface, often with computer or papers
-🚽 TOILET: White porcelain fixture, bowl shape
-🚿 BATHTUB: Large white rectangular basin
-🚗 CAR: Large vehicle shape in enclosed space
-🔧 TOOLS: Hanging implements, workbench, garage equipment
+BED: Large rectangular shape, often with pillows/headboard
+SOFA: L-shaped or long rectangular seating, multiple cushions
+STOVE: Square/rectangular with cooking surfaces/burners
+TV: Flat rectangular screen, often on stand or wall
+TABLE: Flat surface (coffee table = small round/square, dining = large)
+DESK: Flat work surface, often with computer or papers
+TOILET: White porcelain fixture, bowl shape
+BATHTUB: Large white rectangular basin
+CAR: Large vehicle shape in enclosed space
+TOOLS: Hanging implements, workbench, garage equipment
 
 CRITICAL: Focus on furniture IMMEDIATELY AROUND the pink dot to determine room type!
 
-⚠️ NAVIGATION RULES:
+NAVIGATION RULES:
 - If current room matches task: Use ["STAY"] and set task_complete: true
 - If in wrong room but know which direction to go: Use ONE direction like ["LEFT"] or ["UP"]
 - From LIVING_ROOM to KITCHEN: Try ["LEFT"] or ["UP"] (kitchen typically connected to living area)
@@ -789,7 +782,7 @@ CRITICAL: Focus on furniture IMMEDIATELY AROUND the pink dot to determine room t
 - NEVER use multiple directions in sequence like ["UP", "DOWN", "LEFT", "RIGHT"]
 - ALWAYS try ONE direction at a time for exploration
 
-⚠️ ANTI-OSCILLATION RULES:
+ANTI-OSCILLATION RULES:
 - NEVER use template text like "list specific furniture you see near pink dot"
 - ALWAYS describe what you actually observe, even if unclear
 - If image is blurry, try ONE direction only to get better view
@@ -919,9 +912,7 @@ def move_actor(actor, direction, step_size=0.3):
         
     return True
 
-# =============================
-# Main tick
-# =============================
+
 def main():
     """Main BGE navigation function with sequence-based movement (non-blocking screenshots, manual camera settings preserved)"""
     controller = bge.logic.getCurrentController()
