@@ -26,7 +26,7 @@ if not HOST.startswith(('http://', 'https://')):
 
 print(f"🔍 DEBUG: Final HOST = '{HOST}'")
 
-MODEL = (os.getenv("OLLAMA_MODEL", "llava:7b")).strip()
+MODEL = (os.getenv("OLLAMA_MODEL", "gemma3:27b")).strip()
 MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "500"))
 
 # Create an Ollama client explicitly bound to host

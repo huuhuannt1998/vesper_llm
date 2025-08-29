@@ -104,6 +104,196 @@ def load_vesper_tasks():
         return None
 
 # =============================
+# VESPER Evaluation Metrics & Logging System
+# =============================
+class VESPERMetricsLogger:
+    """Comprehensive logging and metrics tracking for VESPER navigation evaluation"""
+    
+    def __init__(self):
+        self.session_start_time = time.time()
+        self.current_task_start_time = None
+        self.log_dir = os.path.join(r"C:\Users\hbui11\Desktop\vesper_llm\blender", "evaluation_logs")
+        os.makedirs(self.log_dir, exist_ok=True)
+        
+        # Session log file with timestamp
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        self.log_file = os.path.join(self.log_dir, f"vesper_navigation_log_{timestamp}.json")
+        
+        # Initialize metrics tracking
+        self.session_data = {
+            "session_id": timestamp,
+            "start_time": self.session_start_time,
+            "tasks_completed": 0,
+            "tasks_failed": 0,
+            "total_steps": 0,
+            "total_screenshots": 0,
+            "total_llm_calls": 0,
+            "task_details": []
+        }
+        
+        # Current task tracking
+        self.current_task_data = None
+        
+        print(f"📊 VESPER: Metrics logging initialized - {self.log_file}")
+    
+    def start_task(self, task_name, task_index):
+        """Log the start of a new task"""
+        self.current_task_start_time = time.time()
+        self.current_task_data = {
+            "task_name": task_name,
+            "task_index": task_index,
+            "start_time": self.current_task_start_time,
+            "start_position": None,
+            "end_position": None,
+            "completion_time": None,
+            "steps_taken": 0,
+            "screenshots_captured": 0,
+            "llm_calls": 0,
+            "success": False,
+            "failure_reason": None,
+            "movement_path": [],
+            "room_detections": [],
+            "vlm_responses": []
+        }
+        
+        # Add task to session immediately so it appears in JSON
+        self.session_data["task_details"].append(self.current_task_data)
+        
+        print(f"📋 METRICS: Starting task {task_index + 1}: '{task_name}'")
+        self._log_to_file()
+    
+    def log_step(self, step_number, action, old_pos, new_pos, room_detected=None):
+        """Log each movement step"""
+        if self.current_task_data:
+            self.current_task_data["steps_taken"] += 1
+            self.current_task_data["movement_path"].append({
+                "step": step_number,
+                "action": action,
+                "from_position": [round(old_pos[0], 2), round(old_pos[1], 2)],
+                "to_position": [round(new_pos[0], 2), round(new_pos[1], 2)],
+                "room_detected": room_detected,
+                "timestamp": time.time()
+            })
+            
+            if room_detected:
+                self.current_task_data["room_detections"].append({
+                    "step": step_number,
+                    "room": room_detected,
+                    "position": [round(new_pos[0], 2), round(new_pos[1], 2)]
+                })
+        
+        self.session_data["total_steps"] += 1
+        
+        # Save session data after each step
+        self._log_to_file()
+        
+        print(f"📊 METRICS: Step {step_number} - {action} from [{old_pos[0]:.1f}, {old_pos[1]:.1f}] to [{new_pos[0]:.1f}, {new_pos[1]:.1f}]")
+        if room_detected:
+            print(f"🏠 METRICS: Room detected - {room_detected}")
+    
+    def log_screenshot(self, screenshot_path, analysis_count):
+        """Log screenshot capture and analysis"""
+        if self.current_task_data:
+            self.current_task_data["screenshots_captured"] += 1
+        
+        self.session_data["total_screenshots"] += 1
+        
+        # Save session data after each screenshot
+        self._log_to_file()
+        
+        print(f"📸 METRICS: Screenshot {self.session_data['total_screenshots']} captured - Analysis #{analysis_count}")
+    
+    def log_llm_call(self, response_data, room_detected, furniture_visible, task_complete, response_time=None, timeout=False):
+        """Log LLM/VLM response details"""
+        if self.current_task_data:
+            self.current_task_data["llm_calls"] += 1
+            self.current_task_data["vlm_responses"].append({
+                "call_number": self.current_task_data["llm_calls"],
+                "room_detected": room_detected,
+                "furniture_visible": furniture_visible,
+                "task_complete": task_complete,
+                "response_length": len(str(response_data)),
+                "response_time": response_time,
+                "timeout": timeout,
+                "timestamp": time.time()
+            })
+        
+        self.session_data["total_llm_calls"] += 1
+        
+        # Save session data after each LLM call
+        self._log_to_file()
+        
+        timeout_msg = " (TIMEOUT)" if timeout else ""
+        time_msg = f" ({response_time:.1f}s)" if response_time else ""
+        print(f"🧠 METRICS: LLM Call {self.session_data['total_llm_calls']}{timeout_msg}{time_msg} - Room: {room_detected}, Task Complete: {task_complete}")
+    
+    def complete_task(self, success=True, failure_reason=None, final_position=None):
+        """Mark current task as completed"""
+        if self.current_task_data:
+            completion_time = time.time() - self.current_task_start_time
+            self.current_task_data["completion_time"] = completion_time
+            self.current_task_data["success"] = success
+            self.current_task_data["failure_reason"] = failure_reason
+            self.current_task_data["end_position"] = [round(final_position[0], 2), round(final_position[1], 2)] if final_position else None
+            
+            # Update session totals
+            if success:
+                self.session_data["tasks_completed"] += 1
+                print(f"✅ METRICS: Task COMPLETED in {completion_time:.1f}s with {self.current_task_data['steps_taken']} steps")
+            else:
+                self.session_data["tasks_failed"] += 1
+                print(f"❌ METRICS: Task FAILED after {completion_time:.1f}s - {failure_reason}")
+            
+            # Task is already in session_data["task_details"], just reset current_task_data
+            self.current_task_data = None
+            
+            self._log_to_file()
+            self._print_task_summary()
+    
+    def _print_task_summary(self):
+        """Print summary of current session metrics"""
+        total_tasks = self.session_data["tasks_completed"] + self.session_data["tasks_failed"]
+        success_rate = (self.session_data["tasks_completed"] / total_tasks * 100) if total_tasks > 0 else 0
+        session_time = time.time() - self.session_start_time
+        
+        print("\n" + "="*60)
+        print("📊 VESPER NAVIGATION METRICS SUMMARY")
+        print("="*60)
+        print(f"⏱️  Session Duration: {session_time:.1f}s")
+        print(f"🎯 Tasks Completed: {self.session_data['tasks_completed']}/{total_tasks} ({success_rate:.1f}%)")
+        print(f"👣 Total Steps: {self.session_data['total_steps']}")
+        print(f"📸 Screenshots Taken: {self.session_data['total_screenshots']}")
+        print(f"🧠 LLM Calls Made: {self.session_data['total_llm_calls']}")
+        
+        if self.session_data["task_details"]:
+            avg_steps = sum(task["steps_taken"] for task in self.session_data["task_details"]) / len(self.session_data["task_details"])
+            avg_time = sum(task["completion_time"] for task in self.session_data["task_details"]) / len(self.session_data["task_details"])
+            print(f"📈 Average Steps per Task: {avg_steps:.1f}")
+            print(f"📈 Average Time per Task: {avg_time:.1f}s")
+        
+        print("="*60)
+        print(f"💾 Full log saved to: {self.log_file}")
+        print("="*60 + "\n")
+    
+    def _log_to_file(self):
+        """Save current metrics to JSON file"""
+        try:
+            with open(self.log_file, 'w', encoding='utf-8') as f:
+                json.dump(self.session_data, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"⚠️ METRICS: Failed to save log file - {e}")
+
+# Initialize global metrics logger
+metrics_logger = None
+
+def get_metrics_logger():
+    """Get or create the global metrics logger"""
+    global metrics_logger
+    if metrics_logger is None:
+        metrics_logger = VESPERMetricsLogger()
+    return metrics_logger
+
+# =============================
 # Screenshot helpers (non-blocking)
 # =============================
 def _init_shot_state():
@@ -484,6 +674,9 @@ def vision_only_completion(prompt, image_path):
     if not os.path.exists(image_path):
         raise Exception(f"❌ Image file not found: {image_path}")
     
+    start_time = time.time()
+    timeout_occurred = False
+    
     try:
         # Import required variables
         from backend.app.llm.client import client, HOST, MODEL
@@ -495,28 +688,64 @@ def vision_only_completion(prompt, image_path):
             image_data = base64.b64encode(img_file.read()).decode('utf-8')
         
         print(f"🔍 DEBUG: Sending IMAGES-ONLY request...")
-        response = client.chat(
-            model=MODEL,
-            messages=[
-                {
-                    'role': 'user',
-                    'content': prompt,
-                    'images': [image_data]
-                }
-            ],
-            options={'temperature': 0.3}
-        )
         
-        result = response['message']['content'].strip()
-        print(f"🔍 DEBUG: IMAGES-ONLY completion successful, response length: {len(result)}")
+        # Windows-compatible timeout handling
+        import threading
+        import queue
         
-        if not result or len(result) < 20:
-            raise Exception("❌ VLM returned insufficient response")
+        result_queue = queue.Queue()
+        timeout_occurred = False
+        
+        def llm_call():
+            try:
+                response = client.chat(
+                    model=MODEL,
+                    messages=[
+                        {
+                            'role': 'user',
+                            'content': prompt,
+                            'images': [image_data]
+                        }
+                    ],
+                    options={'temperature': 0.3}
+                )
+                result_queue.put(('success', response))
+            except Exception as e:
+                result_queue.put(('error', e))
+        
+        # Start LLM call in separate thread
+        llm_thread = threading.Thread(target=llm_call)
+        llm_thread.daemon = True
+        llm_thread.start()
+        
+        # Wait for result with timeout
+        try:
+            result_type, result_data = result_queue.get(timeout=180)  # 180 second timeout
             
-        return result
+            if result_type == 'error':
+                raise result_data
+            
+            response = result_data
+            
+            response_time = time.time() - start_time
+            result = response['message']['content'].strip()
+            print(f"🔍 DEBUG: IMAGES-ONLY completion successful, response length: {len(result)}, time: {response_time:.1f}s")
+            
+            if not result or len(result) < 20:
+                raise Exception("❌ VLM returned insufficient response")
+                
+            return result, response_time, timeout_occurred
+            
+        except queue.Empty:
+            # Timeout occurred
+            timeout_occurred = True
+            response_time = time.time() - start_time
+            print(f"⏰ DEBUG: IMAGES-ONLY completion TIMED OUT after {response_time:.1f}s")
+            raise Exception(f"❌ Vision analysis timed out after {response_time:.1f}s")
         
     except Exception as e:
-        print(f"❌ IMAGES-ONLY completion failed: {e}")
+        response_time = time.time() - start_time
+        print(f"❌ IMAGES-ONLY completion failed after {response_time:.1f}s: {e}")
         print(f"🔍 DEBUG: Exception type: {type(e).__name__}")
         raise Exception(f"❌ Vision analysis failed - no text fallback allowed: {e}")
 
@@ -536,7 +765,7 @@ def get_navigation_sequence_with_vlm(screenshot_path, current_task):
 
     # Check for detailed reference image
     vesper_root = r"C:\Users\hbui11\Desktop\vesper_llm"
-    reference_image_path = os.path.join(vesper_root, "blender", "house_layout_reference.png")
+    reference_image_path = os.path.join(vesper_root, "blender", "house_layout_reference2.png")
     has_reference = os.path.exists(reference_image_path)
     
     print(f"🖼️ BGE: Reference image available: {has_reference}")
@@ -566,7 +795,9 @@ def get_navigation_sequence_with_vlm(screenshot_path, current_task):
         # Detect looping behavior
         if len(bge.logic.position_history) >= 6:
             recent_positions = bge.logic.position_history[-6:]
-            unique_positions = len(set(recent_positions))
+            # Convert list positions to tuples for hashing
+            recent_tuples = [tuple(pos) for pos in recent_positions]
+            unique_positions = len(set(recent_tuples))
             if unique_positions <= 3:
                 print(f"🔄 BGE: LOOP DETECTED - Only {unique_positions} unique positions in last 6 moves")
                 print(f"📍 BGE: Recent path: {recent_positions}")
@@ -731,6 +962,13 @@ STEP-BY-STEP VISUAL ANALYSIS:
    🚗 If you see CAR/garage door/tools/workbench → GARAGE
    ❓ If furniture is unclear/blurry → UNKNOWN
 
+3.5️. OBSTACLE & BOUNDARY CHECK: Before choosing movement direction:
+   🚧 OBSTACLE SCAN: Look for furniture, walls, or barriers that block movement paths
+   🏠 BOUNDARY CHECK: Ensure pink dot stays inside house walls/enclosed areas
+   🚪 PATH FINDING: Identify open floor spaces where movement is safe
+   ⚠️ COLLISION AVOIDANCE: Do NOT move through/over furniture pieces
+   🔄 ALTERNATE ROUTES: If direct path blocked, find way around obstacles
+
 4️. TASK CHECK: Does current room match task requirement?
    CURRENT TASK: "{current_task}"
    
@@ -782,6 +1020,14 @@ NAVIGATION RULES:
 - NEVER use multiple directions in sequence like ["UP", "DOWN", "LEFT", "RIGHT"]
 - ALWAYS try ONE direction at a time for exploration
 
+🚨 CRITICAL SAFETY CONSTRAINTS:
+- STAY INSIDE THE HOUSE: Pink dot must remain within indoor areas with visible walls/ceilings
+- AVOID FURNITURE OVERLAP: Do NOT move pink dot directly through/over furniture pieces
+- RESPECT PHYSICAL BARRIERS: Walls, large furniture, and appliances block movement
+- NAVIGATE AROUND OBSTACLES: Move along open floor spaces between furniture
+- IF APPROACHING HOUSE EDGE: Immediately change direction to stay inside
+- IF FURNITURE BLOCKS PATH: Find alternate route around obstacles
+
 ANTI-OSCILLATION RULES:
 - NEVER use template text like "list specific furniture you see near pink dot"
 - ALWAYS describe what you actually observe, even if unclear
@@ -795,8 +1041,20 @@ JSON Response (REQUIRED FORMAT):
   "furniture_visible": ["describe actual furniture you see, not template text"],
   "task_complete": true/false,
   "movement_sequence": ["SINGLE_DIRECTION"] or ["STAY"],
-  "reasoning": "FURNITURE SEEN: [actual items observed]. ROOM: [determined room]. TASK: [complete/need to move to X]"
+  "reasoning": "FURNITURE SEEN: [actual items]. OBSTACLES: [any blocking furniture/walls]. ROOM: [determined room]. SAFE PATH: [clear direction or blocked]. TASK: [complete/need to move to X]"
 }}
+
+🚨 MOVEMENT SAFETY REQUIREMENTS:
+- BEFORE choosing direction: Check if path is clear of furniture/walls
+- AVOID moving pink dot through solid objects (tables, sofas, appliances, walls)
+- STAY within enclosed house areas - do not exit to outdoor/void spaces
+- If furniture blocks desired direction, choose alternate route around obstacles
+- When in doubt about clear path, use ["STAY"] to avoid collision
+
+⚠️ CRITICAL: YOU MUST RESPOND WITH VALID JSON ONLY - NO ADDITIONAL TEXT!
+⚠️ Start your response with {{ and end with }}
+⚠️ Do not include explanations outside the JSON structure
+⚠️ EXAMPLE: {{"current_room": "LIVING_ROOM", "furniture_visible": ["sofa"], "task_complete": false, "movement_sequence": ["UP"], "reasoning": "In living room, need kitchen, moving UP"}}
 
 Movement options: "UP", "DOWN", "LEFT", "RIGHT", "STAY" ONLY (use ONE direction when unclear!)'''
 
@@ -831,18 +1089,23 @@ CRITICAL: Use the runtime image to:
 1. Locate the pink dot (actor position)  
 2. Identify furniture around the pink dot
 3. Match furniture to room type
-4. Make navigation decision
+4. Check for clear movement paths (avoid furniture/walls)
+5. Stay inside house boundaries (walls/ceiling visible)
+6. Make SAFE navigation decision avoiding obstacles
+
+🚨 RESPOND WITH JSON ONLY - NO EXPLANATORY TEXT OUTSIDE JSON!
+🚨 FORMAT: {{"current_room": "ROOM", "furniture_visible": ["items"], "task_complete": false, "movement_sequence": ["DIRECTION"], "reasoning": "brief analysis"}}
 
 IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtime image."""
 
         print("🔍 BGE: Analyzing runtime image with enhanced layout context...")
-        response = vision_only_completion(enhanced_prompt, screenshot_path)
+        response, response_time, timeout_occurred = vision_only_completion(enhanced_prompt, screenshot_path)
         
         print("✅ BGE: Images-only analysis completed successfully")
     else:
         # Standard single-image analysis
         print("🔍 BGE: Standard images-only analysis...")
-        response = vision_only_completion(
+        response, response_time, timeout_occurred = vision_only_completion(
             f"{system_prompt}\n\n{user_prompt}",
             screenshot_path
         )
@@ -852,7 +1115,13 @@ IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtim
     print(f"🔍 BGE: VLM Response → {response[:300]}...")  # Show first 300 chars
 
     # Parse response with improved error handling and task validation
-    return parse_vlm_response(response, current_task)
+    result = parse_vlm_response(response, current_task)
+    
+    # Add timing information to the result
+    result['response_time'] = response_time
+    result['timeout_occurred'] = timeout_occurred
+    
+    return result
 
 # =============================
 # Movement
@@ -877,13 +1146,13 @@ def move_actor(actor, direction, step_size=0.3):
     elif direction == "RIGHT":
         proposed_pos.x += step_size
     
-    # CRITICAL: House boundary enforcement to prevent actor from leaving
-    # Based on log analysis, safe house boundaries appear to be approximately:
+    # CRITICAL: Enhanced house boundary enforcement to prevent actor from leaving
+    # Based on log analysis, safe house boundaries with safety margin:
     HOUSE_BOUNDS = {
-        'x_min': -6.0,   # Left boundary
-        'x_max': 2.0,    # Right boundary  
-        'y_min': -1.0,   # Bottom boundary
-        'y_max': 6.0     # Top boundary
+        'x_min': -5.5,   # Left boundary (tighter than -6.0)
+        'x_max': 1.5,    # Right boundary (tighter than 2.0)
+        'y_min': -0.5,   # Bottom boundary (tighter than -1.0)
+        'y_max': 5.5     # Top boundary (tighter than 6.0)
     }
     
     # Check if proposed move would leave house boundaries
@@ -900,6 +1169,23 @@ def move_actor(actor, direction, step_size=0.3):
     actor.worldPosition = proposed_pos
     new_pos = actor.worldPosition
     print(f"🎮 Moved {direction} → [{new_pos.x:.2f}, {new_pos.y:.2f}]")
+    
+    # Track position history for collision detection
+    if not hasattr(bge.logic, 'position_history'):
+        bge.logic.position_history = []
+    
+    bge.logic.position_history.append([new_pos.x, new_pos.y])
+    if len(bge.logic.position_history) > 10:  # Keep last 10 positions
+        bge.logic.position_history.pop(0)
+    
+    # Detect rapid position changes (possible furniture clipping)
+    if len(bge.logic.position_history) >= 2:
+        prev_pos = bge.logic.position_history[-2]
+        distance_moved = ((new_pos.x - prev_pos[0])**2 + (new_pos.y - prev_pos[1])**2)**0.5
+        
+        if distance_moved > step_size * 1.5:  # Moved more than expected
+            print(f"⚠️ BGE: Unusually large movement detected: {distance_moved:.2f} units")
+            print(f"   Previous: [{prev_pos[0]:.2f}, {prev_pos[1]:.2f}] → Current: [{new_pos.x:.2f}, {new_pos.y:.2f}]")
     
     # Additional safety check after movement
     if (abs(new_pos.x) > 10 or abs(new_pos.y) > 10):
@@ -928,6 +1214,9 @@ def main():
     if not hasattr(bge.logic, "vesper_nav_init"):
         bge.logic.vesper_nav_init = True
         bge.logic.vesper_current_task_index = 0
+        
+        # Initialize metrics logging
+        bge.logic.metrics_logger = get_metrics_logger()
         
         # Load tasks from vesper_tasks.txt (generated by addon)
         vesper_tasks = load_vesper_tasks()
@@ -972,9 +1261,19 @@ def main():
     # Stop if all tasks done
     if bge.logic.vesper_current_task_index >= len(bge.logic.vesper_tasks):
         print("🎉 BGE: ALL TASKS COMPLETED!")
+        
+        # Log session completion
+        if hasattr(bge.logic, 'metrics_logger'):
+            bge.logic.metrics_logger._print_task_summary()
+        
         return
 
     current_task = bge.logic.vesper_tasks[bge.logic.vesper_current_task_index]
+    
+    # Check if this is a new task and log it
+    if not hasattr(bge.logic, 'current_task_logged') or bge.logic.current_task_logged != bge.logic.vesper_current_task_index:
+        bge.logic.metrics_logger.start_task(current_task, bge.logic.vesper_current_task_index)
+        bge.logic.current_task_logged = bge.logic.vesper_current_task_index
 
     # If we need a new movement plan
     if not bge.logic.vesper_movement_queue:
@@ -987,6 +1286,10 @@ def main():
 
         # If a recent screenshot is ready, analyze it
         if bge.logic.last_screenshot_path:
+            # Log screenshot capture
+            analysis_count = getattr(bge.logic, 'analysis_count', 0)
+            bge.logic.metrics_logger.log_screenshot(bge.logic.last_screenshot_path, analysis_count)
+            
             try:
                 sequence_result = get_navigation_sequence_with_vlm(bge.logic.last_screenshot_path, current_task)
                 if "movement_sequence" in sequence_result:
@@ -1005,6 +1308,16 @@ def main():
                     print(f"🏠 BGE: Room Analysis - Current: {bge.logic.vlm_analysis['current_room']}")
                     print(f"🪑 BGE: Furniture: {bge.logic.vlm_analysis['furniture_visible']}")
                     print(f"💭 BGE: {sequence_result.get('reasoning', 'No reasoning provided')}")
+                    
+                    # Log LLM response
+                    bge.logic.metrics_logger.log_llm_call(
+                        sequence_result,
+                        bge.logic.vlm_analysis['current_room'],
+                        bge.logic.vlm_analysis['furniture_visible'],
+                        bge.logic.vlm_analysis['task_complete'],
+                        response_time=sequence_result.get('response_time'),
+                        timeout=sequence_result.get('timeout_occurred', False)
+                    )
                     
                     # Check if VLM says task is complete
                     if bge.logic.vlm_analysis["task_complete"]:
@@ -1026,11 +1339,24 @@ def main():
         old_position = [actor.worldPosition.x, actor.worldPosition.y]
         move_success = move_actor(actor, next_move)
         new_position = [actor.worldPosition.x, actor.worldPosition.y]
+        
+        # Log movement step
+        current_room = getattr(bge.logic, 'vlm_analysis', {}).get('current_room', 'UNKNOWN')
+        bge.logic.metrics_logger.log_step(bge.logic.vesper_sequence_step, next_move, old_position, new_position, current_room)
 
         # Position drift detection - check if actor is moving to extreme coordinates
         if abs(new_position[0]) > 15 or abs(new_position[1]) > 15:
             print(f"🚨 BGE: EXTREME POSITION DETECTED! Actor at [{new_position[0]:.1f}, {new_position[1]:.1f}]")
             print("🔄 BGE: Position appears outside house - requesting immediate visual re-analysis")
+            
+            # Log potential failure
+            if hasattr(bge.logic, 'metrics_logger') and bge.logic.metrics_logger.current_task_data:
+                bge.logic.metrics_logger.complete_task(
+                    success=False, 
+                    failure_reason="Actor moved to extreme position outside house boundaries",
+                    final_position=new_position
+                )
+            
             bge.logic.vesper_movement_queue = []  # clear current plan
             if not bge.logic._vesper_shot["pending"]:
                 request_bird_eye_screenshot()
@@ -1062,6 +1388,13 @@ def main():
                     print(f"✅ BGE: Task '{current_task}' VALIDATED - Actor confirmed in correct room!")
                     print(f"🏠 BGE: Final location: {current_room}")
                     print(f"🪑 BGE: Furniture confirmation: {furniture_visible}")
+                    
+                    # Log successful task completion
+                    bge.logic.metrics_logger.complete_task(
+                        success=True, 
+                        final_position=new_position
+                    )
+                    
                     bge.logic.vesper_current_task_index += 1
                     bge.logic.vesper_sequence_step = 0
                     

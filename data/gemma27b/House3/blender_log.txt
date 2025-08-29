@@ -1,0 +1,179 @@
+🔧 Registering VESPER Tools Add-on...
+✅ VESPER Tools registered successfully!
+Read blend: "C:\Users\hbui11\Desktop\vesper_llm\blender\house_3.blend"
+🎮 Game Engine starting - Generate tasks first for auto-navigation
+Debug: 1311, 815
+rcti: : xmin 652, xmax 1962, ymin 528, ymax 1342 (1310x814)
+
+Blender Game Engine Started
+✅ BGE: Path setup complete
+✅ BGE: Environment loaded
+🔍 DEBUG: Raw OLLAMA_HOST = '0.0.0.0'
+⚠️ Invalid HOST format: '0.0.0.0', falling back to localhost
+🔍 DEBUG: Final HOST = 'http://localhost:11434'
+🔗 LLM: Connected
+🎯 Few-shot navigation system initialized
+📊 VESPER: Metrics logging initialized - C:\Users\hbui11\Desktop\vesper_llm\blender\evaluation_logs\vesper_navigation_log_20250828_160533.json
+📝 BGE: Loading tasks from C:\Users\hbui11\AppData\Roaming\UPBGE\Blender\4.4\scripts\addons\vesper_tools\..\..\vesper_tasks.txt
+✅ BGE: Loaded 3 tasks: ['Cook in kitchen', 'Relax in living room', 'Prepare in bathroom']
+🧠 BGE: VESPER Navigation initialized!
+📋 BGE: Tasks: ['Cook in kitchen', 'Relax in living room', 'Prepare in bathroom']
+📍 BGE: LLM Available: True
+🔧 BGE: Camera calibration DISABLED - your manual settings preserved!
+
+📸 BGE: SCREENSHOT QUALITY RECOMMENDATIONS:
+   💡 For best VLM analysis, ensure:
+   🎯 BirdEyeCamera positioned high (Z > 8) for complete room view
+   📐 Camera lens 35mm+ for wide coverage
+   🖥️ BGE window size 1024x768+ for better resolution
+   🎨 Good lighting in all rooms
+   📏 Actor (pink dot) clearly visible against floor
+
+📸 BGE: Requesting initial high-quality screenshot...
+📷 BGE: Adjusted camera lens from 25.0 to 35.0
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_001.png (862060 bytes)
+📋 METRICS: Starting task 1: 'Cook in kitchen'
+📸 METRICS: Screenshot 1 captured - Analysis #0
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_001.png - Actor at [3.9, 1.0]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 275, time: 167.5s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table", "tv"],
+  "task_complete": false,
+  "movement_sequence": ["LEFT"],
+  "reasoning": "In living room, need to move to kitchen. Kitchen is typically to the left. Safe path available."
+}
+```...
+📏 BGE: Full response length: 275 characters
+📦 BGE: Extracted from markdown: 263 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table", "tv"],  "task_compl...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table', 'tv']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['LEFT']
+🎯 BGE: Extracted sequence: ['LEFT']
+🎯 BGE: Loaded sequence: ['LEFT']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table', 'tv']
+💭 BGE: In living room, need to move to kitchen. Kitchen is typically to the left. Safe path available.
+🧠 METRICS: LLM Call 1 (167.5s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 1: LEFT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [3.93, 0.96]
+🚨 BGE: BOUNDARY VIOLATION PREVENTED!
+   Proposed position: [3.63, 0.96]
+   House bounds: X(-5.5 to 1.5), Y(-0.5 to 5.5)
+   🛑 Movement LEFT BLOCKED - staying in current position
+📊 METRICS: Step 1 - LEFT from [3.9, 1.0] to [3.9, 1.0]
+🏠 METRICS: Room detected - LIVING_ROOM
+⚠️ BGE: Actor appears stuck or movement blocked by safety boundaries
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_002.png (866755 bytes)
+📸 METRICS: Screenshot 2 captured - Analysis #1
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_002.png - Actor at [3.9, 1.0]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 268, time: 156.9s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["LEFT"],
+  "reasoning": "In living room, need to move to kitchen. Kitchen is typically to the left. Path appears clear."
+}
+```...
+📏 BGE: Full response length: 268 characters
+📦 BGE: Extracted from markdown: 256 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['LEFT']
+🎯 BGE: Extracted sequence: ['LEFT']
+🎯 BGE: Loaded sequence: ['LEFT']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to move to kitchen. Kitchen is typically to the left. Path appears clear.
+🧠 METRICS: LLM Call 2 (156.9s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 2: LEFT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [3.93, 0.96]
+🚨 BGE: BOUNDARY VIOLATION PREVENTED!
+   Proposed position: [3.63, 0.96]
+   House bounds: X(-5.5 to 1.5), Y(-0.5 to 5.5)
+   🛑 Movement LEFT BLOCKED - staying in current position
+📊 METRICS: Step 2 - LEFT from [3.9, 1.0] to [3.9, 1.0]
+🏠 METRICS: Room detected - LIVING_ROOM
+⚠️ BGE: Actor appears stuck or movement blocked by safety boundaries
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_003.png (866755 bytes)
+📸 METRICS: Screenshot 3 captured - Analysis #2
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_003.png - Actor at [3.9, 1.0]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 268, time: 155.9s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["LEFT"],
+  "reasoning": "In living room, need to move to kitchen. Kitchen is typically to the left. Path appears clear."
+}
+```...
+📏 BGE: Full response length: 268 characters
+📦 BGE: Extracted from markdown: 256 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['LEFT']
+🎯 BGE: Extracted sequence: ['LEFT']
+🎯 BGE: Loaded sequence: ['LEFT']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to move to kitchen. Kitchen is typically to the left. Path appears clear.
+🧠 METRICS: LLM Call 3 (155.9s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 3: LEFT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [3.93, 0.96]
+🚨 BGE: BOUNDARY VIOLATION PREVENTED!
+   Proposed position: [3.63, 0.96]
+   House bounds: X(-5.5 to 1.5), Y(-0.5 to 5.5)
+   🛑 Movement LEFT BLOCKED - staying in current position
+📊 METRICS: Step 3 - LEFT from [3.9, 1.0] to [3.9, 1.0]
+🏠 METRICS: Room detected - LIVING_ROOM
+⚠️ BGE: Actor appears stuck or movement blocked by safety boundaries
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_004.png (866755 bytes)
+📸 METRICS: Screenshot 4 captured - Analysis #3
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_004.png - Actor at [3.9, 1.0]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...

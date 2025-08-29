@@ -1,0 +1,1712 @@
+🔧 Registering VESPER Tools Add-on...
+✅ VESPER Tools registered successfully!
+Read blend: "C:\Users\hbui11\Desktop\vesper_llm\blender\house.blend"
+Info: Saved "house.blend"
+🎮 Game Engine starting - Generate tasks first for auto-navigation
+Debug: 1666, 791
+rcti: : xmin 446, xmax 2111, ymin 552, ymax 1342 (1665x790)
+
+Blender Game Engine Started
+✅ BGE: Path setup complete
+✅ BGE: Environment loaded
+🔍 DEBUG: Raw OLLAMA_HOST = '0.0.0.0'
+⚠️ Invalid HOST format: '0.0.0.0', falling back to localhost
+🔍 DEBUG: Final HOST = 'http://localhost:11434'
+🔗 LLM: Connected
+🎯 Few-shot navigation system initialized
+📊 VESPER: Metrics logging initialized - C:\Users\hbui11\Desktop\vesper_llm\blender\evaluation_logs\vesper_navigation_log_20250828_183830.json
+📝 BGE: Loading tasks from C:\Users\hbui11\AppData\Roaming\UPBGE\Blender\4.4\scripts\addons\vesper_tools\..\..\vesper_tasks.txt
+✅ BGE: Loaded 3 tasks: ['Cook in kitchen', 'Relax in living room', 'Prepare in bathroom']
+🧠 BGE: VESPER Navigation initialized!
+📋 BGE: Tasks: ['Cook in kitchen', 'Relax in living room', 'Prepare in bathroom']
+📍 BGE: LLM Available: True
+🔧 BGE: Camera calibration DISABLED - your manual settings preserved!
+
+📸 BGE: SCREENSHOT QUALITY RECOMMENDATIONS:
+   💡 For best VLM analysis, ensure:
+   🎯 BirdEyeCamera positioned high (Z > 8) for complete room view
+   📐 Camera lens 35mm+ for wide coverage
+   🖥️ BGE window size 1024x768+ for better resolution
+   🎨 Good lighting in all rooms
+   📏 Actor (pink dot) clearly visible against floor
+
+📸 BGE: Requesting initial high-quality screenshot...
+📷 BGE: Adjusted camera lens from 24.0 to 35.0
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_001.png (966425 bytes)
+📋 METRICS: Starting task 1: 'Cook in kitchen'
+📸 METRICS: Screenshot 1 captured - Analysis #0
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_001.png - Actor at [-3.0, -0.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 251, time: 164.5s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "BEDROOM",
+  "furniture_visible": ["bed", "dresser"],
+  "task_complete": false,
+  "movement_sequence": ["LEFT"],
+  "reasoning": "In bedroom, need to move to kitchen. Moving left towards what appears to be an opening."
+}
+```...
+📏 BGE: Full response length: 251 characters
+📦 BGE: Extracted from markdown: 239 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "BEDROOM",  "furniture_visible": ["bed", "dresser"],  "task_complete": false,  "m...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: BEDROOM
+🪑 BGE: Furniture visible: ['bed', 'dresser']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['LEFT']
+🎯 BGE: Extracted sequence: ['LEFT']
+🎯 BGE: Loaded sequence: ['LEFT']
+🏠 BGE: Room Analysis - Current: BEDROOM
+🪑 BGE: Furniture: ['bed', 'dresser']
+💭 BGE: In bedroom, need to move to kitchen. Moving left towards what appears to be an opening.
+🧠 METRICS: LLM Call 1 (164.5s) - Room: BEDROOM, Task Complete: False
+🎮 BGE: Step 1: LEFT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-2.98, -0.36]
+🎮 Moved LEFT → [-3.28, -0.36]
+📊 METRICS: Step 1 - LEFT from [-3.0, -0.4] to [-3.3, -0.4]
+🏠 METRICS: Room detected - BEDROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Cook in kitchen' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_002.png (971246 bytes)
+📸 METRICS: Screenshot 2 captured - Analysis #1
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_002.png - Actor at [-3.3, -0.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 268, time: 157.0s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["LEFT"],
+  "reasoning": "In living room, need to move to kitchen. Kitchen is typically to the left. Path appears clear."
+}
+```...
+📏 BGE: Full response length: 268 characters
+📦 BGE: Extracted from markdown: 256 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['LEFT']
+🎯 BGE: Extracted sequence: ['LEFT']
+🎯 BGE: Loaded sequence: ['LEFT']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to move to kitchen. Kitchen is typically to the left. Path appears clear.
+🧠 METRICS: LLM Call 2 (157.0s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 2: LEFT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.28, -0.36]
+🎮 Moved LEFT → [-3.58, -0.36]
+📊 METRICS: Step 2 - LEFT from [-3.3, -0.4] to [-3.6, -0.4]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Cook in kitchen' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_003.png (972016 bytes)
+📸 METRICS: Screenshot 3 captured - Analysis #2
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_003.png - Actor at [-3.6, -0.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 268, time: 156.7s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["LEFT"],
+  "reasoning": "In living room, need to move to kitchen. Kitchen is typically to the left. Path appears clear."
+}
+```...
+📏 BGE: Full response length: 268 characters
+📦 BGE: Extracted from markdown: 256 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['LEFT']
+🎯 BGE: Extracted sequence: ['LEFT']
+🎯 BGE: Loaded sequence: ['LEFT']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to move to kitchen. Kitchen is typically to the left. Path appears clear.
+🧠 METRICS: LLM Call 3 (156.7s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 3: LEFT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.58, -0.36]
+🎮 Moved LEFT → [-3.88, -0.36]
+📊 METRICS: Step 3 - LEFT from [-3.6, -0.4] to [-3.9, -0.4]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Cook in kitchen' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_004.png (971909 bytes)
+📸 METRICS: Screenshot 4 captured - Analysis #3
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_004.png - Actor at [-3.9, -0.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 287, time: 157.8s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["LEFT"],
+  "reasoning": "In living room, need to move to kitchen. Kitchen is typically to the left of the living room. Path appears clear."
+}
+```...
+📏 BGE: Full response length: 287 characters
+📦 BGE: Extracted from markdown: 275 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['LEFT']
+🎯 BGE: Extracted sequence: ['LEFT']
+🎯 BGE: Loaded sequence: ['LEFT']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to move to kitchen. Kitchen is typically to the left of the living room. Path appears clear.
+🧠 METRICS: LLM Call 4 (157.8s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 4: LEFT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.88, -0.36]
+🎮 Moved LEFT → [-4.18, -0.36]
+📊 METRICS: Step 4 - LEFT from [-3.9, -0.4] to [-4.2, -0.4]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Cook in kitchen' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_005.png (972536 bytes)
+📸 METRICS: Screenshot 5 captured - Analysis #4
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_005.png - Actor at [-4.2, -0.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 222, time: 152.9s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["STAY"],
+  "reasoning": "In kitchen, task is to cook, staying to complete task."
+}
+```...
+📏 BGE: Full response length: 222 characters
+📦 BGE: Extracted from markdown: 210 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['STAY']
+🎯 BGE: Extracted sequence: ['STAY']
+🎯 BGE: Loaded sequence: ['STAY']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, task is to cook, staying to complete task.
+🧠 METRICS: LLM Call 5 (152.9s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 5: STAY
+📍 Queue: []
+🛑 BGE: Actor staying - task complete!
+📊 METRICS: Step 5 - STAY from [-4.2, -0.4] to [-4.2, -0.4]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+⚠️ BGE: STAY command but task NOT validated!
+🏠 BGE: Current room: KITCHEN (target needed for 'Cook in kitchen')
+🔄 BGE: Continuing navigation - need to reach correct room
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_006.png (973227 bytes)
+📸 METRICS: Screenshot 6 captured - Analysis #5
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_006.png - Actor at [-4.2, -0.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 259, time: 155.8s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": true,
+  "movement_sequence": ["STAY"],
+  "reasoning": "In kitchen, task is to cook, so staying put. Furniture visible confirms kitchen environment."
+}
+```...
+📏 BGE: Full response length: 259 characters
+📦 BGE: Extracted from markdown: 247 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": true, ...
+✅ BGE: JSON parsed successfully
+✅ BGE: SERVER VALIDATION PASSED - Task 'Cook in kitchen' matches room 'KITCHEN'
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: True
+🔄 BGE: Raw sequence: ['STAY']
+🎯 BGE: Extracted sequence: ['STAY']
+🎯 BGE: Loaded sequence: ['STAY']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, task is to cook, so staying put. Furniture visible confirms kitchen environment.
+🧠 METRICS: LLM Call 6 (155.8s) - Room: KITCHEN, Task Complete: True
+🎯 BGE: VLM confirms task complete - actor in correct room!
+🎮 BGE: Step 6: STAY
+📍 Queue: []
+🛑 BGE: Actor staying - task complete!
+📊 METRICS: Step 6 - STAY from [-4.2, -0.4] to [-4.2, -0.4]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+✅ BGE: Task 'Cook in kitchen' VALIDATED - Actor confirmed in correct room!
+🏠 BGE: Final location: KITCHEN
+🪑 BGE: Furniture confirmation: ['counter', 'cabinet']
+✅ METRICS: Task COMPLETED in 954.8s with 6 steps
+
+============================================================
+📊 VESPER NAVIGATION METRICS SUMMARY
+============================================================
+⏱️  Session Duration: 956.9s
+🎯 Tasks Completed: 1/1 (100.0%)
+👣 Total Steps: 6
+📸 Screenshots Taken: 6
+🧠 LLM Calls Made: 6
+📈 Average Steps per Task: 6.0
+📈 Average Time per Task: 954.8s
+============================================================
+💾 Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\blender\evaluation_logs\vesper_navigation_log_20250828_183830.json
+============================================================
+
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_007.png (973227 bytes)
+📋 METRICS: Starting task 2: 'Relax in living room'
+📸 METRICS: Screenshot 7 captured - Analysis #6
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_007.png - Actor at [-4.2, -0.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 223, time: 152.5s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need to move to living room, moving RIGHT."
+}
+```...
+📏 BGE: Full response length: 223 characters
+📦 BGE: Extracted from markdown: 211 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need to move to living room, moving RIGHT.
+🧠 METRICS: LLM Call 7 (152.5s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 1: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-4.18, -0.36]
+🎮 Moved RIGHT → [-3.88, -0.36]
+📊 METRICS: Step 1 - RIGHT from [-4.2, -0.4] to [-3.9, -0.4]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Relax in living room' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_008.png (973107 bytes)
+📸 METRICS: Screenshot 8 captured - Analysis #7
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_008.png - Actor at [-3.9, -0.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 269, time: 157.3s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": true,
+  "movement_sequence": ["STAY"],
+  "reasoning": "In living room with sofa and coffee table. Task is to relax in living room, so task is complete."
+}
+```...
+📏 BGE: Full response length: 269 characters
+📦 BGE: Extracted from markdown: 257 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+✅ BGE: SERVER VALIDATION PASSED - Task 'Relax in living room' matches room 'LIVING_ROOM'
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: True
+🔄 BGE: Raw sequence: ['STAY']
+🎯 BGE: Extracted sequence: ['STAY']
+🎯 BGE: Loaded sequence: ['STAY']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room with sofa and coffee table. Task is to relax in living room, so task is complete.
+🧠 METRICS: LLM Call 8 (157.3s) - Room: LIVING_ROOM, Task Complete: True
+🎯 BGE: VLM confirms task complete - actor in correct room!
+🎮 BGE: Step 2: STAY
+📍 Queue: []
+🛑 BGE: Actor staying - task complete!
+📊 METRICS: Step 2 - STAY from [-3.9, -0.4] to [-3.9, -0.4]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+✅ BGE: Task 'Relax in living room' VALIDATED - Actor confirmed in correct room!
+🏠 BGE: Final location: LIVING_ROOM
+🪑 BGE: Furniture confirmation: ['sofa', 'coffee table']
+✅ METRICS: Task COMPLETED in 311.8s with 2 steps
+
+============================================================
+📊 VESPER NAVIGATION METRICS SUMMARY
+============================================================
+⏱️  Session Duration: 1270.8s
+🎯 Tasks Completed: 2/2 (100.0%)
+👣 Total Steps: 8
+📸 Screenshots Taken: 8
+🧠 LLM Calls Made: 8
+📈 Average Steps per Task: 4.0
+📈 Average Time per Task: 633.3s
+============================================================
+💾 Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\blender\evaluation_logs\vesper_navigation_log_20250828_183830.json
+============================================================
+
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_009.png (972777 bytes)
+📋 METRICS: Starting task 3: 'Prepare in bathroom'
+📸 METRICS: Screenshot 9 captured - Analysis #8
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔄 BGE: LOOP DETECTED - Only 3 unique positions in last 6 moves
+📍 BGE: Recent path: [(-4.2, -0.4), (-4.2, -0.4), (-4.2, -0.4), [-3.8818962574005127, -0.3558962345123291], (-3.9, -0.4), (-3.9, -0.4)]
+🔍 BGE: Analyzing image: bge_009.png - Actor at [-3.9, -0.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 232, time: 154.9s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need to find bathroom. Moving UP to explore."
+}
+```...
+📏 BGE: Full response length: 232 characters
+📦 BGE: Extracted from markdown: 220 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to find bathroom. Moving UP to explore.
+🧠 METRICS: LLM Call 9 (154.9s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 1: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.88, -0.36]
+🎮 Moved UP → [-3.88, -0.06]
+📊 METRICS: Step 1 - UP from [-3.9, -0.4] to [-3.9, -0.1]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_010.png (972400 bytes)
+📸 METRICS: Screenshot 10 captured - Analysis #9
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_010.png - Actor at [-3.9, -0.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 232, time: 155.0s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need to find bathroom. Moving UP to explore."
+}
+```...
+📏 BGE: Full response length: 232 characters
+📦 BGE: Extracted from markdown: 220 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to find bathroom. Moving UP to explore.
+🧠 METRICS: LLM Call 10 (155.0s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 2: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.88, -0.06]
+🎮 Moved UP → [-3.88, 0.24]
+📊 METRICS: Step 2 - UP from [-3.9, -0.1] to [-3.9, 0.2]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_011.png (972285 bytes)
+📸 METRICS: Screenshot 11 captured - Analysis #10
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_011.png - Actor at [-3.9, 0.2]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 232, time: 154.3s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need to find bathroom. Moving UP to explore."
+}
+```...
+📏 BGE: Full response length: 232 characters
+📦 BGE: Extracted from markdown: 220 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to find bathroom. Moving UP to explore.
+🧠 METRICS: LLM Call 11 (154.3s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 3: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.88, 0.24]
+🎮 Moved UP → [-3.88, 0.54]
+📊 METRICS: Step 3 - UP from [-3.9, 0.2] to [-3.9, 0.5]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_012.png (971763 bytes)
+📸 METRICS: Screenshot 12 captured - Analysis #11
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_012.png - Actor at [-3.9, 0.5]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 240, time: 153.7s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need to move towards bathroom. Moving UP to explore."
+}
+```...
+📏 BGE: Full response length: 240 characters
+📦 BGE: Extracted from markdown: 228 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to move towards bathroom. Moving UP to explore.
+🧠 METRICS: LLM Call 12 (153.7s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 4: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.88, 0.54]
+🎮 Moved UP → [-3.88, 0.84]
+📊 METRICS: Step 4 - UP from [-3.9, 0.5] to [-3.9, 0.8]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_013.png (972323 bytes)
+📸 METRICS: Screenshot 13 captured - Analysis #12
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_013.png - Actor at [-3.9, 0.8]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 240, time: 153.0s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need to move towards bathroom. Moving UP to explore."
+}
+```...
+📏 BGE: Full response length: 240 characters
+📦 BGE: Extracted from markdown: 228 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to move towards bathroom. Moving UP to explore.
+🧠 METRICS: LLM Call 13 (153.0s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 5: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.88, 0.84]
+🎮 Moved UP → [-3.88, 1.14]
+📊 METRICS: Step 5 - UP from [-3.9, 0.8] to [-3.9, 1.1]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_014.png (972674 bytes)
+📸 METRICS: Screenshot 14 captured - Analysis #13
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_014.png - Actor at [-3.9, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 155.6s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 14 (155.6s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 6: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.88, 1.14]
+🎮 Moved RIGHT → [-3.58, 1.14]
+📊 METRICS: Step 6 - RIGHT from [-3.9, 1.1] to [-3.6, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_015.png (972136 bytes)
+📸 METRICS: Screenshot 15 captured - Analysis #14
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_015.png - Actor at [-3.6, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 161.9s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 15 (161.9s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 7: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.58, 1.14]
+🎮 Moved RIGHT → [-3.28, 1.14]
+📊 METRICS: Step 7 - RIGHT from [-3.6, 1.1] to [-3.3, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_016.png (971729 bytes)
+📸 METRICS: Screenshot 16 captured - Analysis #15
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_016.png - Actor at [-3.3, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 155.7s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 16 (155.7s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 8: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-3.28, 1.14]
+🎮 Moved RIGHT → [-2.98, 1.14]
+📊 METRICS: Step 8 - RIGHT from [-3.3, 1.1] to [-3.0, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_017.png (972718 bytes)
+📸 METRICS: Screenshot 17 captured - Analysis #16
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_017.png - Actor at [-3.0, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 152.8s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 17 (152.8s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 9: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-2.98, 1.14]
+🎮 Moved RIGHT → [-2.68, 1.14]
+📊 METRICS: Step 9 - RIGHT from [-3.0, 1.1] to [-2.7, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_018.png (972642 bytes)
+📸 METRICS: Screenshot 18 captured - Analysis #17
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_018.png - Actor at [-2.7, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 154.7s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 18 (154.7s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 10: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-2.68, 1.14]
+🎮 Moved RIGHT → [-2.38, 1.14]
+📊 METRICS: Step 10 - RIGHT from [-2.7, 1.1] to [-2.4, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_019.png (972436 bytes)
+📸 METRICS: Screenshot 19 captured - Analysis #18
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_019.png - Actor at [-2.4, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 228, time: 153.1s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet", "sink"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 228 characters
+📦 BGE: Extracted from markdown: 216 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet", "sink"],  "task_complete"...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet', 'sink']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet', 'sink']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 19 (153.1s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 11: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-2.38, 1.14]
+🎮 Moved RIGHT → [-2.08, 1.14]
+📊 METRICS: Step 11 - RIGHT from [-2.4, 1.1] to [-2.1, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_020.png (972523 bytes)
+📸 METRICS: Screenshot 20 captured - Analysis #19
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_020.png - Actor at [-2.1, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 256, time: 153.8s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need to move to bathroom. Right seems like a possible direction to explore."
+}
+```...
+📏 BGE: Full response length: 256 characters
+📦 BGE: Extracted from markdown: 244 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need to move to bathroom. Right seems like a possible direction to explore.
+🧠 METRICS: LLM Call 20 (153.8s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 12: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-2.08, 1.14]
+🎮 Moved RIGHT → [-1.78, 1.14]
+📊 METRICS: Step 12 - RIGHT from [-2.1, 1.1] to [-1.8, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_021.png (971635 bytes)
+📸 METRICS: Screenshot 21 captured - Analysis #20
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_021.png - Actor at [-1.8, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 150.8s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom. Moving right to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom. Moving right to explore.
+🧠 METRICS: LLM Call 21 (150.8s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 13: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-1.78, 1.14]
+🎮 Moved RIGHT → [-1.48, 1.14]
+📊 METRICS: Step 13 - RIGHT from [-1.8, 1.1] to [-1.5, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_022.png (972723 bytes)
+📸 METRICS: Screenshot 22 captured - Analysis #21
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_022.png - Actor at [-1.5, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 150.9s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 22 (150.9s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 14: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-1.48, 1.14]
+🎮 Moved RIGHT → [-1.18, 1.14]
+📊 METRICS: Step 14 - RIGHT from [-1.5, 1.1] to [-1.2, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_023.png (972402 bytes)
+📸 METRICS: Screenshot 23 captured - Analysis #22
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_023.png - Actor at [-1.2, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 240, time: 152.3s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need to move to bathroom. Right appears to be a clear path."
+}
+```...
+📏 BGE: Full response length: 240 characters
+📦 BGE: Extracted from markdown: 228 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need to move to bathroom. Right appears to be a clear path.
+🧠 METRICS: LLM Call 23 (152.3s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 15: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-1.18, 1.14]
+🎮 Moved RIGHT → [-0.88, 1.14]
+📊 METRICS: Step 15 - RIGHT from [-1.2, 1.1] to [-0.9, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_024.png (972535 bytes)
+📸 METRICS: Screenshot 24 captured - Analysis #23
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_024.png - Actor at [-0.9, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 150.8s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 24 (150.8s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 16: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-0.88, 1.14]
+🎮 Moved RIGHT → [-0.58, 1.14]
+📊 METRICS: Step 16 - RIGHT from [-0.9, 1.1] to [-0.6, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_025.png (972065 bytes)
+📸 METRICS: Screenshot 25 captured - Analysis #24
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_025.png - Actor at [-0.6, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 151.0s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 25 (151.0s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 17: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-0.58, 1.14]
+🎮 Moved RIGHT → [-0.28, 1.14]
+📊 METRICS: Step 17 - RIGHT from [-0.6, 1.1] to [-0.3, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_026.png (971887 bytes)
+📸 METRICS: Screenshot 26 captured - Analysis #25
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_026.png - Actor at [-0.3, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 151.9s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 26 (151.9s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 18: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [-0.28, 1.14]
+🎮 Moved RIGHT → [0.02, 1.14]
+📊 METRICS: Step 18 - RIGHT from [-0.3, 1.1] to [0.0, 1.1]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_027.png (972114 bytes)
+📸 METRICS: Screenshot 27 captured - Analysis #26
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_027.png - Actor at [0.0, 1.1]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 240, time: 153.6s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need to move towards bathroom. Moving UP to explore."
+}
+```...
+📏 BGE: Full response length: 240 characters
+📦 BGE: Extracted from markdown: 228 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to move towards bathroom. Moving UP to explore.
+🧠 METRICS: LLM Call 27 (153.6s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 19: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [0.02, 1.14]
+🎮 Moved UP → [0.02, 1.44]
+📊 METRICS: Step 19 - UP from [0.0, 1.1] to [0.0, 1.4]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_028.png (972414 bytes)
+📸 METRICS: Screenshot 28 captured - Analysis #27
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_028.png - Actor at [0.0, 1.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 152.8s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 28 (152.8s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 20: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [0.02, 1.44]
+🎮 Moved RIGHT → [0.32, 1.44]
+📊 METRICS: Step 20 - RIGHT from [0.0, 1.4] to [0.3, 1.4]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_029.png (972528 bytes)
+📸 METRICS: Screenshot 29 captured - Analysis #28
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_029.png - Actor at [0.3, 1.4]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 246, time: 152.1s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need bathroom, moving UP to explore for bathroom fixtures."
+}
+```...
+📏 BGE: Full response length: 246 characters
+📦 BGE: Extracted from markdown: 234 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need bathroom, moving UP to explore for bathroom fixtures.
+🧠 METRICS: LLM Call 29 (152.1s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 21: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [0.32, 1.44]
+🎮 Moved UP → [0.32, 1.74]
+📊 METRICS: Step 21 - UP from [0.3, 1.4] to [0.3, 1.7]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_030.png (972291 bytes)
+📸 METRICS: Screenshot 30 captured - Analysis #29
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_030.png - Actor at [0.3, 1.7]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 232, time: 158.6s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need to find bathroom. Moving UP to explore."
+}
+```...
+📏 BGE: Full response length: 232 characters
+📦 BGE: Extracted from markdown: 220 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to find bathroom. Moving UP to explore.
+🧠 METRICS: LLM Call 30 (158.6s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 22: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [0.32, 1.74]
+🎮 Moved UP → [0.32, 2.04]
+📊 METRICS: Step 22 - UP from [0.3, 1.7] to [0.3, 2.0]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_031.png (971913 bytes)
+📸 METRICS: Screenshot 31 captured - Analysis #30
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_031.png - Actor at [0.3, 2.0]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 151.2s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 31 (151.2s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 23: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [0.32, 2.04]
+🎮 Moved RIGHT → [0.62, 2.04]
+📊 METRICS: Step 23 - RIGHT from [0.3, 2.0] to [0.6, 2.0]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_032.png (972846 bytes)
+📸 METRICS: Screenshot 32 captured - Analysis #31
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_032.png - Actor at [0.6, 2.0]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 240, time: 154.0s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need to move towards bathroom. Moving UP to explore."
+}
+```...
+📏 BGE: Full response length: 240 characters
+📦 BGE: Extracted from markdown: 228 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need to move towards bathroom. Moving UP to explore.
+🧠 METRICS: LLM Call 32 (154.0s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 24: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [0.62, 2.04]
+🎮 Moved UP → [0.62, 2.34]
+📊 METRICS: Step 24 - UP from [0.6, 2.0] to [0.6, 2.3]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_033.png (972030 bytes)
+📸 METRICS: Screenshot 33 captured - Analysis #32
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_033.png - Actor at [0.6, 2.3]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 151.2s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 33 (151.2s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 25: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [0.62, 2.34]
+🎮 Moved RIGHT → [0.92, 2.34]
+📊 METRICS: Step 25 - RIGHT from [0.6, 2.3] to [0.9, 2.3]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_034.png (971441 bytes)
+📸 METRICS: Screenshot 34 captured - Analysis #33
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_034.png - Actor at [0.9, 2.3]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 237, time: 152.5s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "LIVING_ROOM",
+  "furniture_visible": ["sofa", "coffee table"],
+  "task_complete": false,
+  "movement_sequence": ["UP"],
+  "reasoning": "In living room, need bathroom. Moving UP to explore for bathroom."
+}
+```...
+📏 BGE: Full response length: 237 characters
+📦 BGE: Extracted from markdown: 225 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "LIVING_ROOM",  "furniture_visible": ["sofa", "coffee table"],  "task_complete": ...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: LIVING_ROOM
+🪑 BGE: Furniture visible: ['sofa', 'coffee table']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['UP']
+🎯 BGE: Extracted sequence: ['UP']
+🎯 BGE: Loaded sequence: ['UP']
+🏠 BGE: Room Analysis - Current: LIVING_ROOM
+🪑 BGE: Furniture: ['sofa', 'coffee table']
+💭 BGE: In living room, need bathroom. Moving UP to explore for bathroom.
+🧠 METRICS: LLM Call 34 (152.5s) - Room: LIVING_ROOM, Task Complete: False
+🎮 BGE: Step 26: UP
+📍 Queue: []
+🔍 BGE: Before move - Actor at [0.92, 2.34]
+🎮 Moved UP → [0.92, 2.64]
+📊 METRICS: Step 26 - UP from [0.9, 2.3] to [0.9, 2.6]
+🏠 METRICS: Room detected - LIVING_ROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_035.png (971749 bytes)
+📸 METRICS: Screenshot 35 captured - Analysis #34
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_035.png - Actor at [0.9, 2.6]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 220, time: 151.0s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "KITCHEN",
+  "furniture_visible": ["counter", "cabinet"],
+  "task_complete": false,
+  "movement_sequence": ["RIGHT"],
+  "reasoning": "In kitchen, need bathroom, moving RIGHT to explore."
+}
+```...
+📏 BGE: Full response length: 220 characters
+📦 BGE: Extracted from markdown: 208 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "KITCHEN",  "furniture_visible": ["counter", "cabinet"],  "task_complete": false,...
+✅ BGE: JSON parsed successfully
+🏠 BGE: Current room identified: KITCHEN
+🪑 BGE: Furniture visible: ['counter', 'cabinet']
+✅ BGE: Task complete: False
+🔄 BGE: Raw sequence: ['RIGHT']
+🎯 BGE: Extracted sequence: ['RIGHT']
+🎯 BGE: Loaded sequence: ['RIGHT']
+🏠 BGE: Room Analysis - Current: KITCHEN
+🪑 BGE: Furniture: ['counter', 'cabinet']
+💭 BGE: In kitchen, need bathroom, moving RIGHT to explore.
+🧠 METRICS: LLM Call 35 (151.0s) - Room: KITCHEN, Task Complete: False
+🎮 BGE: Step 27: RIGHT
+📍 Queue: []
+🔍 BGE: Before move - Actor at [0.92, 2.64]
+🎮 Moved RIGHT → [1.22, 2.64]
+📊 METRICS: Step 27 - RIGHT from [0.9, 2.6] to [1.2, 2.6]
+🏠 METRICS: Room detected - KITCHEN
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+🔄 BGE: Continuing task 'Prepare in bathroom' with new analysis cycle
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_036.png (972469 bytes)
+📸 METRICS: Screenshot 36 captured - Analysis #35
+🖼️ BGE: Reference image available: True
+📋 BGE: Using detailed reference + runtime screenshot for enhanced analysis
+🔍 BGE: Analyzing image: bge_036.png - Actor at [1.2, 2.6]
+🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...
+🔍 BGE: Analyzing runtime image with enhanced layout context...
+🔍 DEBUG: IMAGES-ONLY completion with HOST='http://localhost:11434', MODEL='gemma3:27b'
+🔍 DEBUG: Sending IMAGES-ONLY request...
+🔍 DEBUG: IMAGES-ONLY completion successful, response length: 237, time: 152.1s
+✅ BGE: Images-only analysis completed successfully
+🔍 BGE: VLM Response → ```json
+{
+  "current_room": "BATHROOM",
+  "furniture_visible": ["toilet", "sink"],
+  "task_complete": true,
+  "movement_sequence": ["STAY"],
+  "reasoning": "In bathroom with toilet and sink, task 'Prepare in bathroom' is complete."
+}
+```...
+📏 BGE: Full response length: 237 characters
+📦 BGE: Extracted from markdown: 225 chars
+🧹 BGE: JSON is valid as-is: {  "current_room": "BATHROOM",  "furniture_visible": ["toilet", "sink"],  "task_complete": true,  "m...
+✅ BGE: JSON parsed successfully
+✅ BGE: SERVER VALIDATION PASSED - Task 'Prepare in bathroom' matches room 'BATHROOM'
+🏠 BGE: Current room identified: BATHROOM
+🪑 BGE: Furniture visible: ['toilet', 'sink']
+✅ BGE: Task complete: True
+🔄 BGE: Raw sequence: ['STAY']
+🎯 BGE: Extracted sequence: ['STAY']
+🎯 BGE: Loaded sequence: ['STAY']
+🏠 BGE: Room Analysis - Current: BATHROOM
+🪑 BGE: Furniture: ['toilet', 'sink']
+💭 BGE: In bathroom with toilet and sink, task 'Prepare in bathroom' is complete.
+🧠 METRICS: LLM Call 36 (152.1s) - Room: BATHROOM, Task Complete: True
+🎯 BGE: VLM confirms task complete - actor in correct room!
+🎮 BGE: Step 28: STAY
+📍 Queue: []
+🛑 BGE: Actor staying - task complete!
+📊 METRICS: Step 28 - STAY from [1.2, 2.6] to [1.2, 2.6]
+🏠 METRICS: Room detected - BATHROOM
+📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis
+✅ BGE: Task 'Prepare in bathroom' VALIDATED - Actor confirmed in correct room!
+🏠 BGE: Final location: BATHROOM
+🪑 BGE: Furniture confirmation: ['toilet', 'sink']
+✅ METRICS: Task COMPLETED in 4349.9s with 28 steps
+
+============================================================
+📊 VESPER NAVIGATION METRICS SUMMARY
+============================================================
+⏱️  Session Duration: 5622.7s
+🎯 Tasks Completed: 3/3 (100.0%)
+👣 Total Steps: 36
+📸 Screenshots Taken: 36
+🧠 LLM Calls Made: 36
+📈 Average Steps per Task: 12.0
+📈 Average Time per Task: 1872.2s
+============================================================
+💾 Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\blender\evaluation_logs\vesper_navigation_log_20250828_183830.json
+============================================================
+
+📸 BGE: Capturing high-quality screenshot...
+📸 Screenshot ready: bge_037.png (972048 bytes)
+🎉 BGE: ALL TASKS COMPLETED!
+
+============================================================
+📊 VESPER NAVIGATION METRICS SUMMARY
+============================================================
+⏱️  Session Duration: 5624.7s
+🎯 Tasks Completed: 3/3 (100.0%)
+👣 Total Steps: 36
+📸 Screenshots Taken: 36
+🧠 LLM Calls Made: 36
+📈 Average Steps per Task: 12.0
+📈 Average Time per Task: 1872.2s
+============================================================
+💾 Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\blender\evaluation_logs\vesper_navigation_log_20250828_183830.json
+============================================================
+
+🎉 BGE: ALL TASKS COMPLETED!
+
+============================================================
+📊 VESPER NAVIGATION METRICS SUMMARY
+============================================================
+⏱️  Session Duration: 5626.7s
+🎯 Tasks Completed: 3/3 (100.0%)
+👣 Total Steps: 36
+📸 Screenshots Taken: 36
+🧠 LLM Calls Made: 36
+📈 Average Steps per Task: 12.0
+📈 Average Time per Task: 1872.2s
+============================================================
+💾 Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\blender\evaluation_logs\vesper_navigation_log_20250828_183830.json
+============================================================
+
+🎉 BGE: ALL TASKS COMPLETED!
+
+============================================================
+📊 VESPER NAVIGATION METRICS SUMMARY
+============================================================
+⏱️  Session Duration: 5628.8s
+🎯 Tasks Completed: 3/3 (100.0%)
+👣 Total Steps: 36
+📸 Screenshots Taken: 36
+🧠 LLM Calls Made: 36
+📈 Average Steps per Task: 12.0
+📈 Average Time per Task: 1872.2s
+============================================================
+💾 Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\blender\evaluation_logs\vesper_navigation_log_20250828_183830.json
+============================================================
+
+🎉 BGE: ALL TASKS COMPLETED!
+
+============================================================
+📊 VESPER NAVIGATION METRICS SUMMARY
+============================================================
+⏱️  Session Duration: 5630.8s
+🎯 Tasks Completed: 3/3 (100.0%)
+👣 Total Steps: 36
+📸 Screenshots Taken: 36
+🧠 LLM Calls Made: 36
+📈 Average Steps per Task: 12.0
+📈 Average Time per Task: 1872.2s
+============================================================
+💾 Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\blender\evaluation_logs\vesper_navigation_log_20250828_183830.json
+============================================================
+
+Blender Game Engine Finished
