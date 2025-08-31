@@ -9,6 +9,7 @@ import ollama
 load_dotenv()
 
 # Debug environment variables
+# raw_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 raw_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 print(f"🔍 DEBUG: Raw OLLAMA_HOST = '{raw_host}'")
 

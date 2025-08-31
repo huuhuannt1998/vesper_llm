@@ -1,0 +1,107 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: testbed-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - testbed-network
+    restart: unless-stopped
+      
+  postgres:
+    image: postgres:15
+    container_name: testbed-postgres
+    environment:
+      POSTGRES_DB: thermostat_testbed
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secure_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./cloud-server/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - testbed-network
+    restart: unless-stopped
+      
+  cloud-server:
+    build: ./cloud-server
+    container_name: testbed-cloud-server
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      DATABASE_URL: postgresql+asyncpg://admin:secure_password@postgres/thermostat_testbed
+      REDIS_URL: redis://redis:6379
+      NGROK_AUTH_TOKEN: ${NGROK_AUTH_TOKEN:-2eEdMNa3XkIOw7CsHuV7crgAtbD_6hdTjRRUawk5bA2PTdWX5}
+      NGROK_DOMAIN: ${NGROK_DOMAIN}
+      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-change-in-production}
+      SMARTTHINGS_CLIENT_ID: ${SMARTTHINGS_CLIENT_ID}
+      SMARTTHINGS_CLIENT_SECRET: ${SMARTTHINGS_CLIENT_SECRET}
+      SMARTTHINGS_CALLBACK_CLIENT_ID: ${SMARTTHINGS_CALLBACK_CLIENT_ID}
+      SMARTTHINGS_CALLBACK_CLIENT_SECRET: ${SMARTTHINGS_CALLBACK_CLIENT_SECRET}
+    ports:
+      - "8081:8080"
+    networks:
+      - testbed-network
+    restart: unless-stopped
+      
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: testbed-ngrok
+    depends_on:
+      - cloud-server
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTH_TOKEN:-2eEdMNa3XkIOw7CsHuV7crgAtbD_6hdTjRRUawk5bA2PTdWX5}
+    command: "http cloud-server:8080 --url=vt-testbed-2025.ngrok.app"
+    networks:
+      - testbed-network
+    restart: unless-stopped
+
+  backend-console:
+    build: ./backend-console
+    container_name: testbed-backend-console
+    depends_on:
+      - redis
+      - postgres
+      - cloud-server
+    environment:
+      DATABASE_URL: postgresql://admin:secure_password@postgres/thermostat_testbed
+      REDIS_URL: redis://redis:6379
+      CLOUD_SERVER_URL: http://cloud-server:8080
+      REACT_APP_API_URL: http://localhost:8088
+    ports:
+      - "3000:3000"  # React frontend
+      - "8088:8088"  # Backend API + HELICs endpoints
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config:/app/config:ro
+    networks:
+      - testbed-network
+    restart: unless-stopped
+      
+  # Base images for dynamic spawning
+  thermostat:
+    build: ./thermostat
+    image: testbed-thermostat:latest
+    command: echo "Base image built"
+    networks:
+      - testbed-network
+      
+  environment-simulator:
+    build: ./environment-simulator
+    image: testbed-environment:latest
+    command: echo "Base image built"
+    networks:
+      - testbed-network
+      
+networks:
+  testbed-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+    
+volumes:
+  redis-data:
+  postgres-data:

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Virtual Thermostat Testbed</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+            padding: 40px;
+            margin: 20px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h2 {
+            color: #333;
+            margin: 0;
+            font-size: 24px;
+        }
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .description {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #0084ff;
+            box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.1);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px 24px;
+            background: #0084ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .login-btn:hover {
+            background: #0073e6;
+        }
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        .demo-credentials {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .demo-credentials strong {
+            color: #333;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h2>🌡️ Virtual Thermostat Testbed</h2>
+        </div>
+        
+        <h1>Sign In</h1>
+        
+        <div class="description">
+            Sign in to authorize SmartThings access to your virtual thermostat devices.
+        </div>
+        
+        <div class="demo-credentials">
+            <strong>Demo Credentials:</strong><br>
+            Username: <strong>admin</strong><br>
+            Password: <strong>admin123</strong>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            Invalid username or password. Please try again.
+        </div>
+        
+        <form id="loginForm" method="POST">
+            <input type="hidden" name="client_id" id="client_id">
+            <input type="hidden" name="redirect_uri" id="redirect_uri">
+            <input type="hidden" name="state" id="state">
+            <input type="hidden" name="scope" id="scope">
+            <input type="hidden" name="response_type" id="response_type">
+            
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                Sign In
+            </button>
+        </form>
+        
+        <div class="footer">
+            Secure authentication for SmartThings integration
+        </div>
+    </div>
+    
+    <script>
+        // Parse URL parameters and populate hidden fields
+        const urlParams = new URLSearchParams(window.location.search);
+        document.getElementById('client_id').value = urlParams.get('client_id') || '';
+        document.getElementById('redirect_uri').value = urlParams.get('redirect_uri') || '';
+        document.getElementById('state').value = urlParams.get('state') || '';
+        document.getElementById('scope').value = urlParams.get('scope') || '';
+        document.getElementById('response_type').value = urlParams.get('response_type') || 'code';
+        
+        // Show error if present in URL
+        if (urlParams.get('error') === 'invalid_credentials') {
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+        
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Disable button and show loading state
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing In...';
+            errorMessage.style.display = 'none';
+            
+            // Submit form to login endpoint
+            this.action = '/oauth/login';
+            this.submit();
+        });
+        
+        // Auto-focus username field
+        document.getElementById('username').focus();
+    </script>
+</body>
+</html>

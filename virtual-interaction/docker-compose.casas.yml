@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  # Existing services from thermostat system
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  cloud-server:
+    build: ./cloud-server
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+
+  # CASAS Virtual Sensor Network
+  motion-sensor:
+    build: ./motion-sensor
+    ports:
+      - "8001:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CLOUD_SERVER_URL=http://cloud-server:8080
+      - SENSOR_ZONES=M01,M02,M03,M04,M05,M06,M07,M08,M09,M10,M11,M12,M13,M14,M15,M16,M17,M18,M19,M20,M21,M22,M23,M24,M25,M26
+    depends_on:
+      - redis
+      - cloud-server
+
+  item-sensor:
+    build: ./item-sensor
+    ports:
+      - "8002:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CLOUD_SERVER_URL=http://cloud-server:8080
+      - SENSOR_ITEMS=I01:oatmeal,I02:raisins,I03:bowl,I04:spoon,I05:water,I06:medicine_container,I07:plate,I08:cup
+    depends_on:
+      - redis
+      - cloud-server
+
+  appliance-controller:
+    build: ./appliance-controller
+    ports:
+      - "8003:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CLOUD_SERVER_URL=http://cloud-server:8080
+      - CONTROLLED_APPLIANCES=AD1-A:water_hot,AD1-B:water_cold,AD1-C:burner,D01:door,*:phone
+    depends_on:
+      - redis
+      - cloud-server
+
+  casas-dataset-manager:
+    build: ./casas-dataset-manager
+    ports:
+      - "8004:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CLOUD_SERVER_URL=http://cloud-server:8080
+      - CASAS_GROUND_TRUTH_DIR=/app/data/casas_ground_truth
+      - VESPER_OUTPUT_DIR=/app/data/vesper_generated
+      - COMPARISON_OUTPUT_DIR=/app/data/comparisons
+    volumes:
+      - ./data/casas_ground_truth:/app/data/casas_ground_truth:ro
+      - casas_output:/app/data/vesper_generated
+      - casas_comparisons:/app/data/comparisons
+    depends_on:
+      - redis
+      - cloud-server
+
+  # Existing thermostat service (for compatibility)
+  thermostat:
+    build: ./thermostat
+    ports:
+      - "8005:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CLOUD_SERVER_URL=http://cloud-server:8080
+    depends_on:
+      - redis
+      - cloud-server
+
+volumes:
+  redis_data:
+  casas_output:
+  casas_comparisons:

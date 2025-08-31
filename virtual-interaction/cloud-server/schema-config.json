@@ -1,0 +1,76 @@
+{
+  "schema": "st-schema",
+  "version": "1.0",
+  "connectorInfo": {
+    "connectorName": "Virtual Thermostat Testbed",
+    "description": "Virtual thermostat devices for energy research",
+    "connectorVersion": "1.0.0",
+    "owner": "Virtual Testbed",
+    "support": {
+      "email": "support@virtualtestbed.com",
+      "url": "https://github.com/virtual-testbed"
+    }
+  },
+  "deviceProfiles": [
+    {
+      "id": "virtual-thermostat",
+      "name": "Virtual Thermostat",
+      "components": [
+        {
+          "id": "main",
+          "label": "Virtual Thermostat",
+          "capabilities": [
+            {
+              "id": "st.healthCheck",
+              "version": 1
+            },
+            {
+              "id": "st.temperatureMeasurement",
+              "version": 1
+            },
+            {
+              "id": "st.thermostatMode",
+              "version": 1
+            },
+            {
+              "id": "st.thermostatCoolingSetpoint",
+              "version": 1
+            },
+            {
+              "id": "st.thermostatHeatingSetpoint",
+              "version": 1
+            },
+            {
+              "id": "st.thermostatFanMode",
+              "version": 1
+            },
+            {
+              "id": "st.thermostatOperatingState",
+              "version": 1
+            },
+            {
+              "id": "st.relativeHumidityMeasurement",
+              "version": 1
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "deviceType": "Thermostat",
+        "ocfDeviceType": "oic.d.thermostat",
+        "categories": ["thermostat"]
+      }
+    }
+  ],
+  "hostingType": "webhook",
+  "webhook": {
+    "targetUrl": "https://vt-testbed-2025.ngrok.app/schema"
+  },
+  "oauth": {
+    "clientId": "${SMARTTHINGS_CLIENT_ID}",
+    "clientSecret": "${SMARTTHINGS_CLIENT_SECRET}",
+    "authorizeUrl": "https://vt-testbed-2025.ngrok.app/oauth/authorize",
+    "tokenUrl": "https://vt-testbed-2025.ngrok.app/oauth/token",
+    "callbackTokenUrl": "https://vt-testbed-2025.ngrok.app/oauth/callback/token"
+  }
+}

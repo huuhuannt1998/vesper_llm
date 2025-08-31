@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorize SmartThings Access</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .consent-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+            padding: 40px;
+            margin: 20px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo img {
+            height: 60px;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .description {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .permissions {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .permissions h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .permission-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            color: #555;
+            font-size: 14px;
+        }
+        .permission-item svg {
+            margin-right: 10px;
+            color: #4CAF50;
+        }
+        .user-info {
+            background: #e3f2fd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #1976d2;
+        }
+        .buttons {
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .authorize-btn {
+            background: #0084ff;
+            color: white;
+        }
+        .authorize-btn:hover {
+            background: #0073e6;
+        }
+        .cancel-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .cancel-btn:hover {
+            background: #e0e0e0;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="consent-container">
+        <div class="logo">
+            <h2>🌡️ Virtual Thermostat Testbed</h2>
+        </div>
+        
+        <h1>Authorize SmartThings</h1>
+        
+        <div class="description">
+            SmartThings is requesting access to your Virtual Thermostat devices and data.
+        </div>
+        
+        <div class="user-info">
+            Logged in as: <strong id="username">admin</strong>
+        </div>
+        
+        <div class="permissions">
+            <h3>SmartThings will be able to:</h3>
+            <div class="permission-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                View all your virtual thermostat devices
+            </div>
+            <div class="permission-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Control temperature settings and modes
+            </div>
+            <div class="permission-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Read current temperature and humidity data
+            </div>
+            <div class="permission-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+                Receive real-time device status updates
+            </div>
+        </div>
+        
+        <form id="consentForm" method="POST">
+            <input type="hidden" name="client_id" id="client_id">
+            <input type="hidden" name="redirect_uri" id="redirect_uri">
+            <input type="hidden" name="state" id="state">
+            <input type="hidden" name="scope" id="scope">
+            <input type="hidden" name="response_type" id="response_type">
+            
+            <div class="buttons">
+                <button type="submit" name="action" value="authorize" class="authorize-btn">
+                    Authorize
+                </button>
+                <button type="submit" name="action" value="cancel" class="cancel-btn">
+                    Cancel
+                </button>
+            </div>
+        </form>
+
+        <!-- Switch account / logout -->
+        <div style="margin-top: 15px; text-align:center;">
+            <button type="button" id="switchAccountBtn" class="cancel-btn">
+                Switch&nbsp;Account
+            </button>
+        </div>
+        
+        <div class="footer">
+            By authorizing, you agree to share your device data with SmartThings.<br>
+            You can revoke access at any time from your account settings.
+        </div>
+    </div>
+    
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        document.getElementById('client_id').value = urlParams.get('client_id') || '';
+        document.getElementById('redirect_uri').value = urlParams.get('redirect_uri') || '';
+        document.getElementById('state').value = urlParams.get('state') || '';
+        document.getElementById('scope').value = urlParams.get('scope') || '';
+        document.getElementById('response_type').value = urlParams.get('response_type') || 'code';
+        
+        // Handle form submission
+        document.getElementById('consentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const action = e.submitter.value;
+            
+            if (action === 'cancel') {
+                // Redirect back with error
+                const redirectUri = document.getElementById('redirect_uri').value;
+                const state = document.getElementById('state').value;
+                window.location.href = `${redirectUri}?error=access_denied&state=${state}`;
+            } else {
+                // Submit form to authorize endpoint
+                this.action = '/oauth/authorize/consent';
+                this.submit();
+            }
+        });
+
+        // Switch-account button: clear session and return to login
+        const switchBtn = document.getElementById('switchAccountBtn');
+        if (switchBtn) {
+            switchBtn.addEventListener('click', () => {
+                const params = new URLSearchParams(window.location.search);
+                const clientId      = params.get('client_id')     || '';
+                const redirectUri   = params.get('redirect_uri')  || '';
+                const state         = params.get('state')         || '';
+                const scope         = params.get('scope')         || '';
+                const responseType  = params.get('response_type') || 'code';
+
+                const logoutUrl = `/oauth/logout?client_id=${encodeURIComponent(clientId)}`
+                                + `&redirect_uri=${encodeURIComponent(redirectUri)}`
+                                + `&state=${encodeURIComponent(state)}`
+                                + `&scope=${encodeURIComponent(scope)}`
+                                + `&response_type=${encodeURIComponent(responseType)}`;
+
+                window.location.href = logoutUrl;
+            });
+        }
+    </script>
+</body>
+</html>
