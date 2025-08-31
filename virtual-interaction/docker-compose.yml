@@ -14,7 +14,7 @@ services:
     image: postgres:15
     container_name: testbed-postgres
     environment:
-      POSTGRES_DB: thermostat_testbed
+      POSTGRES_DB: smart_home_testbed
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secure_password
     volumes:
@@ -31,7 +31,7 @@ services:
       - redis
       - postgres
     environment:
-      DATABASE_URL: postgresql+asyncpg://admin:secure_password@postgres/thermostat_testbed
+      DATABASE_URL: postgresql+asyncpg://admin:secure_password@postgres/smart_home_testbed
       REDIS_URL: redis://redis:6379
       NGROK_AUTH_TOKEN: ${NGROK_AUTH_TOKEN:-2eEdMNa3XkIOw7CsHuV7crgAtbD_6hdTjRRUawk5bA2PTdWX5}
       NGROK_DOMAIN: ${NGROK_DOMAIN}
@@ -66,7 +66,7 @@ services:
       - postgres
       - cloud-server
     environment:
-      DATABASE_URL: postgresql://admin:secure_password@postgres/thermostat_testbed
+      DATABASE_URL: postgresql://admin:secure_password@postgres/smart_home_testbed
       REDIS_URL: redis://redis:6379
       CLOUD_SERVER_URL: http://cloud-server:8080
       REACT_APP_API_URL: http://localhost:8088
@@ -80,13 +80,101 @@ services:
       - testbed-network
     restart: unless-stopped
       
-  # Base images for dynamic spawning
+  # Device Services
   thermostat:
     build: ./thermostat
-    image: testbed-thermostat:latest
-    command: echo "Base image built"
+    container_name: testbed-thermostat
+    depends_on:
+      - redis
+      - postgres
+      - cloud-server
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CLOUD_SERVER_URL: http://cloud-server:8080
+    ports:
+      - "8005:8000"
     networks:
       - testbed-network
+    restart: unless-stopped
+
+  motion-sensor:
+    build: ./motion-sensor
+    container_name: testbed-motion-sensor
+    depends_on:
+      - redis
+      - postgres
+      - cloud-server
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CLOUD_SERVER_URL: http://cloud-server:8080
+      SENSOR_ZONES: M01,M02,M03,M04,M05,M06,M07,M08,M09,M10,M11,M12,M13,M14,M15,M16,M17,M18,M19,M20,M21,M22,M23,M24,M25,M26
+    ports:
+      - "8001:8000"
+    networks:
+      - testbed-network
+    restart: unless-stopped
+
+  item-sensor:
+    build: ./item-sensor
+    container_name: testbed-item-sensor
+    depends_on:
+      - redis
+      - postgres
+      - cloud-server
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CLOUD_SERVER_URL: http://cloud-server:8080
+      SENSOR_ITEMS: I01:oatmeal,I02:raisins,I03:bowl,I04:spoon,I05:water,I06:medicine_container,I07:plate,I08:cup
+    ports:
+      - "8002:8000"
+    networks:
+      - testbed-network
+    restart: unless-stopped
+
+  appliance-controller:
+    build: ./appliance-controller
+    container_name: testbed-appliance-controller
+    depends_on:
+      - redis
+      - postgres
+      - cloud-server
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CLOUD_SERVER_URL: http://cloud-server:8080
+      CONTROLLED_APPLIANCES: AD1-A:water_hot,AD1-B:water_cold,AD1-C:burner,D01:door,*:phone
+    ports:
+      - "8003:8000"
+    networks:
+      - testbed-network
+    restart: unless-stopped
+
+  casas-dataset-manager:
+    build: ./casas-dataset-manager
+    container_name: testbed-casas-dataset-manager
+    depends_on:
+      - redis
+      - postgres
+      - cloud-server
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CLOUD_SERVER_URL: http://cloud-server:8080
+      CASAS_GROUND_TRUTH_DIR: /app/data/casas_ground_truth
+      VESPER_OUTPUT_DIR: /app/data/vesper_generated
+      COMPARISON_OUTPUT_DIR: /app/data/comparisons
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./data/casas_ground_truth:/app/data/casas_ground_truth:ro
+      - casas-output:/app/data/vesper_generated
+      - casas-comparisons:/app/data/comparisons
+    networks:
+      - testbed-network
+    restart: unless-stopped
       
   environment-simulator:
     build: ./environment-simulator
@@ -105,3 +193,5 @@ networks:
 volumes:
   redis-data:
   postgres-data:
+  casas-output:
+  casas-comparisons:

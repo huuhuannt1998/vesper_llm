@@ -1,0 +1,310 @@
+# First, unregister the test addon
+import bpy
+
+# Unregister test classes if they exist
+try:
+    bpy.utils.unregister_class(bpy.types.VESPER_OT_TestOperator)
+    bpy.utils.unregister_class(bpy.types.VESPER_PT_TestPanel)
+    print("✅ Test addon unregistered")
+except:
+    print("Test addon already removed")
+
+# Now register the full smart home addon
+exec("""
+bl_info = {
+    "name": "VESPER Smart Home Integration",
+    "author": "VESPER Team",
+    "version": (2, 0, 0),
+    "blender": (4, 0, 0),
+    "location": "View3D > Sidebar > VESPER Smart Home",
+    "description": "Control Docker-hosted virtual smart devices",
+    "category": "System"
+}
+
+import bpy
+from mathutils import Vector
+
+# Try to import requests
+try:
+    import requests
+    REQUESTS_AVAILABLE = True
+except ImportError:
+    REQUESTS_AVAILABLE = False
+
+class DeviceManager:
+    def __init__(self):
+        self.base_urls = {
+            "motion": "http://localhost:8001",
+            "item": "http://localhost:8002", 
+            "appliance": "http://localhost:8003",
+            "dataset": "http://localhost:8004"
+        }
+    
+    def check_services_health(self):
+        if not REQUESTS_AVAILABLE:
+            return {"error": "requests not available"}
+        
+        health_status = {}
+        for service, url in self.base_urls.items():
+            try:
+                response = requests.get(f"{url}/health", timeout=5)
+                health_status[service] = response.status_code == 200
+            except:
+                health_status[service] = False
+        return health_status
+
+device_manager = DeviceManager()
+
+def create_device_visual(device_id, device_type, position, room=""):
+    if device_type == "motion":
+        bpy.ops.mesh.primitive_ico_sphere_add(radius=0.1, location=position)
+        obj = bpy.context.active_object
+        obj.name = f"Motion_{device_id}"
+        
+        # Create red material
+        mat = bpy.data.materials.new(name=f"Motion_Material_{device_id}")
+        mat.use_nodes = True
+        if "Principled BSDF" in mat.node_tree.nodes:
+            mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (1, 0, 0, 1)
+        obj.data.materials.append(mat)
+        
+    elif device_type == "item":
+        bpy.ops.mesh.primitive_cube_add(size=0.2, location=position)
+        obj = bpy.context.active_object
+        obj.name = f"Item_{device_id}"
+        
+        # Create blue material
+        mat = bpy.data.materials.new(name=f"Item_Material_{device_id}")
+        mat.use_nodes = True
+        if "Principled BSDF" in mat.node_tree.nodes:
+            mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0, 0, 1, 1)
+        obj.data.materials.append(mat)
+    
+    # Add device properties
+    obj["vesper_device_id"] = device_id
+    obj["vesper_device_type"] = device_type
+    obj["vesper_room"] = room
+    
+    return obj
+
+def auto_detect_room(position):
+    if position.x < 0 and position.y > 0:
+        return "kitchen"
+    elif position.x > 0 and position.y > 0:
+        return "living_room"
+    elif position.x < 0 and position.y < 0:
+        return "bathroom"
+    else:
+        return "bedroom"
+
+class VESPER_OT_CheckServices(bpy.types.Operator):
+    bl_idname = "vesper_smart.check_services"
+    bl_label = "Check Services"
+    bl_description = "Check Docker services status"
+    
+    def execute(self, context):
+        if not REQUESTS_AVAILABLE:
+            self.report({'ERROR'}, "requests module not available")
+            return {'CANCELLED'}
+        
+        health = device_manager.check_services_health()
+        all_healthy = all(health.values())
+        
+        if all_healthy:
+            self.report({'INFO'}, "All Docker services running!")
+        else:
+            failed = [k for k, v in health.items() if not v]
+            self.report({'WARNING'}, f"Services down: {', '.join(failed)}")
+        
+        # Print detailed status
+        print("🐳 Docker Services Status:")
+        for service, status in health.items():
+            icon = "✅" if status else "❌"
+            print(f"  {icon} {service}: {'Running' if status else 'Down'}")
+        
+        return {'FINISHED'}
+
+class VESPER_OT_AddMotionSensor(bpy.types.Operator):
+    bl_idname = "vesper_smart.add_motion_sensor"
+    bl_label = "Add Motion Sensor"
+    bl_description = "Add motion sensor at 3D cursor"
+    
+    sensor_id: bpy.props.StringProperty(name="Sensor ID", default="M")
+    room: bpy.props.StringProperty(name="Room", default="")
+    
+    def execute(self, context):
+        cursor_location = context.scene.cursor.location.copy()
+        room = self.room if self.room else auto_detect_room(cursor_location)
+        
+        # Generate ID
+        existing = [obj for obj in bpy.data.objects if obj.name.startswith("Motion_")]
+        sensor_id = f"M{len(existing) + 1:02d}" if self.sensor_id == "M" else self.sensor_id
+        
+        # Create visual device
+        create_device_visual(sensor_id, "motion", cursor_location, room)
+        
+        self.report({'INFO'}, f"Added motion sensor {sensor_id} in {room}")
+        print(f"🔴 Added motion sensor {sensor_id} at {cursor_location}")
+        
+        return {'FINISHED'}
+    
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+class VESPER_OT_AddItemSensor(bpy.types.Operator):
+    bl_idname = "vesper_smart.add_item_sensor"
+    bl_label = "Add Item Sensor"
+    bl_description = "Add item sensor at 3D cursor"
+    
+    sensor_id: bpy.props.StringProperty(name="Sensor ID", default="I")
+    item_name: bpy.props.StringProperty(name="Item Name", default="item")
+    
+    def execute(self, context):
+        cursor_location = context.scene.cursor.location.copy()
+        
+        # Generate ID
+        existing = [obj for obj in bpy.data.objects if obj.name.startswith("Item_")]
+        sensor_id = f"I{len(existing) + 1:02d}" if self.sensor_id == "I" else self.sensor_id
+        
+        # Create visual device
+        create_device_visual(sensor_id, "item", cursor_location, self.item_name)
+        
+        self.report({'INFO'}, f"Added item sensor {sensor_id} for {self.item_name}")
+        print(f"🔵 Added item sensor {sensor_id} for {self.item_name}")
+        
+        return {'FINISHED'}
+    
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+class VESPER_OT_TriggerDevice(bpy.types.Operator):
+    bl_idname = "vesper_smart.trigger_device"
+    bl_label = "Trigger Device"
+    bl_description = "Trigger selected device"
+    
+    def execute(self, context):
+        obj = context.active_object
+        
+        if not obj or "vesper_device_id" not in obj:
+            self.report({'ERROR'}, "No VESPER device selected")
+            return {'CANCELLED'}
+        
+        device_id = obj["vesper_device_id"]
+        
+        # Visual feedback - make it glow
+        if obj.data.materials:
+            mat = obj.data.materials[0]
+            if mat.use_nodes:
+                principled = mat.node_tree.nodes.get("Principled BSDF")
+                if principled:
+                    principled.inputs["Emission"].default_value = (1, 1, 1, 1)
+                    principled.inputs["Emission Strength"].default_value = 2.0
+        
+        self.report({'INFO'}, f"Triggered device {device_id}")
+        print(f"⚡ Triggered device {device_id}")
+        
+        return {'FINISHED'}
+
+class VESPER_OT_RemoveDevice(bpy.types.Operator):
+    bl_idname = "vesper_smart.remove_device"
+    bl_label = "Remove Device"
+    bl_description = "Remove selected device"
+    
+    def execute(self, context):
+        obj = context.active_object
+        
+        if not obj or "vesper_device_id" not in obj:
+            self.report({'ERROR'}, "No VESPER device selected")
+            return {'CANCELLED'}
+        
+        device_id = obj["vesper_device_id"]
+        bpy.data.objects.remove(obj, do_unlink=True)
+        
+        self.report({'INFO'}, f"Removed device {device_id}")
+        print(f"🗑️ Removed device {device_id}")
+        
+        return {'FINISHED'}
+
+class VESPER_PT_SmartHomePanel(bpy.types.Panel):
+    bl_label = "Smart Home"
+    bl_idname = "VESPER_PT_smart_home_full"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'VESPER'
+    
+    def draw(self, context):
+        layout = self.layout
+        
+        # Header
+        row = layout.row()
+        row.label(text="🏠 VESPER Smart Home", icon='HOME')
+        
+        # Status
+        if not REQUESTS_AVAILABLE:
+            box = layout.box()
+            box.alert = True
+            box.label(text="⚠️ Limited Mode")
+            box.label(text="Install: pip install requests")
+        
+        # Docker services
+        box = layout.box()
+        box.label(text="🐳 Docker Services:")
+        box.operator("vesper_smart.check_services", icon='CHECKMARK')
+        
+        layout.separator()
+        
+        # Add devices
+        box = layout.box()
+        box.label(text="📱 Add Devices:")
+        box.operator("vesper_smart.add_motion_sensor", icon='OUTLINER_OB_LIGHT', text="Motion Sensor")
+        box.operator("vesper_smart.add_item_sensor", icon='OUTLINER_OB_MESH', text="Item Sensor")
+        
+        layout.separator()
+        
+        # Control
+        box = layout.box()
+        box.label(text="🎮 Control:")
+        row = box.row(align=True)
+        row.operator("vesper_smart.trigger_device", icon='PLAY', text="Trigger")
+        row.operator("vesper_smart.remove_device", icon='X', text="Remove")
+        
+        layout.separator()
+        
+        # Device info
+        obj = context.active_object
+        if obj and "vesper_device_id" in obj:
+            box = layout.box()
+            box.label(text="📋 Selected Device:")
+            box.label(text=f"ID: {obj['vesper_device_id']}")
+            box.label(text=f"Type: {obj['vesper_device_type']}")
+            if "vesper_room" in obj:
+                box.label(text=f"Room: {obj['vesper_room']}")
+        else:
+            box = layout.box()
+            box.label(text="💡 Instructions:")
+            box.label(text="1. Position 3D cursor")
+            box.label(text="2. Add devices")
+            box.label(text="3. Select & trigger")
+
+classes = [
+    VESPER_OT_CheckServices,
+    VESPER_OT_AddMotionSensor,
+    VESPER_OT_AddItemSensor,
+    VESPER_OT_TriggerDevice,
+    VESPER_OT_RemoveDevice,
+    VESPER_PT_SmartHomePanel
+]
+
+def register():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+    print("✅ VESPER Smart Home Integration registered")
+
+def unregister():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
+
+register()
+""")
+
+print("🎉 Full VESPER Smart Home addon loaded!")

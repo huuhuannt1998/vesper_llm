@@ -239,6 +239,155 @@ result = testbed.run_single_task(TaskType.COOK_OATMEAL, ErrorType.NONE)
 📈 Similarity Score: 0.78
 ```
 
+## 📊 VESPER Dataset Generation Process
+
+### **Overview**
+Generate VESPER datasets that mirror CASAS format for direct comparison with human activity patterns:
+
+```
+VESPER VLM Navigation → Virtual Sensors → CASAS Event Format → Dataset Manager → Comparison Analysis
+```
+
+### **Complete Workflow**
+
+#### **Phase 1: Setup Virtual Environment**
+```bash
+# Deploy the CASAS virtual smart home testbed
+cd virtual-interaction
+docker-compose -f docker-compose.casas.yml up -d
+
+# Verify all services are running:
+curl http://localhost:8001/health  # Motion sensors (M01-M26)
+curl http://localhost:8002/health  # Item sensors (I01-I08) 
+curl http://localhost:8003/health  # Appliance controller
+curl http://localhost:8004/health  # Dataset manager
+```
+
+#### **Phase 2: Integration with VESPER Navigation**
+```python
+# Add to your VESPER Blender navigation script:
+from vesper_casas_bridge import VESPERCASASBridge
+
+class EnhancedVESPERNavigation:
+    def __init__(self):
+        # Your existing VESPER initialization
+        self.casas_bridge = VESPERCASASBridge()
+    
+    async def execute_vlm_instruction(self, instruction):
+        """Execute VLM instruction with automatic CASAS tracking"""
+        
+        # Parse VLM instruction into action
+        action = self.parse_instruction(instruction)
+        
+        # Execute in BGE (your existing code)
+        await self.execute_bge_action(action)
+        
+        # ✅ NEW: Trigger CASAS sensors based on VLM action
+        await self.casas_bridge.process_vlm_action(action)
+        
+        return action
+```
+
+#### **Phase 3: Automatic CASAS Event Generation**
+```python
+# Start task tracking session
+session_id = await casas_bridge.start_task_session("Cook oatmeal", "vesper_vlm_001")
+
+# During VLM navigation, events are automatically generated:
+
+# When VLM navigates to kitchen:
+await casas_bridge.process_vlm_action({
+    "type": "move_to",
+    "location": "kitchen"
+})
+# → Generates: 2024-08-31,10:30:15.123,M01,ON
+
+# When VLM interacts with oatmeal:
+await casas_bridge.process_vlm_action({
+    "type": "interact_with", 
+    "object": "oatmeal"
+})
+# → Generates: 2024-08-31,10:30:16.456,I01,ABSENT
+
+# When VLM uses burner:
+await casas_bridge.process_vlm_action({
+    "type": "use_appliance",
+    "appliance": "burner"
+})
+# → Generates: 2024-08-31,10:30:18.789,AD1-C,ON
+```
+
+#### **Phase 4: Ground Truth Comparison**
+```python
+# Automatic comparison with CASAS reference data
+comparison_request = {
+    "vesper_session_id": session_id,
+    "casas_reference_file": "p01.t3.csv",  # Cook oatmeal ground truth
+    "task_id": 3,
+    "participant_id": "vesper_vlm_001"
+}
+
+requests.post("http://localhost:8004/compare", json=comparison_request)
+
+# Comparison results:
+{
+  "overall_score": 0.78,
+  "sequence_similarity": {
+    "similarity_score": 0.82,
+    "edit_distance": 3
+  },
+  "sensor_coverage": {
+    "coverage_score": 0.75,
+    "common_sensors": ["M01", "I01", "AD1-C"]
+  },
+  "timing_analysis": {
+    "duration_similarity": 0.85,
+    "vesper_duration": 45.2,
+    "casas_duration": 52.1
+  }
+}
+```
+
+#### **Phase 5: Dataset Export**
+```python
+# Export complete VESPER dataset in CASAS format
+export_request = {
+    "session_ids": ["session_12345", "session_12346"],
+    "format": "casas_csv",
+    "include_comparison": True
+}
+
+response = requests.post("http://localhost:8004/export", json=export_request)
+```
+
+### **Quick Start Example**
+```bash
+# 1. Deploy virtual environment
+docker-compose -f virtual-interaction/docker-compose.casas.yml up -d
+
+# 2. Run automatic dataset generation
+python vesper_dataset_generator.py
+
+# 3. View results
+curl http://localhost:8004/sessions
+curl http://localhost:8004/ground_truth
+
+# 4. Download generated dataset
+curl http://localhost:8004/download/vesper_dataset_20240831_143052.csv
+```
+
+### **Integration Files**
+- `vesper_casas_bridge.py` - Bridge between VESPER and CASAS sensors
+- `vesper_dataset_generator.py` - Complete dataset generation workflow
+- `enhanced_llm_bge_navigation.py` - Enhanced Blender navigation with CASAS tracking
+
+### **Research Applications**
+- **VLM Performance Evaluation**: Quantify VLM vs human activity patterns
+- **Task Completion Analysis**: Measure VLM success rates across ADL tasks
+- **Temporal Pattern Study**: Compare VLM timing vs human patterns
+- **Error Detection Research**: Test VLM procedural error detection
+- **Spatial Intelligence Assessment**: Evaluate VLM home layout understanding
+
 ## 🔧 Component Documentation
 
 ### 1. 3D Navigation System (`blender/`)
