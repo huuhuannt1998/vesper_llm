@@ -46,12 +46,28 @@ class DeviceManager:
         self.backend_api = "http://localhost:8088"
         self.cloud_api = "http://localhost:8081"
         
+        # Port ranges for different device types
+        self.device_port_ranges = {
+            "motion-sensor": {"start": 9000, "end": 9199},      # 200 ports for motion sensors
+            "item-sensor": {"start": 9200, "end": 9299},        # 100 ports for item sensors
+            "appliance": {"start": 9300, "end": 9399},          # 100 ports for appliances
+            "light": {"start": 9400, "end": 9499},              # 100 ports for lights
+            "smart-plug": {"start": 9500, "end": 9599},         # 100 ports for smart plugs
+            "camera": {"start": 9600, "end": 9699},             # 100 ports for cameras
+            "thermostat": {"start": 9700, "end": 9799},         # 100 ports for thermostats
+            "smart-lock": {"start": 9800, "end": 9899},         # 100 ports for smart locks
+            "default": {"start": 9900, "end": 9999}             # 100 ports for other devices
+        }
+        
         # Virtual device configurations (same as web UI)
         self.virtual_configs = {
             "small_apartment_efficient": "small_apartment_efficient.yaml",
             "small_apartment_inefficient": "small_apartment_inefficient.yaml", 
             "medium_house_efficient": "medium_house_efficient.yaml"
         }
+        
+        # Port tracking to prevent race conditions
+        self.allocated_ports = set()
         
         self.device_registry = {}
         self.virtual_devices = {}
@@ -130,8 +146,18 @@ class DeviceManager:
         else:
             container_name = f"{device_type}-{serial_number}"
         
-        # Find available port (starting from 9000)
-        port = self.find_available_port(9000)
+        # Find available port in device-specific range
+        port_range = self.device_port_ranges.get(device_type, self.device_port_ranges["default"])
+        port = self.find_available_port_in_range(port_range["start"], port_range["end"])
+        
+        if port is None:
+            print(f"❌ No available ports in range {port_range['start']}-{port_range['end']} for {device_type}")
+            return None
+        
+        # Reserve the port immediately to prevent race conditions
+        self.allocated_ports.add(port)
+        
+        print(f"🔌 Assigned port {port} to {device_type} (range: {port_range['start']}-{port_range['end']})")
         
         try:
             # Ensure virtual-interaction_testbed-network exists
@@ -174,7 +200,6 @@ class DeviceManager:
                 cmd.extend(["-e", "SENSOR_ZONES=M01,M02,M03,M04,M05,M06,M07,M08,M09,M10,M11,M12,M13,M14,M15,M16,M17,M18,M19,M20,M21,M22,M23,M24,M25,M26"])
             
             cmd.append(image_name)
-            ]
             
             result = subprocess.run(cmd, capture_output=True, text=True, cwd="c:\\Users\\hbui11\\Desktop\\vesper_llm\\virtual-interaction")
             
@@ -195,8 +220,44 @@ class DeviceManager:
             print(f"❌ Error creating Docker container: {e}")
             return None
     
+    def find_available_port_in_range(self, start_port, end_port):
+        """Find an available port within a specific range"""
+        import socket
+        import subprocess
+        
+        port = start_port
+        while port <= end_port:
+            # Skip ports that are already allocated by this session
+            if port in self.allocated_ports:
+                port += 1
+                continue
+                
+            try:
+                # Check if port is available by trying to bind to all interfaces (0.0.0.0)
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    s.bind(('0.0.0.0', port))
+                    
+                    # Double-check by looking for existing Docker containers using this port
+                    check_cmd = ["docker", "ps", "--format", "{{.Ports}}", "--filter", f"publish={port}"]
+                    result = subprocess.run(check_cmd, capture_output=True, text=True)
+                    
+                    # If no containers are using this port, it's available
+                    if result.returncode == 0 and not result.stdout.strip():
+                        return port
+                    else:
+                        # Port is being used by Docker, try next one
+                        port += 1
+                        continue
+                        
+            except OSError:
+                # Port is not available, try next one
+                port += 1
+                continue
+        return None
+    
     def find_available_port(self, start_port=9000):
-        """Find an available port starting from start_port"""
+        """Find an available port starting from start_port (legacy method)"""
         import socket
         port = start_port
         while port < 65535:
