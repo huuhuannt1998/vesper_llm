@@ -88,6 +88,7 @@ manager = ConnectionManager()
 
 # Pydantic Models
 class SpawnDeviceRequest(BaseModel):
+    device_type: str  # thermostat, motion-sensor, item-sensor, appliance-controller, casas-dataset-manager
     username: str
     environment_config: Optional[str] = "random"
 
@@ -199,12 +200,77 @@ async def notify_cloud_server_discovery_change(user_id: int = None):
     except Exception as e:
         logger.error(f"Error notifying cloud server of discovery change: {e}")
 
-async def spawn_device_pair(username: str, config_name: Optional[str] = None) -> Dict[str, Any]:
-    """Spawn new thermostat and environment pair"""
+def get_device_config(device_type: str) -> Dict[str, Any]:
+    """Get device-specific configuration for spawning"""
+    device_configs = {
+        "thermostat": {
+            "image": "virtual-interaction-thermostat:latest",
+            "port": "8000",
+            "environment_vars": {
+                "REDIS_HOST": "redis",
+                "CLOUD_SERVER_URL": "http://cloud-server:8080"
+            }
+        },
+        "motion-sensor": {
+            "image": "virtual-interaction-motion-sensor:latest", 
+            "port": "8000",
+            "environment_vars": {
+                "REDIS_HOST": "redis",
+                "CLOUD_SERVER_URL": "http://cloud-server:8080",
+                "SENSOR_ZONES": "M01,M02,M03,M04,M05,M06,M07,M08,M09,M10"
+            }
+        },
+        "item-sensor": {
+            "image": "virtual-interaction-item-sensor:latest",
+            "port": "8000", 
+            "environment_vars": {
+                "REDIS_HOST": "redis",
+                "CLOUD_SERVER_URL": "http://cloud-server:8080",
+                "SENSOR_ZONES": "I01,I02,I03,I04,I05,I06,I07,I08,I09,I10"
+            }
+        },
+        "appliance-controller": {
+            "image": "virtual-interaction-appliance-controller:latest",
+            "port": "8000",
+            "environment_vars": {
+                "REDIS_HOST": "redis", 
+                "CLOUD_SERVER_URL": "http://cloud-server:8080"
+            }
+        },
+        "casas-dataset-manager": {
+            "image": "virtual-interaction-casas-dataset-manager:latest",
+            "port": "8000",
+            "environment_vars": {
+                "REDIS_HOST": "redis",
+                "CLOUD_SERVER_URL": "http://cloud-server:8080"
+            }
+        }
+    }
+    
+    if device_type not in device_configs:
+        raise ValueError(f"Unknown device type: {device_type}")
+    
+    return device_configs[device_type]
+
+async def spawn_device_pair(device_type: str, username: str, config_name: Optional[str] = None) -> Dict[str, Any]:
+    """Spawn new virtual device pair (device + environment simulator)"""
     if not docker_available:
         raise HTTPException(status_code=503, detail="Docker connection not available. Device spawning is disabled.")
     
+    # Get device configuration
+    device_config = get_device_config(device_type)
     serial = generate_serial()
+    
+    # Generate appropriate serial prefix based on device type
+    serial_prefixes = {
+        "thermostat": "VST",
+        "motion-sensor": "VSM", 
+        "item-sensor": "VSI",
+        "appliance-controller": "VSA",
+        "casas-dataset-manager": "VSD"
+    }
+    prefix = serial_prefixes.get(device_type, "VSD")
+    serial = serial.replace("VST", prefix)  # Replace default VST prefix
     
     # Select configuration file
     config_files = ["small_apartment_efficient.yaml", "small_apartment_inefficient.yaml", "medium_house_efficient.yaml"]
@@ -212,53 +278,66 @@ async def spawn_device_pair(username: str, config_name: Optional[str] = None) ->
         config_name = random.choice(config_files)
     
     try:
-        # Spawn thermostat container
-        thermostat_cmd = [
-            'run', '-d',
-            '--name', f'thermostat-{serial}',
-            '--network', 'virtual-thermostat-testbed_testbed-network',
-            '--restart', 'unless-stopped',
-            '-e', f'SERIAL_NUMBER={serial}',
-            '-e', 'REDIS_HOST=redis',
-            '-e', 'CLOUD_SERVER_URL=cloud-server',
-            'testbed-thermostat:latest'
-        ]
-        thermostat_id = docker_command(thermostat_cmd)
+        # Build environment variables for the device
+        env_vars = []
+        env_vars.extend(['-e', f'SERIAL_NUMBER={serial}'])
+        for key, value in device_config["environment_vars"].items():
+            env_vars.extend(['-e', f'{key}={value}'])
         
-        # Spawn environment simulator
-        environment_cmd = [
+        # Spawn device container
+        device_cmd = [
             'run', '-d',
-            '--name', f'environment-{serial}',
-            '--network', 'virtual-thermostat-testbed_testbed-network',
-            '--restart', 'unless-stopped',
-            '-e', f'THERMOSTAT_SERIAL={serial}',
-            '-e', f'CONFIG_FILE={config_name}',
-            '-e', 'REDIS_HOST=redis',
-            '-v', '/Users/ceron/Desktop/working.nosync/virtual-thermostat-testbed/config:/config:ro',
-            'testbed-environment:latest'
-        ]
-        environment_id = docker_command(environment_cmd)
+            '--name', f'{device_type}-{serial}',
+            '--network', 'virtual-interaction_testbed-network',
+            '--restart', 'unless-stopped'
+        ] + env_vars + [device_config["image"]]
+        
+        device_id = docker_command(device_cmd)
+        
+        # Spawn environment simulator (only for certain device types)
+        environment_id = None
+        if device_type in ["thermostat"]:  # Only thermostats need environment simulators
+            environment_cmd = [
+                'run', '-d',
+                '--name', f'environment-{serial}',
+                '--network', 'virtual-interaction_testbed-network',
+                '--restart', 'unless-stopped',
+                '-e', f'THERMOSTAT_SERIAL={serial}',
+                '-e', f'CONFIG_FILE={config_name}',
+                '-e', 'REDIS_HOST=redis',
+                '-v', f'{os.getcwd()}/config:/config:ro',
+                'testbed-environment:latest'
+            ]
+            environment_id = docker_command(environment_cmd)
         
         # Log configuration used
+        metadata = {
+            "device_type": device_type,
+            "config_file": config_name,
+            "username": username,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "device_container_id": device_id,
+        }
+        if environment_id:
+            metadata["environment_container_id"] = environment_id
+            
         redis_client.hset(
             f"device:{serial}:metadata",
-            mapping={
-                "config_file": config_name,
-                "username": username,
-                "created_at": datetime.now(timezone.utc).isoformat(),
-                "thermostat_container_id": thermostat_id,
-                "environment_container_id": environment_id
-            }
+            mapping=metadata
         )
         
-        logger.info(f"Spawned device pair: {serial} with config {config_name}")
+        logger.info(f"Spawned {device_type} device: {serial} with config {config_name}")
         
-        return {
+        result = {
             "serial_number": serial,
+            "device_type": device_type,
             "config_file": config_name,
-            "thermostat_container_id": thermostat_id,
-            "environment_container_id": environment_id
+            "device_container_id": device_id,
         }
+        if environment_id:
+            result["environment_container_id"] = environment_id
+            
+        return result
         
     except Exception as e:
         logger.error(f"Error spawning device pair: {e}")
@@ -407,13 +486,15 @@ async def health_check():
 
 @app.post("/api/console/spawn")
 async def spawn_device(request: SpawnDeviceRequest):
-    """Spawn new thermostat and environment pair
+    """Spawn new virtual device (with environment simulator if needed)
 
     In addition to spawning the Docker containers, immediately register
     the device with the cloud-server so it appears in SmartThings for the
     same user account.
+    
+    Supported device types: thermostat, motion-sensor, item-sensor, appliance-controller, casas-dataset-manager
     """
-    result = await spawn_device_pair(request.username, request.environment_config)
+    result = await spawn_device_pair(request.device_type, request.username, request.environment_config)
 
     # Attempt to register with cloud-server and log the outcome
     try:

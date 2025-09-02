@@ -1173,22 +1173,58 @@ async def handle_schema_discovery(db: AsyncSession, token: str = None) -> List[D
         metadata = redis_client.hgetall(metadata_key)
         logger.debug(f"Preparing device {device.serial_number} for discovery response.")
         
+        # Determine device type based on serial number prefix
+        device_handler_type = "c2c-thermostat-battery"  # Default
+        friendly_name_prefix = "Virtual Thermostat"
+        device_groups = ["Virtual Thermostats"]
+        device_categories = ["thermostat"]
+        model_name = "VT-1000"
+        
+        if device.serial_number.startswith("VSM-"):
+            # Motion sensor - use VESPER Motion Sensor device profile
+            device_handler_type = "07c97ef7-343c-47de-b21e-b747569cc3cc"  # VESPER Motion Sensor profile ID
+            friendly_name_prefix = "Virtual Motion Sensor"
+            device_groups = ["Virtual Motion Sensors"]
+            device_categories = ["motionSensor"]
+            model_name = "VM-1000"
+        elif device.serial_number.startswith("VST-"):
+            # Thermostat - use VESPER Thermostat device profile
+            device_handler_type = "6aad1ac2-d3aa-4759-bed5-cc10d80c85d2"  # VESPER Thermostat profile ID
+            friendly_name_prefix = "Virtual Thermostat"
+            device_groups = ["Virtual Thermostats"]
+            device_categories = ["thermostat"]
+            model_name = "VT-1000"
+        elif device.serial_number.startswith("VSA-"):
+            # Appliance controller - use switch type as most appropriate
+            device_handler_type = "c2c-switch"  # Switch
+            friendly_name_prefix = "Virtual Appliance Controller"
+            device_groups = ["Virtual Appliance Controllers"]
+            device_categories = ["switch"]
+            model_name = "VA-1000"
+        elif device.serial_number.startswith("VSI-"):
+            # Item sensor - use contact sensor type
+            device_handler_type = "c2c-contact-3"  # Contact Sensor, Battery
+            friendly_name_prefix = "Virtual Item Sensor"
+            device_groups = ["Virtual Item Sensors"]
+            device_categories = ["contactSensor"]
+            model_name = "VI-1000"
+        
         schema_devices.append({
             "externalDeviceId": device.serial_number,
             "deviceCookie": {"userId": device.user_id},
-            "friendlyName": f"Virtual Thermostat {device.serial_number[-4:]}",
+            "friendlyName": f"{friendly_name_prefix} {device.serial_number[-4:]}",
             "manufacturerInfo": {
                 "manufacturerName": "Virtual Testbed",
-                "modelName": "VT-1000",
+                "modelName": model_name,
                 "hwVersion": "1.0",
                 "swVersion": "1.0"
             },
             "deviceContext": {
                 "roomName": metadata.get("room_name", "Virtual Room"),
-                "groups": ["Virtual Thermostats"],
-                "categories": ["thermostat"]
+                "groups": device_groups,
+                "categories": device_categories
             },
-            "deviceHandlerType": "c2c-thermostat-battery",
+            "deviceHandlerType": device_handler_type,
             "deviceUniqueId": device.serial_number
         })
     logger.info(f"Prepared {len(schema_devices)} devices for SmartThings response payload.")
@@ -1440,18 +1476,42 @@ async def send_discovery_callback(user_id: int):
 
     device_array = []
     for d in devices:
+        # Determine device type based on serial number prefix (same logic as discovery)
+        device_handler_type = "6aad1ac2-d3aa-4759-bed5-cc10d80c85d2"  # Default to VESPER Thermostat
+        friendly_name_prefix = "Virtual Thermostat"
+        model_name = "VT-1000"
+        
+        if d.serial_number.startswith("VSM-"):
+            # Motion sensor - use VESPER Motion Sensor device profile
+            device_handler_type = "07c97ef7-343c-47de-b21e-b747569cc3cc"  # VESPER Motion Sensor profile ID
+            friendly_name_prefix = "Virtual Motion Sensor"
+            model_name = "VM-1000"
+        elif d.serial_number.startswith("VST-"):
+            # Thermostat - use VESPER Thermostat device profile (already set as default)
+            pass
+        elif d.serial_number.startswith("VSA-"):
+            # Appliance controller - use switch type as most appropriate
+            device_handler_type = "c2c-switch"  # Switch
+            friendly_name_prefix = "Virtual Appliance Controller"
+            model_name = "VA-1000"
+        elif d.serial_number.startswith("VSI-"):
+            # Item sensor - use contact sensor type
+            device_handler_type = "c2c-contact-3"  # Contact Sensor, Battery
+            friendly_name_prefix = "Virtual Item Sensor"
+            model_name = "VI-1000"
+        
         device_array.append({
             "externalDeviceId": d.serial_number,
             "deviceCookie": {"userId": user_id},
-            "friendlyName": f"Virtual Thermostat {d.serial_number[-4:]}",
+            "friendlyName": f"{friendly_name_prefix} {d.serial_number[-4:]}",
             "manufacturerInfo": {
                 "manufacturerName": "Virtual Testbed",
-                "modelName": "VT-1000",
+                "modelName": model_name,
                 "hwVersion": "1.0",
                 "swVersion": "1.0"
             },
             "deviceContext": {"roomName": "Virtual Room"},
-            "deviceHandlerType": "c2c-thermostat-battery"
+            "deviceHandlerType": device_handler_type
         })
 
     payload = {

@@ -34,7 +34,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://admin:secure_password@postgres/smart_home_testbed
       REDIS_URL: redis://redis:6379
       NGROK_AUTH_TOKEN: ${NGROK_AUTH_TOKEN:-2eEdMNa3XkIOw7CsHuV7crgAtbD_6hdTjRRUawk5bA2PTdWX5}
-      NGROK_DOMAIN: ${NGROK_DOMAIN}
+      NGROK_DOMAIN: 76b651de9d9a.ngrok-free.app
       JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-change-in-production}
       SMARTTHINGS_CLIENT_ID: ${SMARTTHINGS_CLIENT_ID}
       SMARTTHINGS_CLIENT_SECRET: ${SMARTTHINGS_CLIENT_SECRET}
@@ -53,7 +53,9 @@ services:
       - cloud-server
     environment:
       NGROK_AUTHTOKEN: ${NGROK_AUTH_TOKEN:-2eEdMNa3XkIOw7CsHuV7crgAtbD_6hdTjRRUawk5bA2PTdWX5}
-    command: "http cloud-server:8080 --url=vt-testbed-2025.ngrok.app"
+    ports:
+      - "4040:4040"
+    command: "http cloud-server:8080"
     networks:
       - testbed-network
     restart: unless-stopped

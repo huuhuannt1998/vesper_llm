@@ -199,7 +199,29 @@ requests.post("http://localhost:8002/interact", json={
 })
 ```
 
-### 3. Research Evaluation
+### 3. Custom Device Management & Testing
+
+```bash
+# Create custom-named virtual device in Blender VESPER addon
+# Device Name: "motion1" → Creates: motion1-motion-sensor-VSM-DD46-1B1E-3C97
+
+# Check device status
+Invoke-RestMethod -Uri "http://localhost:9000/state" -Method GET
+
+# Trigger motion detection
+docker exec motion1-motion-sensor-VSM-DD46-1B1E-3C97 python -c "import requests; requests.post('http://localhost:8000/trigger_motion')"
+
+# View device API documentation
+Start-Process "http://localhost:9000/docs"
+
+# List all virtual devices
+docker ps --filter "name=*-motion-sensor-*" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# SmartThings integration test
+curl https://your-domain.ngrok-free.app/api/devices/VSM-DD46-1B1E-3C97
+```
+
+### 4. Research Evaluation
 
 ```bash
 # Run comprehensive VLM evaluation
@@ -216,7 +238,7 @@ python simple_evaluator.py
 ⚡ Performance Optimization: 60-80% reduction in VLM calls
 ```
 
-### 4. CASAS Pattern Analysis
+### 5. CASAS Pattern Analysis
 
 ```python
 # Run VESPER-CASAS comparison
@@ -518,12 +540,116 @@ LLM_MAX_TOKENS=1024
 ```
 
 ### SmartThings Integration
+
+**Complete setup process for integrating VESPER virtual devices with SmartThings mobile app:**
+
+#### **Step 1: Configure Environment Variables**
 ```env
 # virtual-interaction/.env configuration
-SMARTTHINGS_CLIENT_ID=vesper-casas-testbed-2025
-SMARTTHINGS_CLIENT_SECRET=your-secret-key
+SMARTTHINGS_CLIENT_ID=vesper-smart-home-2025
+SMARTTHINGS_CLIENT_SECRET=VESPER_SmartHome_Secret_2025_SecureKey_AbC123XyZ789
+SMARTTHINGS_CALLBACK_CLIENT_ID=vesper-smart-home-2025
+SMARTTHINGS_CALLBACK_CLIENT_SECRET=VESPER_SmartHome_Secret_2025_SecureKey_AbC123XyZ789
+
+# ngrok Configuration
 NGROK_AUTH_TOKEN=your-ngrok-token
-NGROK_DOMAIN=vesper-testbed.ngrok.app
+NGROK_DOMAIN=your-domain.ngrok-free.app
+NGROK_URL=https://your-domain.ngrok-free.app
+
+# Security
+JWT_SECRET=your-generated-jwt-secret
+```
+
+#### **Step 2: Start ngrok Tunnel**
+```bash
+# Start ngrok tunnel for SmartThings connectivity
+cd virtual-interaction
+ngrok http 8080
+
+# Note the generated URL (e.g., https://76b651de9d9a.ngrok-free.app)
+# Update .env file with this URL
+```
+
+#### **Step 3: Deploy Cloud Infrastructure**
+```bash
+# Start the complete system
+cd virtual-interaction
+docker-compose up -d
+
+# Verify services are running
+docker-compose ps
+curl https://your-domain.ngrok-free.app/health
+```
+
+#### **Step 4: Create SmartThings Schema Connector App**
+1. **Go to SmartThings Developer Console** (https://developer.smartthings.com)
+2. **Create New App → Schema Connector** (NOT Webhook Smart App)
+3. **Configure URLs:**
+   - **Target URL**: `https://your-domain.ngrok-free.app/schema`
+   - **Authorization URL**: `https://your-domain.ngrok-free.app/oauth/authorize`
+   - **Token URL**: `https://your-domain.ngrok-free.app/oauth/token`
+4. **Set Credentials:**
+   - **Client ID**: `vesper-smart-home-2025`
+   - **Client Secret**: `VESPER_SmartHome_Secret_2025_SecureKey_AbC123XyZ789`
+5. **Save and Publish** the Schema Connector
+
+#### **Step 5: Create VESPER Device Profiles**
+```bash
+# Create custom device profiles in SmartThings Developer Console:
+# 1. VESPER Thermostat Profile ID: 6aad1ac2-d3aa-4759-bed5-cc10d80c85d2
+# 2. VESPER Motion Sensor Profile ID: 07c97ef7-343c-47de-b21e-b747569cc3cc
+```
+
+#### **Step 6: Create Virtual Devices with Custom Names**
+```python
+# In Blender VESPER addon:
+# 1. Open VESPER Smart Home panel
+# 2. Select device type (e.g., Motion Sensor)
+# 3. Enter custom Device Name: "motion1"
+# 4. Click "Spawn Virtual Device"
+
+# This creates:
+# - Docker Container: motion1-motion-sensor-VSM-DD46-1B1E-3C97
+# - Device ID: VSM-DD46-1B1E-3C97
+# - SmartThings Device: VSM-DD46-1B1E-3C97
+```
+
+#### **Step 7: Add Integration in SmartThings App**
+```bash
+# In SmartThings mobile app:
+# 1. Devices → + Add Device → By Brand → VESPER
+# 2. Select "VESPER Smart Home Integration"
+# 3. Complete OAuth authentication
+# 4. Your devices appear with their custom names!
+```
+
+#### **Step 8: Control Virtual Devices**
+```bash
+# Check device status
+Invoke-RestMethod -Uri "http://localhost:9000/state" -Method GET
+
+# Trigger motion sensor (example for motion1)
+docker exec motion1-motion-sensor-VSM-DD46-1B1E-3C97 python -c "import requests; requests.post('http://localhost:8000/trigger_motion')"
+
+# View device API documentation
+# Open http://localhost:9000/docs in browser
+```
+
+#### **Custom Device Naming Benefits**
+- **Easy Testing**: Container names include your custom device names
+- **SmartThings Discovery**: Devices appear with recognizable IDs  
+- **Docker Management**: `docker ps` shows readable container names
+- **Development Tracking**: Clear mapping between Blender → Docker → SmartThings
+
+#### **Example Device Creation Flow**
+```
+Blender Input: "motion1" 
+    ↓
+Docker Container: motion1-motion-sensor-VSM-DD46-1B1E-3C97
+    ↓  
+SmartThings Device: VSM-DD46-1B1E-3C97
+    ↓
+Mobile App: Motion sensor with unique ID for testing
 ```
 
 ### CASAS Research Configuration
@@ -628,6 +754,20 @@ docker-compose -f virtual-interaction/docker-compose.casas.yml up --build
 - **SmartThings integration fails**: Verify ngrok tunnel and OAuth credentials
 - **High memory usage**: Limit container resources, implement data archival
 
+#### SmartThings Integration
+- **"Network or server error"**: Wrong app type - create Schema Connector, not Webhook Smart App
+- **Target URL 404 errors**: Use `/schema` endpoint, not `/schema/discovery`
+- **Authentication failures**: Verify Client ID/Secret match in Developer Console and `.env`
+- **Devices not appearing**: Check device profile IDs (VESPER Thermostat: `6aad1ac2-d3aa-4759-bed5-cc10d80c85d2`, VESPER Motion Sensor: `07c97ef7-343c-47de-b21e-b747569cc3cc`)
+- **ngrok URL changed**: Update all URLs in SmartThings Developer Console
+- **Container registration fails**: Check cloud server logs for 422 errors
+
+#### Custom Device Management
+- **Docker container not found**: Verify device name sanitization (alphanumeric + hyphens only)
+- **Port conflicts**: Check available ports starting from 9000
+- **Device state empty**: Ensure device registered with cloud server successfully
+- **Motion trigger fails**: Use Docker exec method or check `/docs` endpoint for correct API
+
 #### CASAS Research
 - **Ground truth not found**: Verify CASAS CSV files in correct directory
 - **Comparison fails**: Check event format compatibility
@@ -649,6 +789,28 @@ docker-compose -f virtual-interaction/docker-compose.casas.yml logs -f
 
 # Test CASAS data format
 head -5 casas_testbed/data/casas_ground_truth/adl_noerror/p01.t1.csv
+
+# SmartThings Integration Debug
+# Check ngrok tunnel status
+curl http://localhost:4040/api/tunnels
+
+# Test Schema endpoint
+curl -X POST https://your-domain.ngrok-free.app/schema \
+  -H "Content-Type: application/json" \
+  -d '{"headers":{"schema":"st-schema","version":"1.0","interactionType":"discoveryRequest","requestId":"test123"}}'
+
+# Check cloud server logs
+docker-compose -f virtual-interaction/docker-compose.yml logs cloud-server
+
+# List virtual devices and their containers
+docker ps --filter "name=*-motion-sensor-*" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# Test individual device API
+curl http://localhost:9000/health  # Replace 9000 with your device port
+curl http://localhost:9000/state
+
+# Trigger device manually
+docker exec motion1-motion-sensor-VSM-DD46-1B1E-3C97 python -c "import requests; requests.post('http://localhost:8000/trigger_motion')"
 ```
 
 ## 📄 Research Publications & Citation
