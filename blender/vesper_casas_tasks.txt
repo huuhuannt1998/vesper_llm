@@ -1,0 +1,71 @@
+# VESPER-CASAS Task Alignment and Dataset Generation Guide
+
+## CASAS Dataset Structure (from Zenodo)
+
+### 📋 **5 Core ADL Tasks**:
+1. **t1: Make a phone call** 
+   - Move to phone in dining room
+   - Look up number in phone book
+   - Dial and listen to cooking directions
+   - Summarize on notepad
+
+2. **t2: Wash hands**
+   - Move to kitchen sink
+   - Wash hands with soap
+   - Dry with paper towel
+
+3. **t3: Cook** 
+   - Cook oatmeal per phone directions
+   - Measure water, boil in pot
+   - Add oats, serve with raisins and brown sugar
+
+4. **t4: Eat**
+   - Take oatmeal and medicine to dining room
+   - Eat the food
+
+5. **t5: Clean**
+   - Take dishes to sink
+   - Clean with water and dish soap
+
+### 🏠 **CASAS Sensor Types**:
+- **M01-M026**: PIR motion detectors (ON/OFF)
+- **I01-I08**: Item sensors (PRESENT/ABSENT)
+  - I01: oatmeal, I02: raisins, I03: brown sugar, I04: bowl
+  - I05: measuring spoon, I06: medicine, I07: pot, I08: phone book
+- **D01**: Kitchen cabinet door (OPEN/CLOSE)
+- **AD1-A/B**: Water sensors (level values)
+- **AD1-C**: Burner sensor (level values)
+- **asterisk**: Phone use sensor
+
+### 📊 **Dataset Structure**:
+- **120 files**: adl_noerror (20 participants × 5 tasks + 20 re-dos)
+- **100 files**: adl_error (20 participants × 5 tasks, with scripted errors)
+- **Format**: `p{participant}.t{task}.csv` (e.g., p01.t1.csv)
+
+## Current VESPER vs CASAS Gap
+
+### 🎯 **Current VESPER Tasks** (vesper_tasks.txt):
+```
+Go to bedroom|Cook in kitchen|Rest in bedroom
+```
+
+### ❌ **Alignment Issues**:
+1. **Task Mismatch**: VESPER has generic room navigation, CASAS has specific ADL sequences
+2. **Device Mismatch**: VESPER has no specific item interactions, CASAS tracks detailed object use
+3. **Sequence Mismatch**: VESPER tasks are room-based, CASAS tasks are activity-based
+4. **Sensor Mismatch**: Need to map Blender rooms to CASAS sensor locations
+
+## Solution: VESPER-CASAS Task Integration
+
+### Step 1: Create CASAS-Aligned VESPER Tasks
+
+<function_calls>
+<invoke name="create_file">
+<parameter name="content"># CASAS-Aligned VESPER Tasks
+# Format: Task Description|Room Sequence|Required Items|Success Criteria
+
+Make phone call|living_room,dining_room|phone_book,phone,notepad|phone_used_and_notes_taken
+Wash hands|kitchen|sink,soap,towel|hands_washed_and_dried  
+Cook oatmeal|kitchen|pot,water,oats,stove,bowl,raisins,brown_sugar|oatmeal_prepared_and_served
+Eat meal|dining_room|bowl,spoon,medicine|food_consumed_with_medicine
+Clean dishes|kitchen|dishes,sink,soap,water|all_dishes_cleaned

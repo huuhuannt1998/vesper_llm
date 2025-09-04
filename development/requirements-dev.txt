@@ -1,0 +1,22 @@
+# VESPER Development Dependencies
+-r ../production/requirements.txt
+
+# Testing
+pytest>=6.0.0
+pytest-cov>=2.12.0
+pytest-mock>=3.6.0
+
+# Code Quality
+black>=21.0.0
+flake8>=3.9.0
+isort>=5.9.0
+mypy>=0.910
+
+# Documentation
+sphinx>=4.0.0
+sphinx-rtd-theme>=0.5.0
+
+# Development Tools
+jupyter>=1.0.0
+ipython>=7.25.0
+pre-commit>=2.13.0
