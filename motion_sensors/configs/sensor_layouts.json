@@ -1,0 +1,268 @@
+{
+  "small_apartment": {
+    "description": "Compact apartment layout with essential sensor coverage",
+    "total_sensors": 6,
+    "sensors": [
+      {
+        "id": "M01_LivingRoom",
+        "position": {"x": 2.0, "y": 3.0, "z": 2.2},
+        "room": "living_room",
+        "orientation": 225.0,
+        "coverage_zone": "seating_and_entrance",
+        "priority": "high"
+      },
+      {
+        "id": "M02_Kitchen",
+        "position": {"x": -1.0, "y": 2.0, "z": 2.3},
+        "room": "kitchen",
+        "orientation": 180.0,
+        "coverage_zone": "prep_and_dining",
+        "priority": "high"
+      },
+      {
+        "id": "M03_Bedroom",
+        "position": {"x": 3.0, "y": -1.0, "z": 2.2},
+        "room": "bedroom",
+        "orientation": 315.0,
+        "coverage_zone": "bed_and_entrance",
+        "priority": "medium"
+      },
+      {
+        "id": "M04_Hallway",
+        "position": {"x": 0.0, "y": 0.0, "z": 2.4},
+        "room": "hallway",
+        "orientation": 0.0,
+        "coverage_zone": "main_traffic",
+        "priority": "critical"
+      },
+      {
+        "id": "M05_Bathroom",
+        "position": {"x": -2.0, "y": -1.0, "z": 2.1},
+        "room": "bathroom",
+        "orientation": 90.0,
+        "coverage_zone": "entrance_only",
+        "priority": "low"
+      },
+      {
+        "id": "M06_Entry",
+        "position": {"x": 1.0, "y": 1.5, "z": 2.5},
+        "room": "entry",
+        "orientation": 0.0,
+        "coverage_zone": "main_entrance",
+        "priority": "critical"
+      }
+    ]
+  },
+  "medium_house": {
+    "description": "Standard family home with comprehensive coverage",
+    "total_sensors": 10,
+    "sensors": [
+      {
+        "id": "M01_LivingRoom_Main",
+        "position": {"x": 3.5, "y": 4.0, "z": 2.2},
+        "room": "living_room",
+        "orientation": 225.0,
+        "coverage_zone": "seating_area",
+        "priority": "high"
+      },
+      {
+        "id": "M02_LivingRoom_TV",
+        "position": {"x": 1.0, "y": 6.0, "z": 2.2},
+        "room": "living_room",
+        "orientation": 180.0,
+        "coverage_zone": "tv_viewing",
+        "priority": "medium"
+      },
+      {
+        "id": "M03_Kitchen_Main",
+        "position": {"x": -1.5, "y": 5.5, "z": 2.3},
+        "room": "kitchen",
+        "orientation": 270.0,
+        "coverage_zone": "cooking_prep",
+        "priority": "high"
+      },
+      {
+        "id": "M04_Kitchen_Dining",
+        "position": {"x": -0.5, "y": 3.5, "z": 2.2},
+        "room": "kitchen",
+        "orientation": 90.0,
+        "coverage_zone": "dining_area",
+        "priority": "medium"
+      },
+      {
+        "id": "M05_Bedroom_Master",
+        "position": {"x": 4.5, "y": -1.5, "z": 2.2},
+        "room": "bedroom_master",
+        "orientation": 315.0,
+        "coverage_zone": "bed_and_entrance",
+        "priority": "high"
+      },
+      {
+        "id": "M06_Bedroom_Guest",
+        "position": {"x": 2.0, "y": -4.0, "z": 2.2},
+        "room": "bedroom_guest",
+        "orientation": 45.0,
+        "coverage_zone": "guest_bed",
+        "priority": "low"
+      },
+      {
+        "id": "M07_Hallway_Central",
+        "position": {"x": 0.5, "y": 0.5, "z": 2.4},
+        "room": "hallway",
+        "orientation": 0.0,
+        "coverage_zone": "main_traffic",
+        "priority": "critical"
+      },
+      {
+        "id": "M08_Hallway_Rooms",
+        "position": {"x": -0.5, "y": -0.5, "z": 2.4},
+        "room": "hallway",
+        "orientation": 180.0,
+        "coverage_zone": "room_entrances",
+        "priority": "high"
+      },
+      {
+        "id": "M09_Bathroom_Main",
+        "position": {"x": -2.5, "y": -0.5, "z": 2.1},
+        "room": "bathroom",
+        "orientation": 135.0,
+        "coverage_zone": "vanity_entrance",
+        "priority": "medium"
+      },
+      {
+        "id": "M10_Entry_Main",
+        "position": {"x": 1.0, "y": 2.0, "z": 2.5},
+        "room": "entry",
+        "orientation": 0.0,
+        "coverage_zone": "main_entrance",
+        "priority": "critical"
+      }
+    ]
+  },
+  "large_house": {
+    "description": "Comprehensive smart home with full sensor coverage",
+    "total_sensors": 15,
+    "sensors": [
+      {
+        "id": "M01_LivingRoom_Main",
+        "position": {"x": 4.0, "y": 5.0, "z": 2.2},
+        "room": "living_room",
+        "orientation": 225.0,
+        "coverage_zone": "main_seating",
+        "priority": "high"
+      },
+      {
+        "id": "M02_LivingRoom_TV",
+        "position": {"x": 1.5, "y": 7.0, "z": 2.2},
+        "room": "living_room",
+        "orientation": 180.0,
+        "coverage_zone": "entertainment_area",
+        "priority": "medium"
+      },
+      {
+        "id": "M03_LivingRoom_Reading",
+        "position": {"x": 6.0, "y": 3.0, "z": 2.2},
+        "room": "living_room",
+        "orientation": 270.0,
+        "coverage_zone": "reading_nook",
+        "priority": "low"
+      },
+      {
+        "id": "M04_Kitchen_Island",
+        "position": {"x": -1.0, "y": 6.0, "z": 2.3},
+        "room": "kitchen",
+        "orientation": 270.0,
+        "coverage_zone": "island_prep",
+        "priority": "high"
+      },
+      {
+        "id": "M05_Kitchen_Stove",
+        "position": {"x": -3.0, "y": 5.0, "z": 2.3},
+        "room": "kitchen",
+        "orientation": 90.0,
+        "coverage_zone": "cooking_area",
+        "priority": "high"
+      },
+      {
+        "id": "M06_Kitchen_Dining",
+        "position": {"x": 0.0, "y": 4.0, "z": 2.2},
+        "room": "dining_room",
+        "orientation": 180.0,
+        "coverage_zone": "formal_dining",
+        "priority": "medium"
+      },
+      {
+        "id": "M07_Bedroom_Master",
+        "position": {"x": 5.0, "y": -2.0, "z": 2.2},
+        "room": "bedroom_master",
+        "orientation": 315.0,
+        "coverage_zone": "master_bed",
+        "priority": "high"
+      },
+      {
+        "id": "M08_Bedroom_Guest1",
+        "position": {"x": 2.5, "y": -5.0, "z": 2.2},
+        "room": "bedroom_guest1",
+        "orientation": 45.0,
+        "coverage_zone": "guest_bed1",
+        "priority": "medium"
+      },
+      {
+        "id": "M09_Bedroom_Guest2",
+        "position": {"x": -2.0, "y": -4.0, "z": 2.2},
+        "room": "bedroom_guest2",
+        "orientation": 135.0,
+        "coverage_zone": "guest_bed2",
+        "priority": "medium"
+      },
+      {
+        "id": "M10_Office_Study",
+        "position": {"x": 6.0, "y": 0.5, "z": 2.2},
+        "room": "office",
+        "orientation": 270.0,
+        "coverage_zone": "work_area",
+        "priority": "medium"
+      },
+      {
+        "id": "M11_Hallway_Main",
+        "position": {"x": 1.0, "y": 1.0, "z": 2.4},
+        "room": "hallway",
+        "orientation": 0.0,
+        "coverage_zone": "main_corridor",
+        "priority": "critical"
+      },
+      {
+        "id": "M12_Hallway_Bedrooms",
+        "position": {"x": 0.0, "y": -2.0, "z": 2.4},
+        "room": "hallway",
+        "orientation": 180.0,
+        "coverage_zone": "bedroom_corridor",
+        "priority": "high"
+      },
+      {
+        "id": "M13_Bathroom_Master",
+        "position": {"x": 3.5, "y": -3.5, "z": 2.1},
+        "room": "bathroom_master",
+        "orientation": 225.0,
+        "coverage_zone": "master_bath",
+        "priority": "medium"
+      },
+      {
+        "id": "M14_Bathroom_Guest",
+        "position": {"x": -1.5, "y": -2.5, "z": 2.1},
+        "room": "bathroom_guest",
+        "orientation": 90.0,
+        "coverage_zone": "guest_bath",
+        "priority": "low"
+      },
+      {
+        "id": "M15_Entry_Foyer",
+        "position": {"x": 1.5, "y": 2.5, "z": 2.5},
+        "room": "entry",
+        "orientation": 0.0,
+        "coverage_zone": "main_entrance",
+        "priority": "critical"
+      }
+    ]
+  }
+}

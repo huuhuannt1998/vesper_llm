@@ -644,6 +644,28 @@ async def list_all_devices():
         metadata = redis_client.hgetall(key)
         processed_serials.add(serial)
         
+        # Check if container exists before adding device
+        device_type = "thermostat"  # Default
+        if serial.startswith("VSM-"):
+            device_type = "motion-sensor"
+        elif serial.startswith("VSE-"):
+            device_type = "environment-sensor"
+        elif serial.startswith("VSA-"):
+            device_type = "appliance-controller"
+        elif serial.startswith("VSI-"):
+            device_type = "item-sensor"
+        
+        container_name = f"{device_type}-{serial}" if device_type != "thermostat" else f"thermostat-{serial}"
+        
+        try:
+            result = docker_command(['inspect', container_name])
+            container_exists = True
+            logger.info(f"Container {container_name} exists")
+        except Exception as e:
+            container_exists = False
+            logger.info(f"Skipping device {serial} - container {container_name} does not exist")
+            continue  # Skip this device if container doesn't exist
+        
         # Get current state
         state_key = f"thermostat:{serial}:state"
         state_data = redis_client.get(state_key)
@@ -889,22 +911,22 @@ async def websocket_power_stream(websocket: WebSocket):
     """WebSocket endpoint for streaming power data"""
     await helics_exporter.stream_updates(websocket)
 
-# Static file serving
-app.mount("/static", StaticFiles(directory="../frontend/build/static"), name="static")
+# Static file serving (commented out for direct run)
+# app.mount("/static", StaticFiles(directory="../frontend/build/static"), name="static")
 
-@app.get("/")
-async def read_index():
-    """Serve the React frontend index.html"""
-    return FileResponse('../frontend/build/index.html')
+# @app.get("/")
+# async def read_index():
+#     """Serve the React frontend index.html"""
+#     return FileResponse('../frontend/build/index.html')
 
-# Catch-all route for React Router (SPA routing)
-@app.get("/{full_path:path}")
-async def read_index_catch_all(full_path: str):
-    """Serve the React frontend for any non-API routes"""
-    # Don't serve React app for API routes
-    if full_path.startswith("api/"):
-        raise HTTPException(status_code=404, detail="Not Found")
-    return FileResponse('frontend/build/index.html')
+# # Catch-all route for React Router (SPA routing)
+# @app.get("/{full_path:path}")
+# async def read_index_catch_all(full_path: str):
+#     """Serve the React frontend for any non-API routes"""
+#     # Don't serve React app for API routes
+#     if full_path.startswith("api/"):
+#         raise HTTPException(status_code=404, detail="Not Found")
+#     return FileResponse('frontend/build/index.html')
 
 if __name__ == "__main__":
     import uvicorn

@@ -1468,6 +1468,20 @@ def main():
             except Exception as mv_e:
                 print(f"⚠️ Motion validation error: {mv_e}")
         
+        # Update realistic motion sensor detection system
+        try:
+            if hasattr(scene, 'vesper_device_manager'):
+                scene.vesper_device_manager.update_motion_detection()
+            else:
+                # Try to access global device manager
+                try:
+                    from addons.vesper_smart_home import device_manager
+                    device_manager.update_motion_detection()
+                except ImportError:
+                    pass  # Motion detection not available
+        except Exception as motion_e:
+            pass  # Silent fail to avoid disrupting main navigation
+        
         # Log movement step
         current_room = getattr(bge.logic, 'vlm_analysis', {}).get('current_room', 'UNKNOWN')
         bge.logic.metrics_logger.log_step(bge.logic.vesper_sequence_step, next_move, old_position, new_position, current_room)

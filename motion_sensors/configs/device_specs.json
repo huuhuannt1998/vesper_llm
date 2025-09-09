@@ -1,0 +1,102 @@
+{
+  "aeotec_smartthings_motion_sensor": {
+    "model": "Aeotec SmartThings Motion Sensor",
+    "manufacturer": "Aeotec",
+    "product_line": "SmartThings",
+    "specifications": {
+      "detection_technology": "PIR (Passive Infrared)",
+      "field_of_view": {
+        "horizontal": 120,
+        "vertical": 110,
+        "unit": "degrees"
+      },
+      "detection_range": {
+        "maximum": 5.0,
+        "minimum": 0.5,
+        "unit": "meters"
+      },
+      "detection_angle": {
+        "horizontal": 120,
+        "vertical": 110,
+        "unit": "degrees"
+      },
+      "mounting_height": {
+        "recommended": 2.2,
+        "minimum": 1.8,
+        "maximum": 2.5,
+        "unit": "meters"
+      },
+      "response_time": {
+        "detection": 1.0,
+        "cooldown": 3.0,
+        "unit": "seconds"
+      },
+      "power": {
+        "battery_type": "CR2",
+        "voltage": "3V",
+        "chemistry": "Lithium",
+        "life_expectancy": "2-3 years"
+      },
+      "connectivity": {
+        "protocol": "Z-Wave Plus",
+        "frequency": "908.42 MHz",
+        "range": "100 meters (open air)"
+      },
+      "environmental": {
+        "operating_temperature": {
+          "min": -10,
+          "max": 50,
+          "unit": "celsius"
+        },
+        "humidity": {
+          "max": 95,
+          "unit": "percent"
+        },
+        "ip_rating": "IP20 (indoor use)"
+      }
+    },
+    "features": {
+      "tamper_protection": true,
+      "low_battery_alert": true,
+      "led_indicator": true,
+      "motion_sensitivity_adjustment": true,
+      "pet_immunity": false,
+      "smartthings_integration": true
+    },
+    "vesper_implementation": {
+      "detection_threshold": 0.1,
+      "motion_calculation": "euclidean_distance",
+      "fov_calculation": "cone_based",
+      "cooldown_enforcement": true,
+      "battery_simulation": true,
+      "smartthings_notifications": true
+    }
+  },
+  "generic_pir_sensor": {
+    "model": "Generic PIR Motion Sensor",
+    "specifications": {
+      "detection_technology": "PIR",
+      "field_of_view": {
+        "horizontal": 90,
+        "vertical": 90,
+        "unit": "degrees"
+      },
+      "detection_range": {
+        "maximum": 3.0,
+        "minimum": 0.3,
+        "unit": "meters"
+      },
+      "response_time": {
+        "detection": 0.5,
+        "cooldown": 2.0,
+        "unit": "seconds"
+      }
+    },
+    "vesper_implementation": {
+      "detection_threshold": 0.2,
+      "motion_calculation": "euclidean_distance",
+      "fov_calculation": "cone_based",
+      "cooldown_enforcement": true
+    }
+  }
+}

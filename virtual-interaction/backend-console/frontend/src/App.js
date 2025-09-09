@@ -47,7 +47,12 @@ import {
   WbSunny,
   AcUnit,
   DeviceThermostat,
-  People
+  People,
+  Sensors,
+  Home,
+  DirectionsRun,
+  Kitchen,
+  Lightbulb
 } from '@mui/icons-material';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8088';
@@ -64,6 +69,7 @@ function App() {
   /* ------------------ Device State ------------------ */
   const [devices, setDevices] = useState([]);
   const [usernameInput, setUsernameInput] = useState('admin');
+  const [selectedDeviceType, setSelectedDeviceType] = useState('thermostat');
   const [powerData, setPowerData] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, device: null });
@@ -72,6 +78,59 @@ function App() {
   const [modeDialog, setModeDialog] = useState({ open: false, device: null, value: 'auto' });
   const [weatherDialog, setWeatherDialog] = useState({ open: false, device: null, value: 85 });
   const [currentTempDialog, setCurrentTempDialog] = useState({ open: false, device: null, value: 72 });
+
+  // Device type configurations
+  const deviceTypes = {
+    thermostat: {
+      name: 'Smart Thermostat',
+      icon: <Thermostat />,
+      prefix: 'VST',
+      configs: [
+        { file: 'small_apartment_efficient.yaml', name: '🏢 Small Apartment (Efficient)' },
+        { file: 'small_apartment_inefficient.yaml', name: '🏢 Small Apartment (Inefficient)' },
+        { file: 'medium_house_efficient.yaml', name: '🏠 Medium House (Efficient)' }
+      ]
+    },
+    motion_sensor: {
+      name: 'Motion Sensor',
+      icon: <DirectionsRun />,
+      prefix: 'VSM',
+      configs: [
+        { file: 'living_room.yaml', name: '🛋️ Living Room Motion' },
+        { file: 'kitchen.yaml', name: '🍽️ Kitchen Motion' },
+        { file: 'bedroom.yaml', name: '🛏️ Bedroom Motion' },
+        { file: 'bathroom.yaml', name: '🚿 Bathroom Motion' }
+      ]
+    },
+    environment_sensor: {
+      name: 'Environment Sensor',
+      icon: <Sensors />,
+      prefix: 'VSE',
+      configs: [
+        { file: 'indoor_air.yaml', name: '🌬️ Indoor Air Quality' },
+        { file: 'outdoor_weather.yaml', name: '🌤️ Outdoor Weather' }
+      ]
+    },
+    appliance_controller: {
+      name: 'Smart Appliance',
+      icon: <Kitchen />,
+      prefix: 'VSA',
+      configs: [
+        { file: 'smart_fridge.yaml', name: '🧊 Smart Refrigerator' },
+        { file: 'smart_oven.yaml', name: '🔥 Smart Oven' },
+        { file: 'smart_washer.yaml', name: '🧺 Smart Washer' }
+      ]
+    },
+    item_sensor: {
+      name: 'Item Sensor',
+      icon: <Lightbulb />,
+      prefix: 'VSI',
+      configs: [
+        { file: 'door_contact.yaml', name: '🚪 Door/Window Contact' },
+        { file: 'cabinet_sensor.yaml', name: '🗄️ Cabinet Sensor' }
+      ]
+    }
+  };
 
   /* ------------------ User Management State ------------------ */
   const [users, setUsers] = useState([]);
@@ -166,7 +225,7 @@ function App() {
   };
 
   /* ------------------ Device Operations ------------------ */
-  const spawnDevice = async (config) => {
+  const spawnDevice = async (deviceType, config) => {
     if (!usernameInput.trim()) {
       setError('Username is required');
       return;
@@ -177,32 +236,19 @@ function App() {
     try {
       const response = await axios.post(`${API_URL}/api/console/spawn`, {
         username: usernameInput.trim(),
+        device_type: deviceType,
         environment_config: config
       });
 
       const serial = response.data.serial_number;
-
-      /* -------------------------------------------------------------
-       * ALSO register the new thermostat with the cloud-server so it
-       * can be discovered by SmartThings.
-       * -----------------------------------------------------------*/
-      // await axios.post(`${CLOUD_URL}/api/devices/register`, {
-      //   serial_number: serial,
-      //   device_type: 'thermostat',
-      //   capabilities: [
-      //     'temperatureMeasurement',
-      //     'thermostatCoolingSetpoint',
-      //     'thermostatHeatingSetpoint',
-      //     'thermostatMode',
-      //     'thermostatFanMode'
-      //   ],
-      //   username: usernameInput.trim()
-      // });
-
-      setSuccess(`Successfully created & registered device: ${serial}`);
+      
+      // Get device type info for success message
+      const deviceInfo = deviceTypes[deviceType];
+      
+      setSuccess(`Successfully created & registered ${deviceInfo?.name || deviceType}: ${serial}`);
       await loadData();
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to spawn device');
+      setError(err.response?.data?.detail || `Failed to spawn ${deviceTypes[deviceType]?.name || deviceType}`);
     } finally {
       setLoading(false);
     }
@@ -272,6 +318,25 @@ function App() {
   };
 
   /* ------------------ Helpers ------------------ */
+  const getDeviceTypeFromSerial = (serial) => {
+    if (serial.startsWith('VST-')) return 'thermostat';
+    if (serial.startsWith('VSM-')) return 'motion_sensor';
+    if (serial.startsWith('VSE-')) return 'environment_sensor';
+    if (serial.startsWith('VSA-')) return 'appliance_controller';
+    if (serial.startsWith('VSI-')) return 'item_sensor';
+    return 'unknown';
+  };
+  
+  const getDeviceIcon = (serial) => {
+    const deviceType = getDeviceTypeFromSerial(serial);
+    return deviceTypes[deviceType]?.icon || <Sensors />;
+  };
+  
+  const getDeviceTypeName = (serial) => {
+    const deviceType = getDeviceTypeFromSerial(serial);
+    return deviceTypes[deviceType]?.name || 'Unknown Device';
+  };
+  
   const formatTemperature = (temp) => {
     return temp ? `${temp.toFixed(1)}°F` : 'N/A';
   };
@@ -282,14 +347,44 @@ function App() {
 
   const getStatusColor = (device) => {
     if (!device.current_state) return 'default';
-    if (device.current_state.is_running) return 'success';
-    return 'warning';
+    
+    const deviceType = getDeviceTypeFromSerial(device.serial_number);
+    
+    switch (deviceType) {
+      case 'thermostat':
+        return device.current_state.is_running ? 'success' : 'warning';
+      case 'motion_sensor':
+        return device.current_state.motion_detected ? 'error' : 'success';
+      case 'environment_sensor':
+        return device.current_state.active ? 'success' : 'default';
+      case 'appliance_controller':
+        return device.current_state.power_on ? 'success' : 'default';
+      case 'item_sensor':
+        return device.current_state.detected ? 'warning' : 'success';
+      default:
+        return 'default';
+    }
   };
 
   const getStatusText = (device) => {
     if (!device.current_state) return 'Unknown';
-    if (device.current_state.is_running) return 'Running';
-    return 'Idle';
+    
+    const deviceType = getDeviceTypeFromSerial(device.serial_number);
+    
+    switch (deviceType) {
+      case 'thermostat':
+        return device.current_state.is_running ? 'Running' : 'Idle';
+      case 'motion_sensor':
+        return device.current_state.motion_detected ? 'Motion' : 'Clear';
+      case 'environment_sensor':
+        return device.current_state.active ? 'Active' : 'Inactive';
+      case 'appliance_controller':
+        return device.current_state.power_on ? 'On' : 'Off';
+      case 'item_sensor':
+        return device.current_state.detected ? 'Detected' : 'Clear';
+      default:
+        return 'Unknown';
+    }
   };
 
   /* ------------------ Render ------------------ */
@@ -298,7 +393,7 @@ function App() {
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          🏠 Virtual Thermostat Testbed Console
+          🏠 Smart Home Device Management Console
         </Typography>
         <Button
           variant="outlined"
@@ -318,7 +413,7 @@ function App() {
         indicatorColor="primary"
         sx={{ mb: 3 }}
       >
-        <Tab icon={<Thermostat />} label="Devices" />
+        <Tab icon={<Home />} label="Devices" />
         <Tab icon={<People />} label="Users" />
       </Tabs>
 
@@ -400,8 +495,10 @@ function App() {
                   Create New Device
                 </Typography>
                 <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                  Select a home configuration to create a new virtual thermostat
+                  Select device type and configuration
                 </Typography>
+                
+                {/* Username Input */}
                 <TextField
                   label="Assign to Username"
                   value={usernameInput}
@@ -409,41 +506,50 @@ function App() {
                   fullWidth
                   sx={{ mb: 2 }}
                 />
+                
+                {/* Device Type Selection */}
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Device Type</InputLabel>
+                  <Select
+                    value={selectedDeviceType}
+                    onChange={(e) => setSelectedDeviceType(e.target.value)}
+                    label="Device Type"
+                  >
+                    {Object.entries(deviceTypes).map(([key, type]) => (
+                      <MenuItem key={key} value={key}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          {type.icon}
+                          <Typography sx={{ ml: 1 }}>{type.name}</Typography>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                
+                {/* Configuration Buttons */}
                 <Box sx={{ mt: 1 }}>
-                  <Button 
-                    variant="contained" 
-                    fullWidth 
-                    onClick={() => spawnDevice('small_apartment_efficient.yaml')}
-                    disabled={loading}
-                    sx={{ mb: 1 }}
-                    startIcon={<Thermostat />}
-                  >
-                    🏢 Small Apartment (Efficient)
-                  </Button>
-                  <Button 
-                    variant="contained" 
-                    fullWidth 
-                    onClick={() => spawnDevice('small_apartment_inefficient.yaml')}
-                    disabled={loading}
-                    sx={{ mb: 1 }}
-                    startIcon={<Thermostat />}
-                  >
-                    🏢 Small Apartment (Inefficient)
-                  </Button>
-                  <Button 
-                    variant="contained" 
-                    fullWidth 
-                    onClick={() => spawnDevice('medium_house_efficient.yaml')}
-                    disabled={loading}
-                    startIcon={<Thermostat />}
-                  >
-                    🏠 Medium House (Efficient)
-                  </Button>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    Available Configurations:
+                  </Typography>
+                  {deviceTypes[selectedDeviceType]?.configs.map((config, index) => (
+                    <Button 
+                      key={index}
+                      variant="contained" 
+                      fullWidth 
+                      onClick={() => spawnDevice(selectedDeviceType, config.file)}
+                      disabled={loading}
+                      sx={{ mb: 1 }}
+                      startIcon={deviceTypes[selectedDeviceType].icon}
+                    >
+                      {config.name}
+                    </Button>
+                  ))}
                 </Box>
+                
                 {loading && (
                   <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                     <CircularProgress />
-                    <Typography sx={{ ml: 2 }}>Creating device...</Typography>
+                    <Typography sx={{ ml: 2 }}>Creating {deviceTypes[selectedDeviceType]?.name}...</Typography>
                   </Box>
                 )}
               </Paper>
@@ -463,7 +569,7 @@ function App() {
                       No devices found
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      Create your first virtual thermostat using the panel on the left
+                      Create your first smart home device using the panel on the left
                     </Typography>
                   </Box>
                 ) : (
@@ -471,10 +577,11 @@ function App() {
                     <Table>
                       <TableHead>
                         <TableRow>
-                          <TableCell>Device ID</TableCell>
+                          <TableCell>Device</TableCell>
+                          <TableCell>Type</TableCell>
                           <TableCell>Status</TableCell>
-                          <TableCell>Current Temp</TableCell>
-                          <TableCell>Target Temp</TableCell>
+                          <TableCell>Value 1</TableCell>
+                          <TableCell>Value 2</TableCell>
                           <TableCell>Mode</TableCell>
                           <TableCell>Power</TableCell>
                           <TableCell>Config</TableCell>
@@ -482,67 +589,90 @@ function App() {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {devices.map((device) => (
-                          <TableRow key={device.serial_number}>
-                            <TableCell>
-                              <Typography variant="body2" fontWeight="bold">
-                                {device.serial_number}
-                              </Typography>
-                              <Typography variant="caption" color="textSecondary">
-                                Created: {device.created_at ? new Date(device.created_at).toLocaleDateString() : 'Unknown'}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Chip 
-                                label={getStatusText(device)}
-                                color={getStatusColor(device)}
-                                size="small"
-                                icon={device.current_state?.is_running ? <PlayArrow /> : <Stop />}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              {formatTemperature(device.current_state?.temperature)}
-                            </TableCell>
-                            <TableCell>
-                              {formatTemperature(device.current_state?.target_temp)}
-                            </TableCell>
-                            <TableCell>
-                              <Chip 
-                                label={device.current_state?.mode || 'Unknown'}
-                                variant="outlined"
-                                size="small"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              {formatPower(device.current_state?.power_kw)}
-                            </TableCell>
-                            <TableCell>
-                              <Typography variant="caption">
-                                {device.config_file || 'Unknown'}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Stack direction="row" spacing={1}>
-                                <IconButton
+                        {devices.map((device) => {
+                          const deviceType = getDeviceTypeFromSerial(device.serial_number);
+                          return (
+                            <TableRow key={device.serial_number}>
+                              <TableCell>
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                  {getDeviceIcon(device.serial_number)}
+                                  <Box sx={{ ml: 1 }}>
+                                    <Typography variant="body2" fontWeight="bold">
+                                      {device.serial_number}
+                                    </Typography>
+                                    <Typography variant="caption" color="textSecondary">
+                                      Created: {device.created_at ? new Date(device.created_at).toLocaleDateString() : 'Unknown'}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                              </TableCell>
+                              <TableCell>
+                                <Chip 
+                                  label={getDeviceTypeName(device.serial_number)}
+                                  variant="outlined"
                                   size="small"
-                                  color="primary"
-                                  onClick={() => setControlDialog({ open: true, device })}
-                                  title="Control device"
-                                >
-                                  <Settings />
-                                </IconButton>
-                                <IconButton
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Chip 
+                                  label={getStatusText(device)}
+                                  color={getStatusColor(device)}
                                   size="small"
-                                  color="error"
-                                  onClick={() => setDeleteDialog({ open: true, device })}
-                                  title="Delete device"
-                                >
-                                  <Delete />
-                                </IconButton>
-                              </Stack>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                                  icon={device.current_state?.is_running ? <PlayArrow /> : <Stop />}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                {deviceType === 'thermostat' ? formatTemperature(device.current_state?.temperature) : 
+                                 deviceType === 'motion_sensor' ? (device.current_state?.last_motion || 'N/A') :
+                                 deviceType === 'environment_sensor' ? (device.current_state?.air_quality || 'N/A') :
+                                 deviceType === 'appliance_controller' ? (device.current_state?.state || 'N/A') :
+                                 deviceType === 'item_sensor' ? (device.current_state?.contact_state || 'N/A') : 'N/A'}
+                              </TableCell>
+                              <TableCell>
+                                {deviceType === 'thermostat' ? formatTemperature(device.current_state?.target_temp) : 
+                                 deviceType === 'motion_sensor' ? (device.current_state?.sensitivity || 'N/A') :
+                                 deviceType === 'environment_sensor' ? formatTemperature(device.current_state?.temperature) :
+                                 deviceType === 'appliance_controller' ? (device.current_state?.setting || 'N/A') :
+                                 deviceType === 'item_sensor' ? (device.current_state?.battery_level || 'N/A') : 'N/A'}
+                              </TableCell>
+                              <TableCell>
+                                <Chip 
+                                  label={device.current_state?.mode || 'Unknown'}
+                                  variant="outlined"
+                                  size="small"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                {formatPower(device.current_state?.power_kw)}
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="caption">
+                                  {device.config_file || 'Unknown'}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Stack direction="row" spacing={1}>
+                                  <IconButton
+                                    size="small"
+                                    color="primary"
+                                    onClick={() => setControlDialog({ open: true, device })}
+                                    title="Control device"
+                                  >
+                                    <Settings />
+                                  </IconButton>
+                                  <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => setDeleteDialog({ open: true, device })}
+                                    title="Delete device"
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </Stack>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </TableContainer>

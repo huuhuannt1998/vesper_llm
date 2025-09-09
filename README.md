@@ -48,6 +48,17 @@ VESPER LLM is a comprehensive AI-powered research platform combining Vision Lang
 - **✅ CASAS Data Generator**: Automated generation of sensor event sequences from VLM navigation
 
 ### 🔧 Enhanced Docker Port Management
+- **✅ Intelligent Port Allocation**: Dynamic port ranges prevent deployment conflicts
+- **✅ Device Type Mapping**: 1000+ ports allocated across device categories
+- **✅ Production-Ready Scaling**: Support for enterprise smart home deployments
+- **✅ Cloud Integration**: Enhanced SmartThings OAuth and cloud-to-cloud connectivity
+
+### 🔍 Realistic Motion Sensor Detection System
+- **✅ Aeotec SmartThings Specifications**: 120° field of view, 5-meter detection range
+- **✅ Real-time Actor Tracking**: PIR-based motion detection with realistic physics
+- **✅ SmartThings App Integration**: Live notifications when Actor enters detection zones
+- **✅ Professional Sensor Placement**: Optimized coverage patterns for maximum detection
+- **✅ Production Sensor Behavior**: 3-second cooldown, motion thresholds, battery simulation
 - **✅ Device-Specific Port Ranges**: Motion sensors (9000-9199), Item sensors (9200-9299), etc.
 - **✅ Zero Port Conflicts**: Eliminated "port already allocated" errors completely
 - **✅ Race Condition Protection**: Port tracking system prevents simultaneous allocation conflicts
@@ -185,6 +196,59 @@ python motion_sensor_ground_truth_comparator.py
 # - Motion sensor agreement validation  
 # - Statistical significance testing
 # - Publication-ready metrics
+```
+
+### 6. Setup Realistic Motion Sensor Detection
+
+VESPER includes a production-grade motion sensor detection system based on Aeotec SmartThings Motion Sensor specifications.
+
+```bash
+# Quick setup using the launcher
+python motion_sensor_launcher.py setup --layout medium_house
+
+# This configures:
+# - 10 motion sensors with optimal placement
+# - 120° field of view, 5-meter detection range
+# - Room-specific coverage zones
+# - SmartThings app integration
+```
+
+**Interactive Demo:**
+```bash
+# Run comprehensive demonstration
+python motion_sensor_launcher.py demo
+
+# Available layouts: small_apartment, medium_house, large_house
+python motion_sensor_launcher.py config --list-layouts
+```
+
+**Blender Integration:**
+```python
+# In Blender BGE, import the organized system:
+from motion_sensors.demos import run_comprehensive_demo
+
+# Run in BGE main loop for real-time detection
+run_comprehensive_demo()
+```
+
+**Motion Sensor System Structure:**
+```
+motion_sensors/
+├── core/                    # Detection engine
+├── setup/                   # Configuration and deployment
+├── demos/                   # Testing and demonstrations  
+├── configs/                 # Layouts and specifications
+└── documentation/           # API and integration guides
+```
+
+**Motion Sensor Features:**
+- **🔍 Realistic Detection**: 120° FOV, 5m range (Aeotec specs)
+- **📱 SmartThings Integration**: Live notifications to app
+- **⏱️ Professional Behavior**: 3-second cooldown, motion thresholds
+- **🏠 Optimal Placement**: 3 layouts (6-15 sensors) covering all rooms
+- **🎯 Real-time Tracking**: Continuous Actor position monitoring
+- **📊 Performance Analytics**: Detection statistics and coverage validation
+
 ```
 
 ### 6. Enhanced Multi-Device Testing
