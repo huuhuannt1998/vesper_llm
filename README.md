@@ -146,6 +146,71 @@ similarity_metrics = {
 - **Sensor Diversity**: Use 6-8 different sensors vs current 2-3
 - **Overall Similarity**: Target 50%+ similarity score (vs current 13.8%)
 
+#### **🚧 Current Challenges & Future Work**
+
+**Major Research Gap Identified:**
+The 13.8% similarity score reveals a fundamental mismatch between current VLM capabilities and CASAS dataset complexity. The comparison highlights significant limitations that represent key future research opportunities.
+
+**Current VLM System vs CASAS Dataset Requirements:**
+
+| Aspect | Current VLM | CASAS Dataset | Gap Analysis |
+|--------|-------------|---------------|--------------|
+| **Task Complexity** | Basic navigation (UP/DOWN/LEFT/RIGHT) | Complex ADL tasks (cook oatmeal, make phone calls) | **100x complexity gap** |
+| **Session Duration** | 0.5 seconds | 2-10 minutes per task | **600x duration gap** |
+| **Sensor Types** | 2-3 motion sensors (M01-M02) | 26 motion + 8 item + appliance sensors | **10x sensor diversity gap** |
+| **Object Interaction** | None | Pick up items, use appliances, manipulate objects | **Missing entirely** |
+| **Activity Sequences** | Random movement | Structured task completion (measure → boil → serve) | **No task logic** |
+
+**Critical Missing Capabilities:**
+
+```python
+# What CASAS Dataset Expects:
+casas_adl_tasks = {
+    "make_phone_call": ["navigate_to_phone", "lookup_number", "dial", "listen", "take_notes"],
+    "wash_hands": ["go_to_sink", "turn_on_water", "use_soap", "dry_with_towel"],
+    "cook_oatmeal": ["measure_water", "boil_water", "add_oats", "add_toppings", "serve"],
+    "eat_meal": ["take_food_to_dining", "eat", "take_medicine"],
+    "clean_dishes": ["collect_dishes", "wash_with_soap", "rinse", "dry"]
+}
+
+# What Current VLM Does:
+current_vlm_capability = {
+    "navigation_only": ["move_up", "move_down", "move_left", "move_right"],
+    "sensor_activation": ["motion_M01", "motion_M02"],
+    "duration": "0.5_seconds"
+}
+```
+
+**Required System Enhancements for Meaningful CASAS Comparison:**
+
+1. **Object Interaction System**
+   - Implement item sensors (I01-I08) for oatmeal, raisins, bowls, medicine
+   - Add cabinet door sensors (D01-D12) for storage access
+   - Enable appliance control (burner, water, phone sensors)
+
+2. **Task Execution Logic**
+   - Sequential task completion algorithms
+   - Instruction following capabilities
+   - Multi-step activity coordination
+
+3. **Temporal Realism**
+   - Extend sessions to 180-600 seconds
+   - Realistic activity pacing and timing
+   - Human-like task interruption and resumption
+
+4. **Behavioral Complexity**
+   - Tool usage patterns (measuring spoons, pots, towels)
+   - Multi-room activity coordination
+   - Error detection and correction capabilities
+
+**Research Implications:**
+The current 13.8% similarity score, while low, provides valuable baseline metrics and clearly identifies the research challenges needed to advance VLM capabilities toward human-level performance in smart home environments. This represents a significant opportunity for advancing embodied AI research.
+
+**Future Work Priority:**
+1. **Phase 1**: Navigation-focused comparison (extract motion patterns only from CASAS)
+2. **Phase 2**: Object interaction implementation for realistic ADL task completion
+3. **Phase 3**: Full CASAS dataset compatibility with 70%+ similarity target
+
 
 ### 🔧 **Latest: Motion Detection System Fixes (September 9, 2025)**
 - **✅ Debug Error Resolution**: Fixed "cannot access local variable 'actor_pos'" errors in motion detection
