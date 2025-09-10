@@ -35,29 +35,538 @@ except ImportError:
     REQUESTS_AVAILABLE = False
     print("⚠️ requests module not available. Install with: pip install requests")
 
-# Import motion sensor detection system
-try:
-    import sys
-    import os
-    # Add motion_sensors directory to path for imports
-    motion_sensors_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "motion_sensors")
-    if motion_sensors_dir not in sys.path:
-        sys.path.append(motion_sensors_dir)
+# Motion detection functionality now built-in - no external module needed
+MOTION_DETECTION_AVAILABLE = True
+print("✅ Built-in motion detection system ready")
+
+# =============================================================================
+# BGE MOTION DETECTION SYSTEM
+# =============================================================================
+
+# Global motion detection state
+_motion_detection_state = {
+    "sensors": {},
+    "actor_position": None,
+    "last_update": 0,
+    "initialized": False
+}
+
+def initialize_motion_detection():
+    """Initialize BGE motion detection system with room-based detection areas"""
+    global _motion_detection_state
     
-    from motion_sensors import (
-        initialize_motion_detection, 
-        register_motion_sensor_detection, 
-        update_motion_detection, 
-        get_motion_detection_status
-    )
-    MOTION_DETECTION_AVAILABLE = True
-    print("✅ Motion sensor detection system imported successfully")
-except ImportError as e:
-    MOTION_DETECTION_AVAILABLE = False
-    print(f"⚠️ Motion sensor detection system not available: {e}")
-except Exception as e:
-    MOTION_DETECTION_AVAILABLE = False
-    print(f"⚠️ Error importing motion sensor detection: {e}")
+    try:
+        import bge
+        scene = bge.logic.getCurrentScene()
+        
+        # Define room detection areas based on motion sensor positions
+        # These coordinates should match your house layout
+        room_definitions = {
+            "motion1": {
+                "room_name": "living_room",
+                "detection_area": {
+                    "x_min": -2.0, "x_max": 4.0,  # Living room X boundaries
+                    "y_min": -1.0, "y_max": 5.0,  # Living room Y boundaries
+                    "z_min": -0.5, "z_max": 3.0   # Floor to ceiling
+                }
+            },
+            "motion2": {
+                "room_name": "bedroom",
+                "detection_area": {
+                    "x_min": 5.0, "x_max": 10.0,  # Bedroom X boundaries
+                    "y_min": -1.0, "y_max": 4.0,  # Bedroom Y boundaries
+                    "z_min": -0.5, "z_max": 3.0   # Floor to ceiling
+                }
+            }
+        }
+        
+        # Find motion sensor objects in the scene
+        motion_sensors = {}
+        detected_sensors = []
+        all_objects = []
+        
+        # Debug: List all objects in the scene to see what's available
+        print("🔍 BGE: Scanning all objects in scene...")
+        for obj in scene.objects:
+            try:
+                obj_name = obj.name
+                all_objects.append(obj_name)
+                # Look for motion sensors (case insensitive)
+                if "motion" in obj_name.lower():
+                    pos = obj.worldPosition.copy()
+                    detected_sensors.append({
+                        "name": obj_name,
+                        "position": pos,
+                        "x": pos.x,
+                        "y": pos.y, 
+                        "z": pos.z
+                    })
+            except Exception as e:
+                # Skip objects that can't be processed
+                continue
+        
+        # Print all objects for debugging
+        print(f"🔍 BGE: Found {len(all_objects)} total objects in scene:")
+        for i, obj_name in enumerate(all_objects[:20]):  # Show first 20 objects
+            print(f"    {i+1}: {obj_name}")
+        if len(all_objects) > 20:
+            print(f"    ... and {len(all_objects) - 20} more objects")
+                
+        # Print detected sensor coordinates for easy copying
+        print(f"🔍 BGE: Found {len(detected_sensors)} motion sensors:")
+        for sensor in detected_sensors:
+            print(f"    {sensor['name']}: X={sensor['x']:.2f}, Y={sensor['y']:.2f}, Z={sensor['z']:.2f}")
+        
+        # Find detection area objects in the scene and extract their actual coordinates
+        detection_areas = {}
+        for obj in scene.objects:
+            try:
+                obj_name = obj.name
+                # Look for detection area objects (case insensitive)
+                if "detectionarea" in obj_name.lower():
+                    # Extract the coordinates from the mesh vertices
+                    if hasattr(obj, 'data') and hasattr(obj.data, 'vertices'):
+                        mesh = obj.data
+                        world_vertices = []
+                        
+                        # Get world coordinates of all vertices
+                        for vertex in mesh.vertices:
+                            world_pos = obj.matrix_world @ vertex.co
+                            world_vertices.append([world_pos.x, world_pos.y, world_pos.z])
+                        
+                        if len(world_vertices) >= 3:
+                            # For triangular detection areas, we expect exactly 3 vertices
+                            triangle_points = world_vertices[:3]  # Take first 3 vertices
+                            
+                            # Calculate bounding box from triangle vertices
+                            x_coords = [v[0] for v in world_vertices]
+                            y_coords = [v[1] for v in world_vertices]
+                            z_coords = [v[2] for v in world_vertices]
+                            
+                            detection_areas[obj_name] = {
+                                "vertices": world_vertices,
+                                "triangle_points": triangle_points,  # Store the 3 main points
+                                "bounding_box": {
+                                    "x_min": min(x_coords),
+                                    "x_max": max(x_coords),
+                                    "y_min": min(y_coords),
+                                    "y_max": max(y_coords),
+                                    "z_min": min(z_coords),
+                                    "z_max": max(z_coords)
+                                }
+                            }
+                            
+                            print(f"🔺 Found detection area: {obj_name}")
+                            print(f"   📐 Total vertices: {len(world_vertices)}")
+                            print(f"   🎯 Triangle points (first 3):")
+                            for i, point in enumerate(triangle_points):
+                                print(f"      Point {i+1}: [{point[0]:.3f}, {point[1]:.3f}, {point[2]:.3f}]")
+                            print(f"   📦 Bounding box: X[{min(x_coords):.1f} to {max(x_coords):.1f}] "
+                                  f"Y[{min(y_coords):.1f} to {max(y_coords):.1f}] "
+                                  f"Z[{min(z_coords):.1f} to {max(z_coords):.1f}]")
+            except Exception as e:
+                continue
+        
+        # Define room detection areas based on ACTUAL detection area objects in Blender
+        # Map detection area objects to motion sensors
+        room_definitions = {}
+        
+        # Map motion sensors to their detection areas (flexible matching)
+        sensor_to_area_mapping = {
+            "motion1": "DetectionArea_motion1",
+            "motion2": "DetectionArea_motion2"
+        }
+        
+        for sensor_id, area_obj_name in sensor_to_area_mapping.items():
+            # Find the detection area object with flexible matching
+            area_data = None
+            matched_area_name = None
+            for area_name, area_info in detection_areas.items():
+                # Check if the area name starts with the expected name (handles .001 suffixes)
+                if area_name.startswith(area_obj_name) or area_obj_name in area_name:
+                    area_data = area_info
+                    matched_area_name = area_name
+                    print(f"✅ {sensor_id} → Matched detection area: {matched_area_name}")
+                    break
+                    break
+            
+            if area_data:
+                # Use the actual bounding box from the Blender detection area
+                room_definitions[sensor_id] = {
+                    "room_name": "living_room" if sensor_id == "motion1" else "bedroom",
+                    "detection_area": area_data["bounding_box"],
+                    "triangle_vertices": area_data["triangle_points"]  # Use the clean 3-point triangle
+                }
+                print(f"✅ {sensor_id} → Using actual Blender detection area coordinates")
+                print(f"   📍 Triangle points:")
+                for i, point in enumerate(area_data["triangle_points"]):
+                    print(f"      {i+1}: [{point[0]:.3f}, {point[1]:.3f}, {point[2]:.3f}]")
+            else:
+                # Fallback to manual coordinates if detection area not found
+                if sensor_id == "motion1":
+                    room_definitions[sensor_id] = {
+                        "room_name": "living_room",
+                        "detection_area": {
+                            "x_min": -4.0, "x_max": 1.0,
+                            "y_min": -2.0, "y_max": 2.0,
+                            "z_min": -2.0, "z_max": 3.0
+                        }
+                    }
+                else:
+                    room_definitions[sensor_id] = {
+                        "room_name": "bedroom", 
+                        "detection_area": {
+                            "x_min": -6.0, "x_max": -2.0,
+                            "y_min": 3.0, "y_max": 6.0,
+                            "z_min": -2.0, "z_max": 3.0
+                        }
+                    }
+                print(f"⚠️ {sensor_id} → Using fallback coordinates (detection area not found)")
+        
+        # Second pass: Create sensor data with room definitions
+        for sensor_info in detected_sensors:
+            obj_name = sensor_info["name"]
+            # Find the object again by name
+            sensor_obj = None
+            for obj in scene.objects:
+                if obj.name == obj_name:
+                    sensor_obj = obj
+                    break
+            
+            if sensor_obj is None:
+                continue
+                
+            sensor_id = obj_name.lower()
+            sensor_pos = sensor_info["position"]
+            
+            # Get room definition for this sensor
+            room_def = room_definitions.get(sensor_id, {})
+            room_name = room_def.get("room_name", "unknown_room")
+            detection_area = room_def.get("detection_area")
+            
+            # If no predefined area, create one based on sensor position
+            if not detection_area:
+                detection_area = {
+                    "x_min": sensor_pos.x - 3.0, "x_max": sensor_pos.x + 3.0,
+                    "y_min": sensor_pos.y - 3.0, "y_max": sensor_pos.y + 3.0,
+                    "z_min": sensor_pos.z - 1.0, "z_max": sensor_pos.z + 3.0
+                }
+                print(f"    ⚠️ No room definition for {sensor_id}, using auto-generated area around sensor")
+            
+            motion_sensors[sensor_id] = {
+                "object": sensor_obj,
+                "position": sensor_pos,
+                "room_name": room_name,
+                "detection_area": detection_area,
+                "detecting": False,
+                "last_detection": 0
+            }
+            
+            print(f"� {obj_name} → {room_name}")
+            print(f"    Sensor at: [{sensor_pos.x:.2f}, {sensor_pos.y:.2f}, {sensor_pos.z:.2f}]")
+            print(f"    Detection area: X[{detection_area['x_min']:.1f} to {detection_area['x_max']:.1f}] "
+                  f"Y[{detection_area['y_min']:.1f} to {detection_area['y_max']:.1f}] "
+                  f"Z[{detection_area['z_min']:.1f} to {detection_area['z_max']:.1f}]")
+        
+        _motion_detection_state["sensors"] = motion_sensors
+        _motion_detection_state["initialized"] = True
+        
+        # Initialize BGE global variables for debug counter
+        if hasattr(bge.logic, 'globalDict'):
+            print("[BGE INIT] Setting up global variables...")
+            bge.logic.globalDict['motionState'] = {'motion1': False, 'motion2': False}
+            bge.logic.globalDict['last_actor_pos'] = None
+            bge.logic.globalDict['debug_counter'] = 0  # For periodic debug logging
+            print(f"[BGE INIT] Motion state initialized: {bge.logic.globalDict['motionState']}")
+        
+        print(f"🎮 BGE: Motion detection initialized with {len(motion_sensors)} sensors")
+        return True
+        
+    except ImportError:
+        # Not in BGE, return mock detector
+        print("⚠️ Not in BGE - creating mock motion detector")
+        return True
+    except Exception as e:
+        print(f"❌ Failed to initialize motion detection: {e}")
+        return None
+
+def point_in_triangle(point, triangle_vertices):
+    """Check if a 2D point is inside a triangle using barycentric coordinates
+    
+    Args:
+        point: [x, y] coordinates of the point to test
+        triangle_vertices: List of 3 vertices [[x1,y1,z1], [x2,y2,z2], [x3,y3,z3]]
+    
+    Returns:
+        bool: True if point is inside triangle
+    """
+    if len(triangle_vertices) < 3:
+        return False
+    
+    # Extract 2D coordinates (ignore Z)
+    p = [point[0], point[1]]
+    a = [triangle_vertices[0][0], triangle_vertices[0][1]]
+    b = [triangle_vertices[1][0], triangle_vertices[1][1]]
+    c = [triangle_vertices[2][0], triangle_vertices[2][1]]
+    
+    # Calculate barycentric coordinates
+    def sign(p1, p2, p3):
+        return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1])
+    
+    d1 = sign(p, a, b)
+    d2 = sign(p, b, c) 
+    d3 = sign(p, c, a)
+    
+    has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
+    has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
+    
+    return not (has_neg and has_pos)
+
+def get_detection_area_coordinates(object_name=None):
+    """Get the 3 triangle coordinates of a detection area object in Blender
+    
+    Args:
+        object_name: Name of the detection area object (optional)
+        
+    Returns:
+        dict: Dictionary containing triangle coordinates for all or specific detection areas
+    """
+    try:
+        import bge
+        scene = bge.logic.getCurrentScene()
+        
+        detection_coordinates = {}
+        
+        for obj in scene.objects:
+            try:
+                obj_name = obj.name
+                
+                # Look for detection area objects or specific object
+                if ("detectionarea" in obj_name.lower()) or (object_name and object_name.lower() in obj_name.lower()):
+                    
+                    if hasattr(obj, 'data') and hasattr(obj.data, 'vertices'):
+                        mesh = obj.data
+                        world_vertices = []
+                        
+                        # Get world coordinates of all vertices
+                        for vertex in mesh.vertices:
+                            world_pos = obj.matrix_world @ vertex.co
+                            world_vertices.append([world_pos.x, world_pos.y, world_pos.z])
+                        
+                        if len(world_vertices) >= 3:
+                            # Get the 3 main triangle points
+                            triangle_points = world_vertices[:3]
+                            
+                            detection_coordinates[obj_name] = {
+                                "triangle_points": triangle_points,
+                                "total_vertices": len(world_vertices),
+                                "object_name": obj_name
+                            }
+                            
+                            print(f"📐 Detection Area: {obj_name}")
+                            print(f"   Triangle coordinates:")
+                            for i, point in enumerate(triangle_points):
+                                print(f"   Point {i+1}: X={point[0]:.3f}, Y={point[1]:.3f}, Z={point[2]:.3f}")
+                            print()
+                            
+            except Exception as e:
+                continue
+        
+        return detection_coordinates
+        
+    except ImportError:
+        print("⚠️ This function only works in Blender Game Engine")
+        return {}
+    except Exception as e:
+        print(f"❌ Error getting detection area coordinates: {e}")
+        return {}
+
+def update_motion_detection():
+    """Update motion detection - check if actor is in sensor detection areas"""
+    global _motion_detection_state
+    
+    try:
+        import bge
+        from mathutils import Vector
+        import time
+        
+        scene = bge.logic.getCurrentScene()
+        current_time = time.time()
+        
+        # Skip if not initialized or too frequent updates
+        if not _motion_detection_state["initialized"]:
+            initialize_motion_detection()
+            return
+            
+        if current_time - _motion_detection_state.get("last_update", 0) < 0.1:
+            return  # Update at most 10 times per second
+        
+        _motion_detection_state["last_update"] = current_time
+        
+        # Debug: Print actor position every 5 seconds
+        if "last_debug_time" not in _motion_detection_state:
+            _motion_detection_state["last_debug_time"] = 0
+        
+        try:
+            if current_time - _motion_detection_state["last_debug_time"] > 5.0:
+                print(f"🔍 MOTION DEBUG: Actor at [{actor_pos.x:.2f}, {actor_pos.y:.2f}, {actor_pos.z:.2f}]")
+                _motion_detection_state["last_debug_time"] = current_time
+        except Exception as debug_error:
+            print(f"⚠️ Debug print error: {debug_error}")
+            _motion_detection_state["last_debug_time"] = current_time
+        
+        # Find the Actor object - BGE scene.objects is a list, not a dictionary
+        actor = None
+        for obj in scene.objects:
+            if obj.name == "Actor":
+                actor = obj
+                break
+        
+        if not actor:
+            print("⚠️ Actor object not found in scene")
+            return
+            
+        actor_pos = actor.worldPosition
+        _motion_detection_state["actor_position"] = actor_pos.copy()
+        
+        # Debug: Print actor position every 5 seconds
+        if not hasattr(_motion_detection_state, "last_debug_time"):
+            _motion_detection_state["last_debug_time"] = 0
+        
+        if current_time - _motion_detection_state["last_debug_time"] > 5.0:
+            print(f"🔍 MOTION DEBUG: Actor at [{actor_pos.x:.2f}, {actor_pos.y:.2f}, {actor_pos.z:.2f}]")
+            _motion_detection_state["last_debug_time"] = current_time
+        
+        # Check each motion sensor's detection area
+        for sensor_id, sensor_data in _motion_detection_state["sensors"].items():
+            try:
+                sensor_obj = sensor_data["object"]
+                room_name = sensor_data["room_name"]
+                detection_area = sensor_data["detection_area"]
+                
+                # Check if actor is within the detection area boundaries
+                # First check bounding box for quick elimination
+                in_bounding_box = (
+                    detection_area["x_min"] <= actor_pos.x <= detection_area["x_max"] and
+                    detection_area["y_min"] <= actor_pos.y <= detection_area["y_max"] and
+                    detection_area["z_min"] <= actor_pos.z <= detection_area["z_max"]
+                )
+                
+                # If we have triangle vertices, do precise triangle detection
+                is_in_area = in_bounding_box
+                if in_bounding_box and "triangle_vertices" in sensor_data:
+                    triangle_vertices = sensor_data["triangle_vertices"]
+                    actor_2d = [actor_pos.x, actor_pos.y]
+                    is_in_area = point_in_triangle(actor_2d, triangle_vertices)
+                    
+                    print(f"🔍 AREA CHECK: {sensor_id}")
+                    print(f"    Actor: [{actor_pos.x:.2f}, {actor_pos.y:.2f}, {actor_pos.z:.2f}]")
+                    print(f"    Bounding box: X[{detection_area['x_min']:.1f} to {detection_area['x_max']:.1f}] "
+                          f"Y[{detection_area['y_min']:.1f} to {detection_area['y_max']:.1f}]")
+                    print(f"    Triangle vertices: {triangle_vertices}")
+                    print(f"    In bounding box: {in_bounding_box}")
+                    print(f"    In triangle: {is_in_area}")
+                else:
+                    print(f"🔍 AREA CHECK: {sensor_id}")
+                    print(f"    Actor: [{actor_pos.x:.2f}, {actor_pos.y:.2f}, {actor_pos.z:.2f}]")
+                    print(f"    Bounding box: X[{detection_area['x_min']:.1f} to {detection_area['x_max']:.1f}] "
+                          f"Y[{detection_area['y_min']:.1f} to {detection_area['y_max']:.1f}]")
+                    print(f"    In area: {is_in_area} (bounding box only)")
+                
+                
+            except Exception as e:
+                print(f"⚠️ Motion sensor {sensor_id} check failed: {e}")
+                continue
+            
+            # Check for state change
+            was_detecting = sensor_data["detecting"]
+            if is_in_area != was_detecting:
+                sensor_data["detecting"] = is_in_area
+                sensor_data["last_detection"] = current_time
+                
+                if is_in_area:
+                    print(f"🔴 {sensor_obj.name} DETECTED - Actor entered {room_name}")
+                    print(f"    📍 Actor position: [{actor_pos.x:.2f}, {actor_pos.y:.2f}, {actor_pos.z:.2f}]")
+                    
+                    # Send CASAS event for room entry
+                    try:
+                        # Import device manager and generate CASAS event
+                        import sys
+                        import os
+                        addon_path = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "UPBGE", "Blender", "4.4", "scripts", "addons", "vesper_smart_home")
+                        if addon_path not in sys.path:
+                            sys.path.append(addon_path)
+                        
+                        # Get device manager from scene
+                        if hasattr(scene, 'vesper_device_manager'):
+                            device_manager = scene.vesper_device_manager
+                            # Generate CASAS event with proper sensor mapping
+                            sensor_mapping = {"motion1": "M01", "motion2": "M02"}
+                            casas_id = sensor_mapping.get(sensor_id, sensor_id.upper())
+                            event_msg = f"{casas_id} ON (Motion in {room_name})"
+                            print(f"📊 CASAS Event (Real): {event_msg}")
+                    except Exception as e:
+                        print(f"⚠️ CASAS event generation failed: {e}")
+                        
+                else:
+                    print(f"⚪ {sensor_obj.name} CLEAR - Actor left {room_name}")
+                    print(f"    📍 Actor position: [{actor_pos.x:.2f}, {actor_pos.y:.2f}, {actor_pos.z:.2f}]")
+                    
+                    # Send CASAS event for room exit
+                    try:
+                        if hasattr(scene, 'vesper_device_manager'):
+                            sensor_mapping = {"motion1": "M01", "motion2": "M02"}
+                            casas_id = sensor_mapping.get(sensor_id, sensor_id.upper())
+                            event_msg = f"{casas_id} OFF (Motion left {room_name})"
+                            print(f"📊 CASAS Event (Real): {event_msg}")
+                    except Exception as e:
+                        print(f"⚠️ CASAS event generation failed: {e}")
+        
+        _motion_detection_state["last_update"] = current_time
+        
+    except ImportError:
+        # Not in BGE
+        pass
+    except Exception as e:
+        print(f"⚠️ Motion detection update error: {e}")
+
+def get_motion_detection_status():
+    """Get current motion detection status with room information"""
+    global _motion_detection_state
+    
+    if not _motion_detection_state["initialized"]:
+        return {
+            "error": "Motion detection not initialized",
+            "total_sensors": 0,
+            "sensors_detecting": 0,
+            "sensors": {}
+        }
+    
+    sensors_status = {}
+    detecting_count = 0
+    current_room = "unknown"
+    
+    for sensor_id, sensor_data in _motion_detection_state["sensors"].items():
+        is_detecting = sensor_data["detecting"]
+        if is_detecting:
+            detecting_count += 1
+            current_room = sensor_data["room_name"]
+            
+        sensors_status[sensor_id] = {
+            "detecting": is_detecting,
+            "room_name": sensor_data["room_name"],
+            "position": sensor_data["position"],
+            "detection_area": sensor_data["detection_area"],
+            "last_detection": sensor_data.get("last_detection", 0)
+        }
+    
+    return {
+        "total_sensors": len(_motion_detection_state["sensors"]),
+        "sensors_detecting": detecting_count,
+        "current_room": current_room,
+        "sensors": sensors_status,
+        "actor_position": _motion_detection_state.get("actor_position")
+    }
 
 # =============================================================================
 # DEVICE MANAGEMENT CLASSES
@@ -1376,8 +1885,12 @@ def main():
                 if total_sensors > 0:
                     print(f"🎮 BGE Motion Status: {detecting_count}/{total_sensors} sensors detecting")
                     
-                    # Get Actor position for debug
-                    actor = scene.objects.get("Actor")
+                    # Get Actor position for debug - BGE scene.objects is a list
+                    actor = None
+                    for obj in scene.objects:
+                        if obj.name == "Actor":
+                            actor = obj
+                            break
                     if actor:
                         pos = actor.worldPosition
                         print(f"🎭 BGE Actor position: [{pos.x:.1f}, {pos.y:.1f}, {pos.z:.1f}]")
@@ -2394,7 +2907,7 @@ class VESPER_PT_SmartHomePanel(bpy.types.Panel):
         # Motion Detection System section
         layout.separator()
         box = layout.box()
-        box.label(text="VLM Motion Detection (BGE)", icon='GAME')
+        box.label(text="VLM Motion Detection (BGE)", icon='PLAY')
         
         # BGE mode setup only
         col = box.column(align=True)

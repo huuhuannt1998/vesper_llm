@@ -1,6 +1,6 @@
 # VESPER LLM - Complete Production System
 
-![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-3.1.1-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![Blender](https://img.shields.io/badge/blender-4.0+-orange.svg)
 ![UPBGE](https://img.shields.io/badge/UPBGE-0.4+-purple.svg)
@@ -39,6 +39,18 @@ VESPER LLM is a comprehensive AI-powered research platform combining Vision Lang
 - **Multi-Modal AI Testing**: Vision, language, and action integration evaluation
 
 ## � Recent Updates (September 2025)
+
+### 🔧 **Latest: Motion Detection System Fixes (September 9, 2025)**
+- **✅ Debug Error Resolution**: Fixed "cannot access local variable 'actor_pos'" errors in motion detection
+- **✅ Detection Area Flexibility**: Added support for Blender auto-generated object names with .001 suffixes
+- **✅ Triangle Coordinate Extraction**: Real triangle coordinates now extracted from Blender detection area meshes
+- **✅ Enhanced Error Handling**: Improved exception handling for BGE motion detection system
+- **✅ Production Stability**: Motion detection system now runs error-free with proper variable scoping
+- **✅ Flexible Object Naming**: Detection areas automatically matched regardless of Blender naming variations
+- **✅ Real-time Triangle Detection**: Point-in-triangle algorithm uses actual mesh vertices instead of fallback coordinates
+- **✅ Code Synchronization**: Both AppData and Desktop addon versions updated with consistent fixes
+
+### 🔧  CASAS Dataset Integration (September 4, 2025)**
 
 ### 🎯 CASAS Dataset Integration Complete
 - **✅ Human Activity Pattern Analysis**: Full integration with CASAS smart home dataset
@@ -107,6 +119,8 @@ VESPER LLM Production System
 
 ## 🚀 Quick Start Guide
 
+> **✅ Latest Status (September 9, 2025)**: All motion detection system errors have been resolved. The system now runs with stable triangle-based detection and proper error handling.
+
 ### Prerequisites
 - **Blender 4.0+** or **UPBGE 0.4+** (for 3D navigation)
 - **Docker & Docker Compose** (for smart home testbed)
@@ -155,6 +169,11 @@ echo "LLM_MODEL=gemma-3-27b" >> backend/app/llm/.env
 # Run the setup script (creates Actor and BirdEyeCamera)
 # Load blender/llm_bge_navigation.py in Text Editor
 # Press P to start AI navigation!
+
+# ✅ Motion detection now runs error-free with:
+# - Real triangle coordinate extraction from detection areas
+# - Flexible naming support (handles .001 suffixes automatically)
+# - Stable actor position tracking without variable errors
 ```
 
 ### 4. Deploy Smart Home Testbed
@@ -991,7 +1010,7 @@ docker exec motion1-motion-sensor-VSM-DD46-1B1E-3C97 python -c "import requests;
   title={VESPER LLM: AI-Powered 3D Navigation and Smart Home Research Platform},
   author={Your Name},
   year={2025},
-  version={3.0.0},
+  version={3.1.1},
   url={https://github.com/huuhuannt1998/vesper_llm},
   note={Complete system for VLM evaluation, smart home simulation, and human activity pattern analysis}
 }
@@ -1044,7 +1063,7 @@ docker exec motion1-motion-sensor-VSM-DD46-1B1E-3C97 python -c "import requests;
 
 ---
 
-**VESPER LLM v3.0.0** - Complete Production System for AI Research 🤖🏠🔬✨
+**VESPER LLM v3.1.1** - Complete Production System for AI Research 🤖🏠🔬✨
 
 *Built for researchers, developers, and innovators advancing the state-of-the-art in embodied AI, smart home automation, and human activity pattern analysis.*
 

@@ -1,0 +1,64 @@
+{
+  "session_id": "20250909_184729",
+  "start_time": 1757458049.550208,
+  "tasks_completed": 0,
+  "tasks_failed": 0,
+  "total_steps": 1,
+  "total_screenshots": 1,
+  "total_llm_calls": 1,
+  "task_details": [
+    {
+      "task_name": "1. **t1: Make a phone call**",
+      "task_index": 0,
+      "start_time": 1757458055.7325673,
+      "start_position": null,
+      "end_position": null,
+      "completion_time": null,
+      "steps_taken": 1,
+      "screenshots_captured": 1,
+      "llm_calls": 1,
+      "success": false,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "LEFT",
+          "from_position": [
+            -2.04,
+            -0.58
+          ],
+          "to_position": [
+            -2.04,
+            -0.58
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1757458059.2343316
+        }
+      ],
+      "room_detections": [
+        {
+          "step": 1,
+          "room": "LIVING_ROOM",
+          "position": [
+            -2.04,
+            -0.58
+          ]
+        }
+      ],
+      "vlm_responses": [
+        {
+          "call_number": 1,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa"
+          ],
+          "task_complete": false,
+          "response_length": 255,
+          "response_time": 3.477412462234497,
+          "timeout": false,
+          "timestamp": 1757458059.2169933
+        }
+      ]
+    }
+  ]
+}
