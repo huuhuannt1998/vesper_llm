@@ -5,6 +5,25 @@ import sys
 import json
 import time
 
+# Import enhanced VLM extensions
+try:
+    from enhanced_vlm_extensions import (
+        get_enhanced_vlm_manager, 
+        get_casas_subtask_manager,
+        EnhancedVLMManager,
+        CASASSubtaskManager
+    )
+    from first_person_camera import (
+        get_first_person_camera,
+        get_multimodal_vlm_context,
+        initialize_first_person_system
+    )
+    ENHANCED_VLM_AVAILABLE = True
+    print("� Enhanced VLM extensions loaded successfully")
+except ImportError as e:
+    ENHANCED_VLM_AVAILABLE = False
+    print(f"⚠️ Enhanced VLM features not available: {e}")
+
 def setup_python_path():
     """Setup path to access LLM client"""
     try:
@@ -184,19 +203,19 @@ class VESPERMetricsLogger:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         self.log_file = os.path.join(self.log_dir, f"vesper_navigation_log_{timestamp}.json")
         
-        # Initialize metrics tracking
-        self.session_data = {
-            "session_id": timestamp,
-            "start_time": self.session_start_time,
-            "tasks_completed": 0,
-            "tasks_failed": 0,
-            "total_steps": 0,
-            "total_screenshots": 0,
-            "total_llm_calls": 0,
-            "task_details": []
-        }
-        
-        # Current task tracking
+    # Initialize metrics tracking
+    self.session_data = {
+        "session_id": timestamp,
+        "start_time": self.session_start_time,
+        "tasks_completed": 0,
+        "tasks_failed": 0,
+        "total_steps": 0,
+        "total_screenshots": 0,
+        "total_llm_calls": 0,
+        "total_device_interactions": 0,  # Track virtual device interactions
+        "total_subtasks_completed": 0,   # Track CASAS subtask completion
+        "task_details": []
+    }        # Current task tracking
         self.current_task_data = None
         
         print(f"📊 VESPER: Metrics logging initialized - {self.log_file}")
@@ -357,6 +376,39 @@ def get_metrics_logger():
     if metrics_logger is None:
         metrics_logger = VESPERMetricsLogger()
     return metrics_logger
+
+# Initialize enhanced VLM managers
+enhanced_vlm_manager = None
+casas_subtask_manager = None
+first_person_camera = None
+multimodal_vlm_context = None
+
+def get_enhanced_managers():
+    """Get or create enhanced VLM managers"""
+    global enhanced_vlm_manager, casas_subtask_manager, first_person_camera, multimodal_vlm_context
+    
+    if ENHANCED_VLM_AVAILABLE and enhanced_vlm_manager is None:
+        try:
+            enhanced_vlm_manager = get_enhanced_vlm_manager()
+            casas_subtask_manager = get_casas_subtask_manager()
+            
+            # Initialize first-person system
+            if initialize_first_person_system():
+                first_person_camera = get_first_person_camera()
+                multimodal_vlm_context = get_multimodal_vlm_context()
+                print("🎥 Enhanced VLM system initialized")
+            else:
+                print("⚠️ First-person system initialization failed")
+                
+        except Exception as e:
+            print(f"❌ Enhanced VLM initialization failed: {e}")
+    
+    return {
+        "vlm_manager": enhanced_vlm_manager,
+        "subtask_manager": casas_subtask_manager,
+        "first_person_camera": first_person_camera,
+        "multimodal_context": multimodal_vlm_context
+    }
 
 # =============================
 # Screenshot helpers (non-blocking)
@@ -628,6 +680,76 @@ def parse_vlm_response(response, current_task=None):
                         result["movement_sequence"] = ["UP"]  # Try moving to find correct room
                 else:
                     print(f"✅ BGE: SERVER VALIDATION PASSED - Task '{current_task}' matches room '{current_room}'")
+                    
+                    # ENHANCED: Handle device interactions when task is validated
+                    managers = get_enhanced_managers()
+                    enhanced_vlm_manager = managers.get("vlm_manager")
+                    casas_subtask_manager = managers.get("subtask_manager")
+                    
+                    if enhanced_vlm_manager and casas_subtask_manager:
+                        # Check for device interaction suggestions in the reasoning
+                        reasoning = result.get("reasoning", "")
+                        
+                        # Process device interactions based on task and room
+                        scene = bge.logic.getCurrentScene()
+                        actor = scene.objects.get("Actor")
+                        
+                        if actor:
+                            actor_position = (actor.worldPosition.x, actor.worldPosition.y, actor.worldPosition.z)
+                            
+                            # Determine which devices to interact with based on task
+                            device_interactions = []
+                            
+                            if "kitchen" in current_task.lower():
+                                if "cook" in current_task.lower():
+                                    device_interactions = ["water_control", "stove_burner"]
+                                elif "wash" in current_task.lower():
+                                    device_interactions = ["water_control"]
+                                device_interactions.append("kitchen_light_switch")
+                                
+                            elif "phone" in current_task.lower() and current_room == "DININGROOM":
+                                device_interactions = ["phone", "dining_light_switch"]
+                            
+                            # Execute device interactions
+                            for device_id in device_interactions:
+                                if device_id in enhanced_vlm_manager.devices:
+                                    interaction_type = "turn_on" if "switch" in device_id or "control" in device_id else "pickup"
+                                    if device_id == "phone":
+                                        interaction_type = "pickup"
+                                    elif device_id == "water_control":
+                                        interaction_type = "turn_on_hot"
+                                    elif device_id == "stove_burner":
+                                        interaction_type = "turn_on"
+                                    elif "light_switch" in device_id:
+                                        interaction_type = "toggle"
+                                    
+                                    interaction_result = enhanced_vlm_manager.interact_with_device(
+                                        device_id, interaction_type, actor_position
+                                    )
+                                    
+                                    if interaction_result.get("success"):
+                                        print(f"🎮 Device interaction successful: {device_id}")
+                                        
+                                        # Mark checkpoint as completed
+                                        checkpoint_id = f"interact_with_{device_id}"
+                                        casas_subtask_manager.complete_checkpoint(checkpoint_id)
+                                    else:
+                                        print(f"❌ Device interaction failed: {device_id}")
+                            
+                            # Check if current subtask can be completed
+                            if casas_subtask_manager.check_subtask_completion():
+                                casas_subtask_manager.advance_subtask()
+                                
+                                # Check if entire task is complete
+                                next_subtask = casas_subtask_manager.get_current_subtask()
+                                if not next_subtask:
+                                    print("🎉 All CASAS subtasks completed!")
+                                    result["casas_task_complete"] = True
+                                else:
+                                    print(f"📋 Advanced to next subtask: {next_subtask['description']}")
+                                    result["casas_task_complete"] = False
+                else:
+                    print(f"✅ BGE: SERVER VALIDATION PASSED - Task '{current_task}' matches room '{current_room}'")
             
             print(f"🏠 BGE: Current room identified: {current_room}")
             print(f"🪑 BGE: Furniture visible: {furniture_visible}")
@@ -800,6 +922,121 @@ def vision_only_completion(prompt, image_path):
                 raise Exception("❌ VLM returned insufficient response")
                 
             return result, response_time, timeout_occurred
+
+def multimodal_vision_completion(prompt, bird_eye_path, first_person_path):
+    """Multi-modal vision completion with both bird-eye and first-person views"""
+    import os
+    import base64
+    
+    if not os.path.exists(bird_eye_path):
+        raise Exception(f"❌ Bird-eye image file not found: {bird_eye_path}")
+    if not os.path.exists(first_person_path):
+        raise Exception(f"❌ First-person image file not found: {first_person_path}")
+    
+    start_time = time.time()
+    timeout_occurred = False
+    
+    try:
+        # Import required variables
+        from backend.app.llm.client import client, HOST, MODEL
+        
+        print(f"🔍 DEBUG: MULTI-MODAL completion with HOST='{HOST}', MODEL='{MODEL}'")
+        
+        # Prepare both images for Ollama
+        with open(bird_eye_path, "rb") as img_file:
+            bird_eye_data = base64.b64encode(img_file.read()).decode('utf-8')
+        
+        with open(first_person_path, "rb") as img_file:
+            first_person_data = base64.b64encode(img_file.read()).decode('utf-8')
+        
+        # Enhanced prompt for dual-image analysis
+        multimodal_prompt = f"""🎥 DUAL-VIEW VISUAL ANALYSIS:
+
+IMAGE 1 - BIRD-EYE VIEW: Top-down navigation view showing:
+- Pink dot = actor position
+- Room layout and furniture placement
+- Navigation paths and obstacles
+- Overall spatial relationships
+
+IMAGE 2 - FIRST-PERSON VIEW: Actor's eye-level perspective showing:
+- Immediate surroundings and furniture details
+- Room identification features (appliances, furniture types)
+- Obstacles and interaction opportunities
+- Direct visual context of current location
+
+{prompt}
+
+🔍 ANALYSIS WORKFLOW:
+1. Examine BIRD-EYE view to locate pink dot and understand spatial position
+2. Examine FIRST-PERSON view to identify room type and immediate obstacles
+3. Cross-reference both views to confirm room identification
+4. Use BIRD-EYE for navigation planning and FIRST-PERSON for obstacle detection
+5. Make navigation decision based on combined visual information
+
+🚨 RESPOND WITH JSON ONLY - Base analysis on BOTH visual perspectives!"""
+
+        print(f"🔍 DEBUG: Sending MULTI-MODAL request with 2 images...")
+        
+        # Windows-compatible timeout handling
+        import threading
+        import queue
+        
+        result_queue = queue.Queue()
+        timeout_occurred = False
+        
+        def llm_call():
+            try:
+                response = client.chat(
+                    model=MODEL,
+                    messages=[
+                        {
+                            'role': 'user',
+                            'content': multimodal_prompt,
+                            'images': [bird_eye_data, first_person_data]  # Both images
+                        }
+                    ],
+                    options={'temperature': 0.3}
+                )
+                result_queue.put(('success', response))
+            except Exception as e:
+                result_queue.put(('error', e))
+        
+        # Start LLM call in separate thread
+        llm_thread = threading.Thread(target=llm_call)
+        llm_thread.daemon = True
+        llm_thread.start()
+        
+        # Wait for result with timeout
+        try:
+            result_type, result_data = result_queue.get(timeout=200)  # Longer timeout for dual images
+            
+            if result_type == 'error':
+                raise result_data
+            
+            response = result_data
+            
+            response_time = time.time() - start_time
+            result = response['message']['content'].strip()
+            print(f"🔍 DEBUG: MULTI-MODAL completion successful, response length: {len(result)}, time: {response_time:.1f}s")
+            
+        except queue.Empty:
+            timeout_occurred = True
+            response_time = time.time() - start_time
+            print(f"⏰ DEBUG: MULTI-MODAL completion timeout after {response_time:.1f}s")
+            
+            # Fallback to bird-eye only
+            print("🔄 DEBUG: Falling back to bird-eye only analysis...")
+            return vision_only_completion(prompt, bird_eye_path)
+        
+    except Exception as e:
+        response_time = time.time() - start_time
+        print(f"❌ DEBUG: MULTI-MODAL completion error after {response_time:.1f}s: {e}")
+        
+        # Fallback to bird-eye only
+        print("🔄 DEBUG: Falling back to bird-eye only analysis...")
+        return vision_only_completion(prompt, bird_eye_path)
+    
+    return result, response_time, timeout_occurred
             
         except queue.Empty:
             # Timeout occurred
@@ -1125,6 +1362,114 @@ JSON Response (REQUIRED FORMAT):
 
 Movement options: "UP", "DOWN", "LEFT", "RIGHT", "STAY" ONLY (use ONE direction when unclear!)'''
 
+    # ENHANCED: Get enhanced VLM managers for device interactions and subtasks
+    managers = get_enhanced_managers()
+    enhanced_vlm_manager = managers.get("vlm_manager")
+    casas_subtask_manager = managers.get("subtask_manager")
+    first_person_camera = managers.get("first_person_camera")
+    multimodal_context = managers.get("multimodal_context")
+    
+    # Initialize CASAS task if enhanced VLM is available
+    task_context = ""
+    device_prompts = ""
+    if enhanced_vlm_manager and casas_subtask_manager:
+        # Start CASAS task tracking
+        if not casas_subtask_manager.current_task:
+            casas_subtask_manager.start_task(current_task)
+        
+        # Get current subtask information
+        current_subtask = casas_subtask_manager.get_current_subtask()
+        task_progress = casas_subtask_manager.get_task_progress()
+        
+        if current_subtask:
+            task_context = f"""
+🎯 CASAS SUBTASK TRACKING:
+   Current Task: {task_progress['task']}
+   Subtask {task_progress['subtask_index'] + 1}/{task_progress['total_subtasks']}: {current_subtask['description']}
+   Required Checkpoints: {current_subtask.get('checkpoints', [])}
+   Completed Checkpoints: {task_progress['completed_checkpoints']}
+   Progress: {task_progress['progress_percentage']:.1f}%
+   Estimated Time Remaining: {task_progress['estimated_remaining_time']}s
+"""
+        
+        # Get room-specific device interaction prompts
+        if actor:
+            # Determine current room for device interactions
+            x, y = actor.worldPosition.x, actor.worldPosition.y
+            current_room = "Unknown"
+            
+            if x < -2.0 and y > 1.0:
+                current_room = "Kitchen"
+            elif x > -1.0 and y > 1.0:
+                current_room = "DiningRoom"
+            elif x < 0 and y < 1.0:
+                current_room = "LivingRoom"
+            elif x > 0 and y < 1.0:
+                current_room = "Bedroom"
+            
+            device_prompts = enhanced_vlm_manager.get_interaction_prompts_for_room(current_room)
+    
+    # Enhanced multi-modal vision context (if available)
+    multimodal_visual_context = ""
+    first_person_screenshot_path = None
+    
+    if multimodal_context and first_person_camera:
+        try:
+            # Get actor orientation for first-person view
+            actor_orientation = (0.0, 0.0, 0.0)  # Default
+            if actor:
+                # Convert BGE orientation to tuple
+                orientation_matrix = actor.worldOrientation
+                actor_orientation = orientation_matrix.to_euler()
+                actor_orientation = (actor_orientation.x, actor_orientation.y, actor_orientation.z)
+            
+            # Request first-person screenshot (follows bird-eye pattern)
+            actor_pos = (actor.worldPosition.x, actor.worldPosition.y, actor.worldPosition.z) if actor else (0, 0, 0)
+            
+            # Request first-person screenshot using the same pattern as bird-eye
+            from first_person_camera import request_multimodal_navigation_screenshots
+            multimodal_capture = request_multimodal_navigation_screenshots(actor_pos, actor_orientation)
+            
+            if multimodal_capture.get("first_person_path"):
+                # Poll for first-person screenshot to be ready
+                from first_person_camera import poll_multimodal_navigation_ready
+                ready_status = poll_multimodal_navigation_ready(multimodal_capture, timeout_s=8.0)
+                
+                if ready_status.get("first_person_ready") and ready_status.get("first_person_path"):
+                    first_person_screenshot_path = ready_status["first_person_path"]
+                    print(f"✅ First-person screenshot ready: {os.path.basename(first_person_screenshot_path)}")
+                    
+                    multimodal_visual_context = f"""
+🎥 ENHANCED MULTI-MODAL VISUAL ANALYSIS:
+   • First-person view: Available at actor's eye level ({actor_pos[2] + 1.8:.1f}m height)
+   • Bird-eye view: Available from overhead perspective (runtime screenshot)
+   • Reference layout: House layout with room labels for spatial understanding
+   
+📍 VISUAL PERSPECTIVE COMBINATION:
+   Actor Position: {actor_pos}
+   Actor Orientation: {actor_orientation}
+   
+🔍 DUAL-VIEW ANALYSIS INSTRUCTIONS:
+   1. Use FIRST-PERSON view to identify immediate obstacles, furniture, and room details
+   2. Use BIRD-EYE view (pink dot) to understand spatial position and navigation options
+   3. Combine both views for comprehensive spatial awareness and obstacle avoidance
+   4. First-person shows what actor can actually see and interact with
+   5. Bird-eye shows overall position and movement possibilities
+   
+💡 NAVIGATION ADVANTAGE:
+   - First-person: Detailed room identification, obstacle detection, device visibility
+   - Bird-eye: Spatial relationships, room transitions, position tracking
+   - Combined: Optimal navigation decisions with full environmental awareness
+"""
+                else:
+                    print("⚠️ First-person screenshot not ready, using bird-eye only")
+            else:
+                print("⚠️ First-person screenshot request failed, using bird-eye only")
+                
+        except Exception as e:
+            print(f"⚠️ Multi-modal context generation failed: {e}")
+            multimodal_visual_context = ""
+    
     # ENHANCED: Use IMAGES ONLY - no text fallback
     if has_reference:
         print("🔍 BGE: IMAGES-ONLY Analysis - Using runtime screenshot with reference context...")
@@ -1137,6 +1482,12 @@ Movement options: "UP", "DOWN", "LEFT", "RIGHT", "STAY" ONLY (use ONE direction 
 - BATHROOM: Contains toilet, bathtub, sink (typically smaller rooms, often upstairs)
 - OFFICE: Contains desk, computer, office chair (if present)
 - GARAGE: Contains car, tools, garage door (if present)
+
+{multimodal_visual_context}
+
+{task_context}
+
+{device_prompts}
 
 NAVIGATION HINTS FOR TASK "{current_task}":
 🏠 House Layout: Kitchen is typically LEFT or UP from living room center
@@ -1158,7 +1509,13 @@ CRITICAL: Use the runtime image to:
 3. Match furniture to room type
 4. Check for clear movement paths (avoid furniture/walls)
 5. Stay inside house boundaries (walls/ceiling visible)
-6. Make SAFE navigation decision avoiding obstacles
+6. Consider device interactions if in correct room for task
+7. Make SAFE navigation decision avoiding obstacles
+
+🎮 ENHANCED FEATURES:
+- Device Interaction: If in correct room, consider interacting with relevant devices
+- Subtask Progress: Track completion of task components and checkpoints
+- Multi-Modal Analysis: Use all available visual perspectives for navigation
 
 🚨 RESPOND WITH JSON ONLY - NO EXPLANATORY TEXT OUTSIDE JSON!
 🚨 FORMAT: {{"current_room": "ROOM", "furniture_visible": ["items"], "task_complete": false, "movement_sequence": ["DIRECTION"], "reasoning": "brief analysis"}}
@@ -1166,9 +1523,18 @@ CRITICAL: Use the runtime image to:
 IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtime image."""
 
         print("🔍 BGE: Analyzing runtime image with enhanced layout context...")
-        response, response_time, timeout_occurred = vision_only_completion(enhanced_prompt, screenshot_path)
         
-        print("✅ BGE: Images-only analysis completed successfully")
+        # ENHANCED: Use multi-modal analysis if first-person view is available
+        if first_person_screenshot_path and os.path.exists(first_person_screenshot_path):
+            print("🎥 BGE: Using DUAL-VIEW analysis (first-person + bird-eye)")
+            response, response_time, timeout_occurred = multimodal_vision_completion(
+                enhanced_prompt, screenshot_path, first_person_screenshot_path
+            )
+        else:
+            print("🐦 BGE: Using single bird-eye view analysis")
+            response, response_time, timeout_occurred = vision_only_completion(enhanced_prompt, screenshot_path)
+        
+        print("✅ BGE: Enhanced visual analysis completed successfully")
     else:
         # Standard single-image analysis
         print("🔍 BGE: Standard images-only analysis...")

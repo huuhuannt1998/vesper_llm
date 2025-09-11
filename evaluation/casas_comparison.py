@@ -248,54 +248,76 @@ class CASASComparator:
         
         return report_file
     
-    def create_visualization(self, results: List[Dict[str, Any]]) -> str:
-        """Create visualization plots for comparison results"""
+    def create_visualization(self, results: List[Dict[str, Any]]) -> List[str]:
+        """Create individual visualization plots for comparison results"""
         # Extract similarity scores
         scores_df = pd.DataFrame([r['similarity_scores'] for r in results])
-        
-        # Create figure with subplots
-        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-        fig.suptitle('VLM vs CASAS Dataset Comparison Analysis', fontsize=16)
+        plot_files = []
         
         # 1. Overall similarity distribution
-        axes[0, 0].hist(scores_df['overall_similarity'], bins=20, alpha=0.7, color='skyblue')
-        axes[0, 0].set_title('Overall Similarity Score Distribution')
-        axes[0, 0].set_xlabel('Similarity Score')
-        axes[0, 0].set_ylabel('Frequency')
+        plt.figure(figsize=(8, 6))
+        plt.hist(scores_df['overall_similarity'], bins=20, alpha=0.7, color='skyblue')
+        plt.title('Overall Similarity Score Distribution', fontsize=14, fontweight='bold')
+        plt.xlabel('Similarity Score')
+        plt.ylabel('Frequency')
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plot_file_1 = os.path.join(self.output_dir, "similarity_distribution.png")
+        plt.savefig(plot_file_1, dpi=300, bbox_inches='tight')
+        plt.close()
+        plot_files.append(plot_file_1)
         
         # 2. Similarity metrics comparison
+        plt.figure(figsize=(10, 6))
         metrics = ['temporal_similarity', 'event_count_similarity', 'sensor_similarity', 'transition_similarity']
         metric_means = [scores_df[m].mean() for m in metrics]
-        axes[0, 1].bar(range(len(metrics)), metric_means, color=['red', 'green', 'blue', 'orange'])
-        axes[0, 1].set_title('Average Similarity by Metric')
-        axes[0, 1].set_xlabel('Metrics')
-        axes[0, 1].set_ylabel('Average Score')
-        axes[0, 1].set_xticks(range(len(metrics)))
-        axes[0, 1].set_xticklabels([m.replace('_', '\n') for m in metrics], rotation=45)
+        bars = plt.bar(range(len(metrics)), metric_means, color=['red', 'green', 'blue', 'orange'])
+        plt.title('Average Similarity by Metric', fontsize=14, fontweight='bold')
+        plt.xlabel('Metrics')
+        plt.ylabel('Average Score')
+        plt.xticks(range(len(metrics)), [m.replace('_', '\n') for m in metrics])
+        plt.grid(True, alpha=0.3)
+        # Add value labels on bars
+        for bar, value in zip(bars, metric_means):
+            plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01, 
+                    f'{value:.3f}', ha='center', va='bottom')
+        plt.tight_layout()
+        plot_file_2 = os.path.join(self.output_dir, "metric_comparison.png")
+        plt.savefig(plot_file_2, dpi=300, bbox_inches='tight')
+        plt.close()
+        plot_files.append(plot_file_2)
         
         # 3. Feature comparison scatter
+        plt.figure(figsize=(8, 8))
         event_counts_vlm = [r['vlm_features']['event_count'] for r in results]
         event_counts_casas = [r['casas_features']['event_count'] for r in results]
-        axes[1, 0].scatter(event_counts_casas, event_counts_vlm, alpha=0.6)
-        axes[1, 0].plot([0, max(max(event_counts_casas), max(event_counts_vlm))], 
-                       [0, max(max(event_counts_casas), max(event_counts_vlm))], 'r--')
-        axes[1, 0].set_title('Event Count: VLM vs CASAS')
-        axes[1, 0].set_xlabel('CASAS Event Count')
-        axes[1, 0].set_ylabel('VLM Event Count')
+        plt.scatter(event_counts_casas, event_counts_vlm, alpha=0.6, s=50)
+        max_count = max(max(event_counts_casas), max(event_counts_vlm))
+        plt.plot([0, max_count], [0, max_count], 'r--', label='Perfect Agreement')
+        plt.title('Event Count: VLM vs CASAS', fontsize=14, fontweight='bold')
+        plt.xlabel('CASAS Event Count')
+        plt.ylabel('VLM Event Count')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plot_file_3 = os.path.join(self.output_dir, "event_count_scatter.png")
+        plt.savefig(plot_file_3, dpi=300, bbox_inches='tight')
+        plt.close()
+        plot_files.append(plot_file_3)
         
         # 4. Correlation heatmap
+        plt.figure(figsize=(10, 8))
         correlation_matrix = scores_df[metrics].corr()
-        sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0, ax=axes[1, 1])
-        axes[1, 1].set_title('Similarity Metrics Correlation')
-        
+        sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0, 
+                   square=True, cbar_kws={'label': 'Correlation Coefficient'})
+        plt.title('Similarity Metrics Correlation', fontsize=14, fontweight='bold')
         plt.tight_layout()
-        
-        # Save plot
-        plot_file = os.path.join(self.output_dir, "comparison_analysis.png")
-        plt.savefig(plot_file, dpi=300, bbox_inches='tight')
+        plot_file_4 = os.path.join(self.output_dir, "correlation_heatmap.png")
+        plt.savefig(plot_file_4, dpi=300, bbox_inches='tight')
         plt.close()
+        plot_files.append(plot_file_4)
         
-        return plot_file
+        return plot_files
 
 
 def main():
@@ -317,12 +339,14 @@ def main():
         report_file = comparator.generate_comparison_report(results)
         
         # Create visualizations
-        plot_file = comparator.create_visualization(results)
+        plot_files = comparator.create_visualization(results)
         
         print(f"\nComparison complete!")
         print(f"Results: {len(results)} comparisons")
         print(f"Report: {report_file}")
-        print(f"Visualizations: {plot_file}")
+        print(f"Visualizations: {len(plot_files)} files generated")
+        for i, plot_file in enumerate(plot_files, 1):
+            print(f"  {i}. {os.path.basename(plot_file)}")
     else:
         print("No comparison results generated. Check data availability.")
 

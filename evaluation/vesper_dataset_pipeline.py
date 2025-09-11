@@ -76,7 +76,7 @@ class VESPERDatasetPipeline:
         if results:
             # Generate report and visualizations
             report_file = comparator.generate_comparison_report(results)
-            plot_file = comparator.create_visualization(results)
+            plot_files = comparator.create_visualization(results)
             
             # Calculate summary statistics
             similarity_scores = [r['similarity_scores']['overall_similarity'] for r in results]
@@ -87,7 +87,7 @@ class VESPERDatasetPipeline:
                 'best_similarity': max(similarity_scores),
                 'worst_similarity': min(similarity_scores),
                 'report_file': report_file,
-                'visualization_file': plot_file,
+                'visualization_files': plot_files,
                 'output_directory': str(self.comparison_results_dir)
             }
             
@@ -124,7 +124,14 @@ class VESPERDatasetPipeline:
                 
                 f.write("### Analysis Files Generated\n\n")
                 f.write(f"- **Detailed Report:** `{os.path.basename(analysis_stats.get('report_file', ''))}`\n")
-                f.write(f"- **Visualizations:** `{os.path.basename(analysis_stats.get('visualization_file', ''))}`\n\n")
+                
+                # List all visualization files
+                viz_files = analysis_stats.get('visualization_files', [])
+                if viz_files:
+                    f.write("- **Visualizations:**\n")
+                    for viz_file in viz_files:
+                        f.write(f"  - `{os.path.basename(viz_file)}`\n")
+                f.write("\n")
             
             # Research Implications
             f.write("## Research Implications\n\n")

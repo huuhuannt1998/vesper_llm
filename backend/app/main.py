@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.routers import tasks, devices, sim, decide, blender
+from backend.app.routers import tasks, devices, sim, decide, blender, mcp
 from backend.app.routers import llm as llm_router
 
-app = FastAPI(title="VESPER Backend (LLM Integrated)")
+app = FastAPI(title="VESPER Backend (LLM Integrated with MCP)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,8 +18,9 @@ app.include_router(devices.router, prefix="/devices", tags=["devices"])
 app.include_router(sim.router, prefix="/sim", tags=["sim"])
 app.include_router(decide.router, prefix="/decider", tags=["decider"])
 app.include_router(blender.router, prefix="/blender", tags=["blender"])
+app.include_router(mcp.router, prefix="/mcp", tags=["mcp"])  # New MCP tools
 app.include_router(llm_router.router, prefix="/", tags=["llm"])  # /llm/health, /llm/test
 
 @app.get("/")
 def root():
-    return {"ok": True, "service": "vesper-backend-llm"}
+    return {"ok": True, "service": "vesper-backend-llm-mcp", "mcp_enabled": True}
