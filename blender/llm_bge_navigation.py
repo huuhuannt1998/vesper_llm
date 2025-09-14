@@ -24,6 +24,25 @@ except ImportError as e:
     ENHANCED_VLM_AVAILABLE = False
     print(f"⚠️ Enhanced VLM features not available: {e}")
 
+# Import MCP Integration for BGE
+try:
+    from bge_mcp_integration import (
+        initialize_mcp_for_bge,
+        get_enhanced_context_for_navigation,
+        capture_scene_images,
+        get_navigation_context,
+        execute_navigation_action,
+        create_llm_prompt_for_task,
+        execute_llm_tool_suggestion,
+        check_mcp_services_status,
+        get_mcp_integration_info
+    )
+    MCP_INTEGRATION_AVAILABLE = True
+    print("✅ MCP integration loaded for BGE")
+except ImportError as e:
+    MCP_INTEGRATION_AVAILABLE = False
+    print(f"⚠️ MCP integration not available: {e}")
+
 def setup_python_path():
     """Setup path to access LLM client"""
     try:
@@ -1557,77 +1576,150 @@ IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtim
     return result
 
 # =============================
-# Movement
+# Enhanced Movement System with Realistic Turning
 # =============================
-def move_actor(actor, direction, step_size=0.3):
-    """Move actor in BGE coordinate system with safety boundaries"""
-    if direction == "STAY":
-        print("🛑 BGE: Actor staying - task complete!")
-        return True
 
+def get_actor_forward_direction(actor):
+    """Get the actor's current forward direction vector"""
+    # Get the actor's orientation matrix
+    orientation = actor.worldOrientation
+    # In Blender, the Y-axis points forward in local coordinates
+    forward_vector = orientation.col[1]  # Y column is forward
+    return forward_vector
+
+def get_actor_heading_angle(actor):
+    """Get the actor's heading angle in degrees (0° = North, 90° = East, etc.)"""
+    forward_vector = get_actor_forward_direction(actor)
+    import math
+    # Calculate angle from forward vector
+    angle_rad = math.atan2(forward_vector.x, forward_vector.y)
+    angle_deg = math.degrees(angle_rad)
+    # Normalize to 0-360 degrees
+    if angle_deg < 0:
+        angle_deg += 360
+    return angle_deg
+
+def set_actor_heading_angle(actor, target_angle_deg):
+    """Set the actor's heading to a specific angle"""
+    import math
+    
+    # Convert angle to radians
+    target_angle_rad = math.radians(target_angle_deg)
+    
+    # Create rotation matrix for Z-axis rotation (yaw)
+    cos_angle = math.cos(target_angle_rad)
+    sin_angle = math.sin(target_angle_rad)
+    
+    # Set the actor's orientation matrix
+    # In Blender BGE, orientation matrix columns represent [right, forward, up]
+    orientation = actor.worldOrientation
+    
+    # Set forward direction (Y column)
+    orientation.col[1] = [sin_angle, cos_angle, 0]
+    # Set right direction (X column) 
+    orientation.col[0] = [cos_angle, -sin_angle, 0]
+    # Keep up direction (Z column) unchanged
+    orientation.col[2] = [0, 0, 1]
+    
+    actor.worldOrientation = orientation
+    print(f"🧭 BGE: Actor heading set to {target_angle_deg:.1f}°")
+
+def turn_actor_degrees(actor, degrees):
+    """Turn the actor by a specific number of degrees (positive = clockwise)"""
+    current_angle = get_actor_heading_angle(actor)
+    target_angle = (current_angle + degrees) % 360
+    set_actor_heading_angle(actor, target_angle)
+    print(f"🔄 BGE: Turned {degrees}° from {current_angle:.1f}° to {target_angle:.1f}°")
+
+def move_actor_forward(actor, distance=0.3):
+    """Move the actor forward in the direction they're facing"""
+    forward_vector = get_actor_forward_direction(actor)
     current_pos = actor.worldPosition.copy()
-    print(f"🔍 BGE: Before move - Actor at [{current_pos.x:.2f}, {current_pos.y:.2f}]")
     
-    # Calculate proposed new position
-    proposed_pos = current_pos.copy()
-    if direction == "UP":
-        proposed_pos.y += step_size
-    elif direction == "DOWN":
-        proposed_pos.y -= step_size
-    elif direction == "LEFT":
-        proposed_pos.x -= step_size
-    elif direction == "RIGHT":
-        proposed_pos.x += step_size
+    # Calculate new position
+    new_pos = current_pos + forward_vector * distance
     
-    # CRITICAL: Enhanced house boundary enforcement to prevent actor from leaving
-    # Based on log analysis, safe house boundaries with safety margin:
+    # Apply boundary checks
     HOUSE_BOUNDS = {
-        'x_min': -5.5,   # Left boundary (tighter than -6.0)
-        'x_max': 1.5,    # Right boundary (tighter than 2.0)
-        'y_min': -0.5,   # Bottom boundary (tighter than -1.0)
-        'y_max': 5.5     # Top boundary (tighter than 6.0)
+        'x_min': -5.5, 'x_max': 1.5,
+        'y_min': -0.5, 'y_max': 5.5
     }
     
-    # Check if proposed move would leave house boundaries
-    if (proposed_pos.x < HOUSE_BOUNDS['x_min'] or proposed_pos.x > HOUSE_BOUNDS['x_max'] or
-        proposed_pos.y < HOUSE_BOUNDS['y_min'] or proposed_pos.y > HOUSE_BOUNDS['y_max']):
+    # Check boundaries
+    if (new_pos.x < HOUSE_BOUNDS['x_min'] or new_pos.x > HOUSE_BOUNDS['x_max'] or
+        new_pos.y < HOUSE_BOUNDS['y_min'] or new_pos.y > HOUSE_BOUNDS['y_max']):
+        print(f"🚨 BGE: Forward movement blocked by boundary")
+        return False
+    
+    # Apply movement
+    actor.worldPosition = new_pos
+    print(f"🚶 BGE: Moved forward {distance:.2f}m to [{new_pos.x:.2f}, {new_pos.y:.2f}]")
+    return True
+
+def execute_enhanced_movement(actor, action):
+    """
+    Execute enhanced movement with realistic turning and forward motion
+    
+    Actions:
+    - TURN_LEFT: Turn 90° left, then move forward
+    - TURN_RIGHT: Turn 90° right, then move forward  
+    - FORWARD: Move forward in current direction
+    - BACKWARD: Move backward in current direction
+    - STAY: Stay in place
+    """
+    if action == "STAY":
+        print("🛑 BGE: Actor staying - task complete!")
+        return True
+    
+    print(f"🎮 BGE: Executing enhanced movement: {action}")
+    
+    if action == "TURN_LEFT":
+        # Turn 90 degrees counter-clockwise (left)
+        turn_actor_degrees(actor, -90)
+        # Then move forward
+        return move_actor_forward(actor)
         
-        print(f"🚨 BGE: BOUNDARY VIOLATION PREVENTED!")
-        print(f"   Proposed position: [{proposed_pos.x:.2f}, {proposed_pos.y:.2f}]")
-        print(f"   House bounds: X({HOUSE_BOUNDS['x_min']} to {HOUSE_BOUNDS['x_max']}), Y({HOUSE_BOUNDS['y_min']} to {HOUSE_BOUNDS['y_max']})")
-        print(f"   🛑 Movement {direction} BLOCKED - staying in current position")
-        return False  # Movement blocked
-    
-    # Apply the safe movement
-    actor.worldPosition = proposed_pos
-    new_pos = actor.worldPosition
-    print(f"🎮 Moved {direction} → [{new_pos.x:.2f}, {new_pos.y:.2f}]")
-    
-    # Track position history for collision detection
-    if not hasattr(bge.logic, 'position_history'):
-        bge.logic.position_history = []
-    
-    bge.logic.position_history.append([new_pos.x, new_pos.y])
-    if len(bge.logic.position_history) > 10:  # Keep last 10 positions
-        bge.logic.position_history.pop(0)
-    
-    # Detect rapid position changes (possible furniture clipping)
-    if len(bge.logic.position_history) >= 2:
-        prev_pos = bge.logic.position_history[-2]
-        distance_moved = ((new_pos.x - prev_pos[0])**2 + (new_pos.y - prev_pos[1])**2)**0.5
+    elif action == "TURN_RIGHT":
+        # Turn 90 degrees clockwise (right)
+        turn_actor_degrees(actor, 90)
+        # Then move forward
+        return move_actor_forward(actor)
         
-        if distance_moved > step_size * 1.5:  # Moved more than expected
-            print(f"⚠️ BGE: Unusually large movement detected: {distance_moved:.2f} units")
-            print(f"   Previous: [{prev_pos[0]:.2f}, {prev_pos[1]:.2f}] → Current: [{new_pos.x:.2f}, {new_pos.y:.2f}]")
+    elif action == "FORWARD":
+        # Move forward in current direction
+        return move_actor_forward(actor)
+        
+    elif action == "BACKWARD":
+        # Move backward (reverse direction)
+        return move_actor_forward(actor, -0.3)
+        
+    else:
+        print(f"⚠️ BGE: Unknown action: {action}")
+        return False
+
+def move_actor(actor, direction, step_size=0.3):
+    """
+    LEGACY SUPPORT: Old movement function with enhanced realistic movement
     
-    # Additional safety check after movement
-    if (abs(new_pos.x) > 10 or abs(new_pos.y) > 10):
-        print(f"🚨 BGE: EMERGENCY: Actor at extreme coordinates!")
-        print(f"   Resetting to safe position...")
-        # Reset to safe center position
-        actor.worldPosition.x = -2.0
-        actor.worldPosition.y = -0.5
-        print(f"   🔧 Reset to safe position: [{actor.worldPosition.x:.2f}, {actor.worldPosition.y:.2f}]")
+    This maintains backward compatibility while providing better movement
+    """
+    if direction == "STAY":
+        return execute_enhanced_movement(actor, "STAY")
+    
+    # Map old directions to new enhanced movements
+    direction_mapping = {
+        "LEFT": "TURN_LEFT",
+        "RIGHT": "TURN_RIGHT", 
+        "UP": "FORWARD",
+        "DOWN": "BACKWARD"
+    }
+    
+    enhanced_action = direction_mapping.get(direction, direction)
+    
+    if enhanced_action != direction:
+        print(f"🔄 BGE: Converting '{direction}' to enhanced action '{enhanced_action}'")
+    
+    return execute_enhanced_movement(actor, enhanced_action)
         
     return True
 
@@ -1667,6 +1759,28 @@ def main():
         print(f"🏠 BGE: CASAS Available: {CASAS_AVAILABLE}")
         print(f"🎯 BGE: Motion Validation Available: {MOTION_VALIDATION_AVAILABLE}")
         print("🔧 BGE: Camera calibration DISABLED - your manual settings preserved!")
+        
+        # Initialize MCP Integration
+        if MCP_INTEGRATION_AVAILABLE:
+            mcp_ready = initialize_mcp_for_bge()
+            if mcp_ready:
+                print("✅ BGE: MCP services ready for navigation")
+                
+                # Check service status
+                services_status = check_mcp_services_status()
+                healthy_services = sum(1 for status in services_status.values() if status)
+                total_services = len(services_status)
+                print(f"🔍 BGE: MCP Services: {healthy_services}/{total_services} healthy")
+                
+                # Store MCP status in game logic
+                bge.logic.mcp_services_available = True
+                bge.logic.mcp_services_status = services_status
+            else:
+                print("⚠️ BGE: MCP services not ready - using fallback mode")
+                bge.logic.mcp_services_available = False
+        else:
+            print("⚠️ BGE: MCP integration not available")
+            bge.logic.mcp_services_available = False
         
         # Initialize Motion Validation System
         if MOTION_VALIDATION_AVAILABLE:
@@ -1811,12 +1925,21 @@ def main():
         next_move = bge.logic.vesper_movement_queue.pop(0)
         bge.logic.vesper_sequence_step += 1
 
+        # Show current heading before movement
+        current_heading = get_actor_heading_angle(actor)
         print(f"🎮 BGE: Step {bge.logic.vesper_sequence_step}: {next_move}")
+        print(f"🧭 BGE: Current heading: {current_heading:.1f}° before movement")
         print(f"📍 Queue: {bge.logic.vesper_movement_queue}")
 
         old_position = [actor.worldPosition.x, actor.worldPosition.y]
         move_success = move_actor(actor, next_move)
         new_position = [actor.worldPosition.x, actor.worldPosition.y]
+        
+        # Show heading after movement
+        if move_success:
+            new_heading = get_actor_heading_angle(actor)
+            print(f"🧭 BGE: New heading: {new_heading:.1f}° after movement")
+            print(f"📍 BGE: Position: [{new_position[0]:.2f}, {new_position[1]:.2f}]")
         
         # Motion Validation: Update virtual sensors based on actor position
         if MOTION_VALIDATION_AVAILABLE and getattr(bge.logic, 'motion_validation_enabled', False):
