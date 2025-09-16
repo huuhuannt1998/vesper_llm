@@ -90,61 +90,55 @@ class IntelligentCameraSelector:
             "📍 CURRENT SITUATION:",
             f"   Actor Position: {context['actor_position']}",
             f"   Current Task: {context.get('current_task', 'Unknown')}",
-            f"   Room: {context.get('current_room', 'Unknown')}",
             f"   Movement Pattern: {context.get('movement_pattern', 'Unknown')}",
-            f"   Task Phase: {context.get('task_phase', 'Unknown')}",
-            "",
-            "🎯 CAMERA OPTIONS:",
-            "",
-            "📐 BIRD-EYE VIEW - Best for:",
-            "   • Room layout understanding",
-            "   • Path planning and obstacle avoidance", 
-            "   • Furniture identification and spatial relationships",
-            "   • Getting unstuck from repeated positions",
-            "   • Understanding overall room structure",
-            "",
-            "👁️ FIRST-PERSON VIEW - Best for:",
-            "   • Detailed object interaction",
-            "   • Precise positioning near furniture",
-            "   • Reading labels or small details",
-            "   • Understanding what's directly accessible",
-            "   • Fine-tuned navigation adjustments",
-            "",
-            "💡 DECISION CRITERIA:",
-            "   • If stuck/repeating positions → Bird-eye (for path planning)",
-            "   • If exploring new room → Bird-eye (for layout understanding)",
-            "   • If near target furniture → First-person (for interaction)",
-            "   • If task requires precision → First-person (for details)",
-            "   • If need room overview → Bird-eye (for spatial context)",
             "",
             "🎯 RESPOND WITH JSON DECISION:",
             '{',
             '  "camera_choice": "bird_eye" | "first_person",',
-            '  "reasoning": "Why this camera view is best for current situation",',
-            '  "confidence": 0.0-1.0,',
-            '  "expected_benefit": "What this view will help accomplish"',
+            '  "reasoning": "Brief reason"',
             '}'
         ]
         
         prompt = "\n".join(prompt_parts)
         
         try:
-            # Use MCP LLM integration if available
-            if hasattr(self, '_query_mcp_llm'):
-                response = self._query_mcp_llm(prompt)
-            else:
-                # Fallback to direct LLM query
-                response = self._query_llm_direct(prompt)
+            # Add timeout wrapper using threading for BGE compatibility
+            import threading
+            result_holder = {"response": None, "error": None}
             
-            # Parse response
-            return self._parse_camera_decision(response)
+            def query_with_timeout():
+                try:
+                    if hasattr(self, '_query_mcp_llm'):
+                        result_holder["response"] = self._query_mcp_llm(prompt)
+                    else:
+                        result_holder["response"] = self._query_llm_direct(prompt)
+                except Exception as e:
+                    result_holder["error"] = e
+            
+            # Start query in thread with timeout
+            query_thread = threading.Thread(target=query_with_timeout)
+            query_thread.daemon = True
+            query_thread.start()
+            query_thread.join(timeout=5.0)  # 5 second timeout
+            
+            if query_thread.is_alive():
+                print("⚠️ VLM camera query timed out, using fallback")
+                return self._fallback_camera_decision(context)
+            
+            if result_holder["error"]:
+                raise result_holder["error"]
+            
+            if result_holder["response"]:
+                return self._parse_camera_decision(result_holder["response"])
+            else:
+                raise Exception("No response from VLM")
             
         except Exception as e:
             print(f"❌ VLM camera selection query failed: {e}")
             return self._fallback_camera_decision(context)
     
     def _query_llm_direct(self, prompt: str) -> str:
-        """Direct LLM query for camera selection"""
+        """Direct LLM query for camera selection with timeout"""
         
         try:
             # Use existing LLM infrastructure from backend
@@ -153,7 +147,9 @@ class IntelligentCameraSelector:
             if not client:
                 raise Exception("No LLM client available")
             
-            # Use Ollama chat format
+            print("🧠 Querying VLM for camera selection...")
+            
+            # Use Ollama chat format with shorter timeout
             response = client.chat(
                 model=MODEL,
                 messages=[{
@@ -162,14 +158,15 @@ class IntelligentCameraSelector:
                 }],
                 options={
                     'temperature': 0.1,
-                    'num_predict': 300
+                    'num_predict': 200,  # Shorter response
+                    'timeout': 3000      # 3 second timeout
                 }
             )
             
             return response['message']['content']
             
         except Exception as e:
-            print(f"⚠️ Direct LLM query failed: {e}")
+            print(f"⚠️ Direct LLM query failed or timed out: {e}")
             raise
     
     def _parse_camera_decision(self, response: str) -> Dict[str, Any]:
@@ -182,6 +179,11 @@ class IntelligentCameraSelector:
             
             if json_match:
                 json_str = json_match.group(0)
+                
+                # Fix common JSON issues with escaped characters
+                json_str = json_str.replace(r'\_', '_')  # Fix escaped underscores
+                json_str = json_str.replace(r'\/', '/')   # Fix escaped slashes
+                
                 decision = json.loads(json_str)
                 
                 # Validate required fields

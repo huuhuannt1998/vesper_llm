@@ -20,6 +20,10 @@ if not HOST.startswith(('http://', 'https://')):
         HOST = f"http://{HOST}"
     elif HOST in ['localhost', '127.0.0.1']:
         HOST = f"http://{HOST}:11434"
+    elif HOST == '0.0.0.0':
+        # 0.0.0.0 is a server bind address, convert to localhost for client
+        print(f"🔧 Converting server address '0.0.0.0' to 'localhost' for client")
+        HOST = "http://localhost:11434"
     else:
         # Fallback to localhost if something went wrong
         print(f"⚠️ Invalid HOST format: '{HOST}', falling back to localhost")

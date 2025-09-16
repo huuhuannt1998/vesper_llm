@@ -296,6 +296,7 @@ class FirstPersonCameraManager:
         # Take screenshot with enhanced retry logic
         try:
             print(f"📸 BGE: Capturing first-person screenshot...")
+            print(f"🗂️ BGE: Intended first-person path: {shot_path}")
             
             # Ensure directory exists
             os.makedirs(os.path.dirname(shot_path), exist_ok=True)
@@ -307,12 +308,30 @@ class FirstPersonCameraManager:
             
             while capture_attempts < max_capture_attempts:
                 try:
+                    # Force frame processing before screenshot (BGE compatible)
+                    # Cannot use scene.render in BGE - use logic updates instead
+                    bge.logic.getLogicTicRate()  # Trigger logic update
+                    
+                    # Wait for rendering to stabilize
+                    import time
+                    time.sleep(0.1)
+                    
                     # Use BGE screenshot method with result tracking
                     screenshot_result = bge.render.makeScreenshot(shot_path)
                     
-                    # Wait for file write
-                    import time
-                    time.sleep(0.1)
+                    # Check if makeScreenshot returned False (common BGE issue)
+                    if screenshot_result is False:
+                        print(f"⚠️ BGE: makeScreenshot returned False (attempt {capture_attempts + 1})")
+                        # Try alternative screenshot method
+                        try:
+                            # Force a frame update
+                            bge.logic.NextFrame()
+                            screenshot_result = bge.render.makeScreenshot(shot_path)
+                        except:
+                            pass
+                    
+                    # Extended wait for file write (BGE can be slow)
+                    time.sleep(0.3)
                     
                     # Verify file exists and has content
                     if os.path.exists(shot_path) and os.path.getsize(shot_path) > 0:
@@ -322,6 +341,13 @@ class FirstPersonCameraManager:
                         break
                     else:
                         print(f"⚠️ BGE: Screenshot file not created or empty (attempt {capture_attempts + 1}, result: {screenshot_result})")
+                        print(f"📄 BGE: Exists={os.path.exists(shot_path)} Size={(os.path.getsize(shot_path) if os.path.exists(shot_path) else 0)} Path={shot_path}")
+                        # Clean up empty file if it exists
+                        if os.path.exists(shot_path):
+                            try:
+                                os.remove(shot_path)
+                            except:
+                                pass
                         
                 except Exception as e:
                     print(f"⚠️ BGE: Screenshot capture attempt {capture_attempts + 1} failed: {e}")
@@ -329,7 +355,7 @@ class FirstPersonCameraManager:
                 capture_attempts += 1
                 if capture_attempts < max_capture_attempts:
                     import time
-                    time.sleep(0.2)
+                    time.sleep(0.5)  # Longer delay between attempts
             
             if not capture_success:
                 print(f"❌ BGE: First-person screenshot capture failed after {max_capture_attempts} attempts")
@@ -823,9 +849,12 @@ def capture_immediate_first_person_view(actor_position, actor_orientation):
             next_num = 1
         output_path = os.path.join(captures_dir, f"first-person_{next_num:04d}.png")
 
-        if FirstPersonCameraManager._try_offscreen_first_person_capture(first_person_camera, output_path, 1024, 768):
-            print(f"📸 Offscreen first-person capture saved: {output_path}")
-            return {"success": True, "path": output_path}
+        # Skip offscreen capture - it's causing "bytes-like object" errors in BGE
+        # if FirstPersonCameraManager._try_offscreen_first_person_capture(first_person_camera, output_path, 1024, 768):
+        #     print(f"📸 Offscreen first-person capture saved: {output_path}")
+        #     return {"success": True, "path": output_path}
+        
+        print("🎯 Using BGE screenshot method instead of offscreen capture")
 
         # Use staged request/poll approach
         mgr = get_first_person_camera()

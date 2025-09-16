@@ -27,6 +27,8 @@ class SequentialDualCameraCapture:
             "stage": "idle",  # idle, bird_eye, first_person, complete
             "bird_eye_path": None,
             "first_person_path": None,
+            "first_person_requested": False,
+            "first_person_switch_time": None,
             "original_camera": None,
             "start_time": None,
             "actor_position": None,
@@ -51,6 +53,8 @@ class SequentialDualCameraCapture:
             "stage": "idle",
             "bird_eye_path": None,
             "first_person_path": None,
+            "first_person_requested": False,
+            "first_person_switch_time": None,
             "original_camera": None,
             "start_time": None,
             "actor_position": None,
@@ -79,6 +83,8 @@ class SequentialDualCameraCapture:
             "stage": "bird_eye",
             "bird_eye_path": None,
             "first_person_path": None,
+            "first_person_requested": False,
+            "first_person_switch_time": None,
             "original_camera": scene.active_camera,
             "start_time": time.time(),
             "actor_position": actor_position,
@@ -194,7 +200,49 @@ class SequentialDualCameraCapture:
         """Poll first-person capture completion"""
         
         first_person_path = self.capture_state["first_person_path"]
-        
+
+        # If we haven't requested the actual screenshot yet, wait a short moment after camera switch,
+        # then request it. This ensures the render buffer updates to the new active camera.
+        if first_person_path and not self.capture_state.get("first_person_requested", False):
+            switch_time = self.capture_state.get("first_person_switch_time") or self.capture_state.get("start_time")
+            if switch_time is None:
+                switch_time = time.time() - 1.0
+            if time.time() - switch_time >= 0.25:  # Increased delay for BGE stability
+                try:
+                    # Force a frame update first to ensure active camera has rendered
+                    import bge
+                    bge.logic.getLogicTicRate()
+                    time.sleep(0.1)  # Additional stability delay
+                    
+                    # Now take the screenshot
+                    bge.render.makeScreenshot(first_person_path)
+                    self.capture_state["first_person_requested"] = True
+                    print(f"📸 Requested first-person screenshot: {os.path.basename(first_person_path)}")
+                    
+                    # Wait a moment for file write
+                    time.sleep(0.2)
+                    
+                except Exception as e:
+                    self._reset_capture_state()
+                    return {
+                        "success": False,
+                        "error": f"First-person screenshot request failed: {e}",
+                        "status": "failed",
+                        "bird_eye_path": self.capture_state.get("bird_eye_path"),
+                        "bird_eye_ready": True
+                    }
+
+            # Still waiting for the right moment to request screenshot
+            return {
+                "success": True,
+                "status": "first_person_pending",
+                "bird_eye_path": self.capture_state.get("bird_eye_path"),
+                "bird_eye_ready": True,
+                "first_person_path": first_person_path,
+                "first_person_ready": False,
+                "message": "Waiting for camera switch to settle before capture"
+            }
+
         if self._is_screenshot_ready(first_person_path):
             print("✅ First-person capture complete!")
             self.capture_state["stage"] = "complete"
@@ -335,10 +383,13 @@ class SequentialDualCameraCapture:
             
             shot_path = os.path.join(captures_dir, f"first-person_{next_num:04d}.png")
             
-            # Capture screenshot
-            bge.render.makeScreenshot(shot_path)
-            
-            print(f"📷 First-person screenshot requested: {shot_path}")
+            # Do NOT capture immediately after switching camera. Defer capture via poller to ensure
+            # at least one frame has rendered with the new active camera.
+            self.capture_state["first_person_path"] = shot_path
+            self.capture_state["first_person_requested"] = False
+            self.capture_state["first_person_switch_time"] = time.time()
+
+            print(f"🎯 First-person camera armed for capture: {os.path.basename(shot_path)}")
             
             return {
                 "success": True,
@@ -380,6 +431,8 @@ class SequentialDualCameraCapture:
             "stage": "idle",
             "bird_eye_path": None,
             "first_person_path": None,
+            "first_person_requested": False,
+            "first_person_switch_time": None,
             "original_camera": None,
             "start_time": None,
             "actor_position": None,

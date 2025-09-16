@@ -403,18 +403,6 @@ def update_motion_detection():
         
         _motion_detection_state["last_update"] = current_time
         
-        # Debug: Print actor position every 5 seconds
-        if "last_debug_time" not in _motion_detection_state:
-            _motion_detection_state["last_debug_time"] = 0
-        
-        try:
-            if current_time - _motion_detection_state["last_debug_time"] > 5.0:
-                print(f"🔍 MOTION DEBUG: Actor at [{actor_pos.x:.2f}, {actor_pos.y:.2f}, {actor_pos.z:.2f}]")
-                _motion_detection_state["last_debug_time"] = current_time
-        except Exception as debug_error:
-            print(f"⚠️ Debug print error: {debug_error}")
-            _motion_detection_state["last_debug_time"] = current_time
-        
         # Find the Actor object - BGE scene.objects is a list, not a dictionary
         actor = None
         for obj in scene.objects:
@@ -427,15 +415,19 @@ def update_motion_detection():
             return
             
         actor_pos = actor.worldPosition
-        _motion_detection_state["actor_position"] = actor_pos.copy()
         
         # Debug: Print actor position every 5 seconds
-        if not hasattr(_motion_detection_state, "last_debug_time"):
+        if "last_debug_time" not in _motion_detection_state:
             _motion_detection_state["last_debug_time"] = 0
         
-        if current_time - _motion_detection_state["last_debug_time"] > 5.0:
-            print(f"🔍 MOTION DEBUG: Actor at [{actor_pos.x:.2f}, {actor_pos.y:.2f}, {actor_pos.z:.2f}]")
+        try:
+            if current_time - _motion_detection_state["last_debug_time"] > 5.0:
+                print(f"🔍 MOTION DEBUG: Actor at [{actor_pos.x:.2f}, {actor_pos.y:.2f}, {actor_pos.z:.2f}]")
+                _motion_detection_state["last_debug_time"] = current_time
+        except Exception as debug_error:
+            print(f"⚠️ Debug print error: {debug_error}")
             _motion_detection_state["last_debug_time"] = current_time
+        _motion_detection_state["actor_position"] = actor_pos.copy()
         
         # Check each motion sensor's detection area
         for sensor_id, sensor_data in _motion_detection_state["sensors"].items():

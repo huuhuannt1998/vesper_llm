@@ -4,6 +4,10 @@ import os
 import sys
 import json
 import time
+import re
+import base64
+import queue
+import threading
 
 # Import enhanced VLM extensions
 try:
@@ -1190,9 +1194,6 @@ IMAGE 2 - FIRST-PERSON VIEW: Actor's eye-level perspective showing:
         print(f"🔍 DEBUG: Sending MULTI-MODAL request with 2 images...")
         
         # Windows-compatible timeout handling
-        import threading
-        import queue
-        
         result_queue = queue.Queue()
         timeout_occurred = False
         
@@ -1251,6 +1252,15 @@ IMAGE 2 - FIRST-PERSON VIEW: Actor's eye-level perspective showing:
     return result, response_time, timeout_occurred
 
 def enhanced_multi_call_vlm_completion(prompt, bird_eye_path, first_person_path):
+    """Enhanced multi-modal VLM completion with fallback handling"""
+    
+    try:
+        # Try multimodal completion first
+        result, response_time, timeout_occurred = multimodal_vision_completion(prompt, bird_eye_path, first_person_path)
+        return result, response_time, timeout_occurred
+        
+    except Exception as e:
+        response_time = 0.0
         print(f"❌ IMAGES-ONLY completion failed after {response_time:.1f}s: {e}")
         print(f"🔍 DEBUG: Exception type: {type(e).__name__}")
         raise Exception(f"❌ Vision analysis failed - no text fallback allowed: {e}")
@@ -1743,8 +1753,22 @@ IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtim
                     first_person_screenshot_path = fp_result.get("path")
                     print(f"✅ BGE: First-person captured: {first_person_screenshot_path}")
                 else:
-                    print("⚠️ BGE: First-person capture failed - using bird-eye only")
-                    first_person_screenshot_path = None
+                    print("⚠️ BGE: Complex first-person failed, trying simplified method...")
+                    # Fallback to simplified first-person camera
+                    try:
+                        from simple_first_person_fix import simple_first_person_screenshot
+                        simple_fp_path = simple_first_person_screenshot(
+                            actor.worldPosition, actor.worldOrientation
+                        )
+                        if simple_fp_path:
+                            first_person_screenshot_path = simple_fp_path
+                            print(f"✅ BGE: Simplified first-person captured: {simple_fp_path}")
+                        else:
+                            print("⚠️ BGE: All first-person methods failed - using bird-eye only")
+                            first_person_screenshot_path = None
+                    except Exception as simple_e:
+                        print(f"⚠️ BGE: Simplified first-person also failed: {simple_e} - using bird-eye only")
+                        first_person_screenshot_path = None
             else:
                 print("⚠️ BGE: Actor not found - using bird-eye only")
                 first_person_screenshot_path = None
