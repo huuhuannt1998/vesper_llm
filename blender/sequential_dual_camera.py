@@ -33,6 +33,30 @@ class SequentialDualCameraCapture:
             "actor_orientation": None
         }
         self.capture_timeout = 15.0  # Total timeout for both captures
+    
+    def force_reset_capture_state(self):
+        """Force reset the capture state - use when system gets stuck"""
+        try:
+            # Restore original camera if needed
+            if self.capture_state["original_camera"]:
+                scene = bge.logic.getCurrentScene()
+                scene.active_camera = self.capture_state["original_camera"]
+                print("🔄 Sequential Camera: Original camera restored")
+        except Exception as e:
+            print(f"⚠️ Sequential Camera: Error restoring camera: {e}")
+        
+        # Reset all state
+        self.capture_state = {
+            "active": False,
+            "stage": "idle",
+            "bird_eye_path": None,
+            "first_person_path": None,
+            "original_camera": None,
+            "start_time": None,
+            "actor_position": None,
+            "actor_orientation": None
+        }
+        print("✅ Sequential Camera: Capture state force reset complete")
         
     def start_dual_capture(self, actor_position: Tuple[float, float, float],
                           actor_orientation: Tuple[float, float, float]) -> Dict[str, Any]:
@@ -377,6 +401,10 @@ class SequentialDualCameraCapture:
 
 # Global instance for BGE
 sequential_dual_camera = SequentialDualCameraCapture()
+
+def force_reset_dual_camera_capture():
+    """Force reset the dual camera capture system when stuck"""
+    sequential_dual_camera.force_reset_capture_state()
 
 def start_dual_camera_capture(actor_position: Tuple[float, float, float],
                             actor_orientation: Tuple[float, float, float]) -> Dict[str, Any]:

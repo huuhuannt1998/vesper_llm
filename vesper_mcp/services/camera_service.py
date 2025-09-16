@@ -5,6 +5,7 @@ Camera & Visual Input Service
 Dedicated service for dual-camera management and image capture.
 Provides both bird-eye and first-person camera capture tools for MCP agents.
 The VLM agent can intelligently choose which camera view to capture based on context.
+Supports both Blender edit mode and BGE runtime camera switching.
 """
 
 import asyncio
@@ -15,6 +16,25 @@ import logging
 
 from mcp import FastMCP, types
 import bpy
+
+# BGE imports for runtime switching
+try:
+    import bge
+    BGE_AVAILABLE = True
+    
+    # Check if we're in BGE runtime
+    def is_bge_runtime():
+        try:
+            bge.logic.getCurrentScene()
+            return True
+        except:
+            return False
+    
+    BGE_RUNTIME = is_bge_runtime()
+    
+except ImportError:
+    BGE_AVAILABLE = False
+    BGE_RUNTIME = False
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +49,181 @@ BIRD_EYE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "captures", "
 FIRST_PERSON_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "captures", "first_person")
 os.makedirs(BIRD_EYE_DIR, exist_ok=True)
 os.makedirs(FIRST_PERSON_DIR, exist_ok=True)
+
+# Hardcoded camera names for the specific setup
+BIRD_EYE_CAMERA_NAME = "BirdEyeCamera"
+FIRST_PERSON_CAMERA_NAME = "Actor_FPCamera"
+
+def reset_bge_capture_state():
+    """
+    Reset any stuck capture states in BGE runtime.
+    """
+    if not BGE_RUNTIME:
+        return
+    
+    try:
+        scene = bge.logic.getCurrentScene()
+        
+        # Reset any sequential dual camera system
+        if hasattr(scene, 'dual_camera_system'):
+            scene.dual_camera_system._reset_capture_state()
+            logger.info("BGE: Reset sequential dual camera system")
+        
+        # Clear any capture flags
+        for obj in scene.objects:
+            if hasattr(obj, 'capture_in_progress'):
+                obj.capture_in_progress = False
+        
+        logger.info("BGE: Capture state reset complete")
+        
+    except Exception as e:
+        logger.warning(f"BGE: Error during capture state reset: {e}")
+
+def switch_camera_runtime(camera_name: str) -> Dict[str, Any]:
+    """
+    Switch active camera during BGE runtime.
+    
+    Args:
+        camera_name: Name of the camera to switch to
+        
+    Returns:
+        Dictionary with switch result
+    """
+    try:
+        if BGE_RUNTIME:
+            # BGE runtime camera switching
+            scene = bge.logic.getCurrentScene()
+            
+            # Find the camera object in BGE scene
+            camera = None
+            for obj in scene.objects:
+                if obj.name == camera_name:
+                    camera = obj
+                    break
+            
+            if not camera:
+                return {
+                    "success": False,
+                    "error": f"Camera '{camera_name}' not found in BGE scene"
+                }
+            
+            # Store previous camera
+            previous_camera = scene.active_camera
+            
+            # Switch to new camera
+            scene.active_camera = camera
+            
+            # Force camera update and small delay
+            import time
+            time.sleep(0.05)
+            
+            logger.info(f"BGE Runtime: Switched from {previous_camera.name if previous_camera else 'None'} to {camera_name}")
+            
+            return {
+                "success": True,
+                "previous_camera": previous_camera.name if previous_camera else None,
+                "current_camera": camera_name,
+                "mode": "bge_runtime"
+            }
+        else:
+            # Blender edit mode camera switching
+            camera = bpy.data.objects.get(camera_name)
+            if not camera:
+                return {
+                    "success": False,
+                    "error": f"Camera '{camera_name}' not found in Blender scene"
+                }
+            
+            previous_camera = bpy.context.scene.camera
+            bpy.context.scene.camera = camera
+            
+            logger.info(f"Blender Edit: Switched from {previous_camera.name if previous_camera else 'None'} to {camera_name}")
+            
+            return {
+                "success": True,
+                "previous_camera": previous_camera.name if previous_camera else None,
+                "current_camera": camera_name,
+                "mode": "blender_edit"
+            }
+            
+    except Exception as e:
+        logger.error(f"Error switching camera to {camera_name}: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+def capture_screenshot_runtime(filepath: str) -> Dict[str, Any]:
+    """
+    Capture screenshot using appropriate method for current mode.
+    
+    Args:
+        filepath: Full path where to save the screenshot
+        
+    Returns:
+        Dictionary with capture result
+    """
+    try:
+        if BGE_RUNTIME:
+            # BGE runtime screenshot using makeScreenshot
+            # Need to ensure directory exists
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            
+            # BGE makeScreenshot call - returns True/False
+            screenshot_result = bge.render.makeScreenshot(filepath)
+            
+            # Small delay to ensure file is written
+            import time
+            time.sleep(0.1)
+            
+            # Verify file was created and has content
+            if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+                file_size = os.path.getsize(filepath)
+                logger.info(f"BGE Runtime screenshot captured: {filepath} ({file_size} bytes)")
+                return {
+                    "success": True,
+                    "filepath": filepath,
+                    "file_size": file_size,
+                    "method": "bge_makeScreenshot",
+                    "screenshot_result": screenshot_result
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": f"Screenshot file was not created by BGE (result: {screenshot_result})"
+                }
+        else:
+            # Blender edit mode rendering
+            original_filepath = bpy.context.scene.render.filepath
+            bpy.context.scene.render.filepath = filepath
+            
+            bpy.ops.render.render(write_still=True)
+            
+            # Restore original filepath
+            bpy.context.scene.render.filepath = original_filepath
+            
+            # Verify file was created
+            if os.path.exists(filepath):
+                file_size = os.path.getsize(filepath)
+                logger.info(f"Blender Edit screenshot captured: {filepath} ({file_size} bytes)")
+                return {
+                    "success": True,
+                    "filepath": filepath,
+                    "file_size": file_size,
+                    "method": "blender_render"
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Screenshot file was not created by Blender render"
+                }
+                
+    except Exception as e:
+        logger.error(f"Error capturing screenshot to {filepath}: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
 
 @mcp.tool()
 async def setup_first_person_camera(
@@ -142,75 +337,80 @@ async def capture_bird_eye_view(
         
         filepath = os.path.join(BIRD_EYE_DIR, filename)
         
-        # Configure render settings for bird-eye view
-        scene = bpy.context.scene
-        render = scene.render
+        # Reset any stuck capture states first
+        reset_bge_capture_state()
         
-        # Store original settings
-        original_resolution_x = render.resolution_x
-        original_resolution_y = render.resolution_y
-        original_filepath = render.filepath
-        original_camera = scene.camera
+        # Use hardcoded bird-eye camera name
+        bird_eye_camera_name = BIRD_EYE_CAMERA_NAME
         
-        try:
-            # Find bird-eye camera
-            bird_eye_camera = None
-            for obj in bpy.data.objects:
-                if obj.type == 'CAMERA' and 'bird' in obj.name.lower():
-                    bird_eye_camera = obj
-                    break
-            
-            if not bird_eye_camera:
-                return {
-                    "success": False,
-                    "error": "Bird-eye camera not found. Please create a camera with 'bird' in its name."
-                }
-            
-            # Set bird-eye camera as active
-            scene.camera = bird_eye_camera
+        # Verify camera exists
+        camera_exists = False
+        if BGE_RUNTIME:
+            scene = bge.logic.getCurrentScene()
+            camera_exists = bird_eye_camera_name in scene.objects
+        else:
+            camera_exists = bpy.data.objects.get(bird_eye_camera_name) is not None
+        
+        if not camera_exists:
+            return {
+                "success": False,
+                "error": f"Bird-eye camera '{bird_eye_camera_name}' not found in scene"
+            }
+        
+        # Switch to bird-eye camera
+        camera_switch = switch_camera_runtime(bird_eye_camera_name)
+        if not camera_switch["success"]:
+            return {
+                "success": False,
+                "error": f"Failed to switch to bird-eye camera: {camera_switch['error']}"
+            }
+        
+        # Store original settings for non-BGE mode
+        original_settings = {}
+        if not BGE_RUNTIME:
+            render = bpy.context.scene.render
+            original_settings = {
+                "resolution_x": render.resolution_x,
+                "resolution_y": render.resolution_y,
+                "filepath": render.filepath
+            }
             
             # Configure render settings
             render.resolution_x = resolution_x
             render.resolution_y = resolution_y
-            render.filepath = filepath
-            render.image_settings.file_format = 'PNG'
+            render.resolution_percentage = 100
+        
+        try:
+            # Capture screenshot
+            capture_result = capture_screenshot_runtime(filepath)
             
-            # Ensure bird-eye camera is positioned appropriately
-            if bird_eye_camera.location.z < 5.0:
-                logger.warning(f"Bird-eye camera height is {bird_eye_camera.location.z:.1f}. Consider positioning it higher (Z > 8) for better overview.")
-            
-            # Render the image
-            bpy.ops.render.render(write_still=True)
-            
-            # Verify file was created
-            if not os.path.exists(filepath):
+            if capture_result["success"]:
                 return {
-                    "success": False,
-                    "error": "Screenshot file was not created"
+                    "success": True,
+                    "filepath": filepath,
+                    "filename": filename,
+                    "camera_used": bird_eye_camera_name,
+                    "file_size": capture_result["file_size"],
+                    "resolution": f"{resolution_x}x{resolution_y}",
+                    "camera_type": "bird_eye",
+                    "description": "Top-down view for spatial navigation and room layout",
+                    "capture_method": capture_result["method"],
+                    "runtime_mode": "bge" if BGE_RUNTIME else "blender_edit"
                 }
-            
-            file_size = os.path.getsize(filepath)
-            
-            logger.info(f"Bird-eye screenshot captured: {filename} ({file_size} bytes)")
-            
-            return {
-                "success": True,
-                "filepath": filepath,
-                "filename": filename,
-                "camera_used": bird_eye_camera.name,
-                "file_size": file_size,
-                "resolution": f"{resolution_x}x{resolution_y}",
-                "camera_type": "bird_eye",
-                "description": "Top-down view for spatial navigation and room layout"
-            }
+            else:
+                return capture_result
             
         finally:
-            # Restore original settings
-            render.resolution_x = original_resolution_x
-            render.resolution_y = original_resolution_y
-            render.filepath = original_filepath
-            if original_camera:
-                scene.camera = original_camera
+            # Restore original settings for non-BGE mode
+            if not BGE_RUNTIME and original_settings:
+                render = bpy.context.scene.render
+                render.resolution_x = original_settings["resolution_x"]
+                render.resolution_y = original_settings["resolution_y"]
+                render.filepath = original_settings["filepath"]
+            
+            # Restore previous camera if needed
+            if camera_switch.get("previous_camera"):
+                switch_camera_runtime(camera_switch["previous_camera"])
         
     except Exception as e:
         logger.error(f"Error capturing bird-eye view: {str(e)}")
@@ -245,10 +445,22 @@ async def capture_first_person_view(
         Dictionary with capture results and file path
     """
     try:
-        # Ensure camera is set up
-        camera_setup = await setup_first_person_camera(actor_name)
-        if not camera_setup["success"]:
-            return camera_setup
+        # Use hardcoded first-person camera name
+        first_person_camera_name = FIRST_PERSON_CAMERA_NAME
+        
+        # Verify camera exists
+        camera_exists = False
+        if BGE_RUNTIME:
+            scene = bge.logic.getCurrentScene()
+            camera_exists = first_person_camera_name in scene.objects
+        else:
+            camera_exists = bpy.data.objects.get(first_person_camera_name) is not None
+        
+        if not camera_exists:
+            return {
+                "success": False,
+                "error": f"First-person camera '{first_person_camera_name}' not found in scene"
+            }
         
         # Generate filename if not provided
         if not filename:
@@ -262,54 +474,94 @@ async def capture_first_person_view(
         
         filepath = os.path.join(FIRST_PERSON_DIR, filename)
         
-        # Configure render settings
-        scene = bpy.context.scene
-        render = scene.render
+        # Reset any stuck capture states first
+        reset_bge_capture_state()
         
-        # Store original settings
-        original_resolution_x = render.resolution_x
-        original_resolution_y = render.resolution_y
-        original_filepath = render.filepath
+        # Switch to first-person camera with retry logic
+        switch_attempts = 0
+        max_attempts = 3
+        camera_switch = None
         
-        # Set render parameters
-        render.resolution_x = resolution_x
-        render.resolution_y = resolution_y
-        render.resolution_percentage = 100
-        render.filepath = filepath
+        while switch_attempts < max_attempts:
+            camera_switch = switch_camera_runtime(first_person_camera_name)
+            if camera_switch["success"]:
+                break
+            switch_attempts += 1
+            logger.warning(f"Camera switch attempt {switch_attempts} failed: {camera_switch.get('error', 'Unknown')}")
+            if BGE_RUNTIME:
+                import time
+                time.sleep(0.1)
         
-        # Ensure we're using the first-person camera
-        camera_name = f"{actor_name}_FirstPersonCamera"
-        camera = bpy.data.objects.get(camera_name)
-        if camera:
-            scene.camera = camera
-        
-        # Render the image
-        bpy.ops.render.render(write_still=True)
-        
-        # Restore original settings
-        render.resolution_x = original_resolution_x
-        render.resolution_y = original_resolution_y
-        render.filepath = original_filepath
-        
-        # Verify file was created
-        if os.path.exists(filepath):
-            file_size = os.path.getsize(filepath)
-            logger.info(f"First-person screenshot captured: {filepath} ({file_size} bytes)")
-            
-            return {
-                "success": True,
-                "filepath": filepath,
-                "filename": filename,
-                "resolution": [resolution_x, resolution_y],
-                "file_size": file_size,
-                "actor_name": actor_name,
-                "camera_name": camera_name
-            }
-        else:
+        if not camera_switch or not camera_switch["success"]:
             return {
                 "success": False,
-                "error": "Screenshot file was not created"
+                "error": f"Failed to switch to first-person camera after {max_attempts} attempts: {camera_switch.get('error', 'Unknown error') if camera_switch else 'No response'}"
             }
+        
+        # Store original settings for non-BGE mode
+        original_settings = {}
+        if not BGE_RUNTIME:
+            render = bpy.context.scene.render
+            original_settings = {
+                "resolution_x": render.resolution_x,
+                "resolution_y": render.resolution_y,
+                "filepath": render.filepath
+            }
+            
+            # Configure render settings
+            render.resolution_x = resolution_x
+            render.resolution_y = resolution_y
+            render.resolution_percentage = 100
+        
+        try:
+            # Capture screenshot with retry logic
+            capture_attempts = 0
+            max_capture_attempts = 3
+            capture_result = None
+            
+            while capture_attempts < max_capture_attempts:
+                capture_result = capture_screenshot_runtime(filepath)
+                if capture_result["success"]:
+                    break
+                capture_attempts += 1
+                logger.warning(f"Screenshot capture attempt {capture_attempts} failed: {capture_result.get('error', 'Unknown')}")
+                if BGE_RUNTIME:
+                    import time
+                    time.sleep(0.2)
+            
+            if capture_result and capture_result["success"]:
+                return {
+                    "success": True,
+                    "filepath": filepath,
+                    "filename": filename,
+                    "camera_used": first_person_camera_name,
+                    "file_size": capture_result["file_size"],
+                    "resolution": [resolution_x, resolution_y],
+                    "actor_name": actor_name,
+                    "camera_type": "first_person",
+                    "description": "Actor's eye-level perspective for detailed interaction",
+                    "capture_method": capture_result["method"],
+                    "runtime_mode": "bge" if BGE_RUNTIME else "blender_edit",
+                    "capture_attempts": capture_attempts + 1,
+                    "switch_attempts": switch_attempts + 1
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": f"Screenshot capture failed after {max_capture_attempts} attempts: {capture_result.get('error', 'Unknown error') if capture_result else 'No response'}"
+                }
+            
+        finally:
+            # Restore original settings for non-BGE mode
+            if not BGE_RUNTIME and original_settings:
+                render = bpy.context.scene.render
+                render.resolution_x = original_settings["resolution_x"]
+                render.resolution_y = original_settings["resolution_y"]
+                render.filepath = original_settings["filepath"]
+            
+            # Restore previous camera if needed
+            if camera_switch.get("previous_camera"):
+                switch_camera_runtime(camera_switch["previous_camera"])
             
     except Exception as e:
         logger.error(f"Error capturing first-person view: {str(e)}")

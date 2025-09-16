@@ -163,7 +163,7 @@ class FirstPersonCameraManager:
             if hasattr(renderer, 'save'):
                 try:
                     renderer.save(output_path)
-                    return os.path.exists(output_path)
+                    return os.path.exists(output_path) and os.path.getsize(output_path) > 0
                 except Exception as e:
                     print(f"⚠️ renderer.save() failed: {e}")
 
@@ -173,7 +173,7 @@ class FirstPersonCameraManager:
                 if hasattr(vt, 'saveImage'):
                     try:
                         vt.saveImage(renderer.image, output_path)
-                        return os.path.exists(output_path)
+                        return os.path.exists(output_path) and os.path.getsize(output_path) > 0
                     except Exception as e:
                         print(f"⚠️ vt.saveImage() failed: {e}")
 
@@ -231,8 +231,49 @@ class FirstPersonCameraManager:
 
         # Same pattern as bird-eye: optimize camera settings
         try:
-            # Set first-person camera as active IMMEDIATELY (same as bird-eye)
-            scene.active_camera = self.camera_object
+            # Enhanced camera switching with retry logic
+            switch_attempts = 0
+            max_switch_attempts = 3
+            switch_success = False
+            
+            while switch_attempts < max_switch_attempts:
+                try:
+                    # Find camera with robust search
+                    camera_found = None
+                    for obj in scene.objects:
+                        if obj.name == self.camera_object.name:
+                            camera_found = obj
+                            break
+                    
+                    if camera_found:
+                        # Set as active camera
+                        scene.active_camera = camera_found
+                        
+                        # Add processing delay
+                        import time
+                        time.sleep(0.05)
+                        
+                        # Verify switch worked
+                        if scene.active_camera == camera_found:
+                            switch_success = True
+                            print(f"✅ BGE: First-person camera switch successful (attempt {switch_attempts + 1})")
+                            break
+                        else:
+                            print(f"⚠️ BGE: Camera switch verification failed (attempt {switch_attempts + 1})")
+                    else:
+                        print(f"⚠️ BGE: Camera not found in scene (attempt {switch_attempts + 1})")
+                        
+                except Exception as e:
+                    print(f"⚠️ BGE: Camera switch attempt {switch_attempts + 1} failed: {e}")
+                
+                switch_attempts += 1
+                if switch_attempts < max_switch_attempts:
+                    import time
+                    time.sleep(0.1)
+            
+            if not switch_success:
+                print(f"❌ BGE: Failed to switch to first-person camera after {max_switch_attempts} attempts")
+                return None
             
             # Optimize camera lens (same as bird-eye optimization)
             if hasattr(self.camera_object, 'lens'):
@@ -247,16 +288,52 @@ class FirstPersonCameraManager:
             
         except Exception as e:
             print(f"⚠️ BGE: First-person camera optimization error: {e}")
+            return None
 
         # Generate screenshot path (same as bird-eye)
         shot_path = self._next_first_person_screenshot_path()
 
-        # Take screenshot IMMEDIATELY (same as bird-eye pattern)
+        # Take screenshot with enhanced retry logic
         try:
             print(f"📸 BGE: Capturing first-person screenshot...")
             
-            # Use EXACT same BGE screenshot method as bird-eye view
-            bge.render.makeScreenshot(shot_path)
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(shot_path), exist_ok=True)
+            
+            # Enhanced screenshot capture with retry
+            capture_attempts = 0
+            max_capture_attempts = 3
+            capture_success = False
+            
+            while capture_attempts < max_capture_attempts:
+                try:
+                    # Use BGE screenshot method with result tracking
+                    screenshot_result = bge.render.makeScreenshot(shot_path)
+                    
+                    # Wait for file write
+                    import time
+                    time.sleep(0.1)
+                    
+                    # Verify file exists and has content
+                    if os.path.exists(shot_path) and os.path.getsize(shot_path) > 0:
+                        file_size = os.path.getsize(shot_path)
+                        print(f"✅ BGE: First-person screenshot captured: {file_size} bytes (attempt {capture_attempts + 1})")
+                        capture_success = True
+                        break
+                    else:
+                        print(f"⚠️ BGE: Screenshot file not created or empty (attempt {capture_attempts + 1}, result: {screenshot_result})")
+                        
+                except Exception as e:
+                    print(f"⚠️ BGE: Screenshot capture attempt {capture_attempts + 1} failed: {e}")
+                
+                capture_attempts += 1
+                if capture_attempts < max_capture_attempts:
+                    import time
+                    time.sleep(0.2)
+            
+            if not capture_success:
+                print(f"❌ BGE: First-person screenshot capture failed after {max_capture_attempts} attempts")
+                return None
             
         except Exception as e:
             print(f"❌ BGE: First-person screenshot capture failed: {e}")
@@ -690,6 +767,14 @@ def capture_immediate_first_person_view(actor_position, actor_orientation):
     import time
 
     try:
+        # Reset any stuck sequential dual camera capture states
+        try:
+            from sequential_dual_camera import force_reset_dual_camera_capture
+            force_reset_dual_camera_capture()
+            print("🔄 BGE: Reset sequential dual camera system")
+        except:
+            pass  # Ignore if not available
+        
         scene = bge.logic.getCurrentScene()
 
         # Locate the FP camera
