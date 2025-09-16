@@ -1,0 +1,102 @@
+{
+  "session_id": "20250915_183732",
+  "start_time": 1757975852.1821487,
+  "tasks_completed": 0,
+  "tasks_failed": 0,
+  "total_steps": 2,
+  "total_screenshots": 2,
+  "total_llm_calls": 2,
+  "total_device_interactions": 0,
+  "total_subtasks_completed": 0,
+  "task_details": [
+    {
+      "task_name": "1. **t1: Make a phone call**",
+      "task_index": 0,
+      "start_time": 1757975858.2507825,
+      "start_position": null,
+      "end_position": null,
+      "completion_time": null,
+      "steps_taken": 2,
+      "screenshots_captured": 2,
+      "llm_calls": 2,
+      "success": false,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "LEFT",
+          "from_position": [
+            -1.75,
+            -2.92
+          ],
+          "to_position": [
+            -1.75,
+            -2.92
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1757975876.407199
+        },
+        {
+          "step": 2,
+          "action": "UP",
+          "from_position": [
+            -1.75,
+            -2.92
+          ],
+          "to_position": [
+            -1.75,
+            -2.92
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1757975890.0578384
+        }
+      ],
+      "room_detections": [
+        {
+          "step": 1,
+          "room": "LIVING_ROOM",
+          "position": [
+            -1.75,
+            -2.92
+          ]
+        },
+        {
+          "step": 2,
+          "room": "LIVING_ROOM",
+          "position": [
+            -1.75,
+            -2.92
+          ]
+        }
+      ],
+      "vlm_responses": [
+        {
+          "call_number": 1,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 255,
+          "response_time": 10.078224658966064,
+          "timeout": false,
+          "timestamp": 1757975876.3935926
+        },
+        {
+          "call_number": 2,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 251,
+          "response_time": 3.5897622108459473,
+          "timeout": false,
+          "timestamp": 1757975890.0537324
+        }
+      ]
+    }
+  ]
+}

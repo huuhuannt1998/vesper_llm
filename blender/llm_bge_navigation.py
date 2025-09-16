@@ -43,6 +43,19 @@ except ImportError as e:
     MCP_INTEGRATION_AVAILABLE = False
     print(f"⚠️ MCP integration not available: {e}")
 
+# Import Intelligent Camera Selection
+try:
+    from intelligent_camera_selection import (
+        select_camera_intelligently,
+        capture_with_intelligent_camera,
+        get_camera_selection_stats
+    )
+    INTELLIGENT_CAMERA_AVAILABLE = True
+    print("✅ Intelligent camera selection loaded")
+except ImportError as e:
+    INTELLIGENT_CAMERA_AVAILABLE = False
+    print(f"⚠️ Intelligent camera selection not available: {e}")
+
 def setup_python_path():
     """Setup path to access LLM client"""
     try:
@@ -222,23 +235,25 @@ class VESPERMetricsLogger:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         self.log_file = os.path.join(self.log_dir, f"vesper_navigation_log_{timestamp}.json")
         
-    # Initialize metrics tracking
-    self.session_data = {
-        "session_id": timestamp,
-        "start_time": self.session_start_time,
-        "tasks_completed": 0,
-        "tasks_failed": 0,
-        "total_steps": 0,
-        "total_screenshots": 0,
-        "total_llm_calls": 0,
-        "total_device_interactions": 0,  # Track virtual device interactions
-        "total_subtasks_completed": 0,   # Track CASAS subtask completion
-        "task_details": []
-    }        # Current task tracking
+        # Initialize metrics tracking
+        self.session_data = {
+            "session_id": timestamp,
+            "start_time": self.session_start_time,
+            "tasks_completed": 0,
+            "tasks_failed": 0,
+            "total_steps": 0,
+            "total_screenshots": 0,
+            "total_llm_calls": 0,
+            "total_device_interactions": 0,  # Track virtual device interactions
+            "total_subtasks_completed": 0,   # Track CASAS subtask completion
+            "task_details": []
+        }
+        
+        # Current task tracking
         self.current_task_data = None
         
         print(f"📊 VESPER: Metrics logging initialized - {self.log_file}")
-    
+
     def start_task(self, task_name, task_index):
         """Log the start of a new task"""
         self.current_task_start_time = time.time()
@@ -449,7 +464,7 @@ def _captures_dir():
     return captures_dir
 
 def _next_screenshot_path(captures_dir):
-    existing_files = [f for f in os.listdir(captures_dir) if f.startswith("bge_") and f.endswith(".png")]
+    existing_files = [f for f in os.listdir(captures_dir) if f.startswith("bird-eye_") and f.endswith(".png")]
     if existing_files:
         nums = []
         for f in existing_files:
@@ -460,10 +475,10 @@ def _next_screenshot_path(captures_dir):
         n = (max(nums) + 1) if nums else 1
     else:
         n = 1
-    p = os.path.join(captures_dir, f"bge_{n:03d}.png")
+    p = os.path.join(captures_dir, f"bird-eye_{n:03d}.png")
     while os.path.exists(p):
         n += 1
-        p = os.path.join(captures_dir, f"bge_{n:03d}.png")
+        p = os.path.join(captures_dir, f"bird-eye_{n:03d}.png")
     return p
 
 def request_bird_eye_screenshot():
@@ -574,6 +589,174 @@ def poll_screenshot_ready(min_bytes: int = 2500, timeout_s: float = 5.0):  # Inc
         return "TIMEOUT"
 
     return None
+
+def request_dual_view_screenshots(actor_position, actor_orientation):
+    """
+    Request both bird-eye and first-person screenshots using sequential capture
+    
+    Args:
+        actor_position: (x, y, z) position of actor
+        actor_orientation: (rx, ry, rz) orientation of actor
+    
+    Returns:
+        Dict with capture status and eventual paths
+    """
+    
+    print("🎬 Requesting dual-view screenshots (bird-eye + first-person)")
+    
+    try:
+        # Try sequential dual camera system first
+        from sequential_dual_camera import capture_dual_view_blocking
+        
+        result = capture_dual_view_blocking(
+            actor_position, 
+            actor_orientation,
+            timeout=15.0
+        )
+        
+        if result["success"]:
+            print(f"✅ Dual capture completed in {result.get('capture_time', 0):.1f}s")
+            return {
+                "success": True,
+                "bird_eye_path": result["bird_eye_path"],
+                "first_person_path": result["first_person_path"],
+                "method": "sequential"
+            }
+        else:
+            print(f"❌ Sequential dual capture failed: {result.get('error', 'Unknown')}")
+            # Don't fall back, return the error
+            return {
+                "success": False,
+                "error": result.get('error', 'Sequential capture failed'),
+                "method": "sequential"
+            }
+            
+    except ImportError:
+        print("⚠️ Sequential dual camera system not available")
+        return {
+            "success": False,
+            "error": "Sequential dual camera system not available",
+            "method": "none"
+        }
+    except Exception as e:
+        print(f"❌ Dual view capture exception: {e}")
+        return {
+            "success": False,
+            "error": f"Exception: {e}",
+            "method": "sequential"
+        }
+
+def request_intelligent_screenshot(actor_position=None, current_task=None, recent_movements=None):
+    """
+    Request screenshot using intelligent camera selection
+    
+    This function replaces direct bird-eye screenshot requests with intelligent
+    camera selection based on navigation context and VLM analysis.
+    """
+    
+    if not INTELLIGENT_CAMERA_AVAILABLE:
+        print("⚠️ Intelligent camera not available, falling back to bird-eye")
+        return request_bird_eye_screenshot()
+    
+    try:
+        # Get actor position if not provided
+        if actor_position is None:
+            scene = bge.logic.getCurrentScene()
+            actor = scene.objects.get("Actor")
+            if actor:
+                actor_position = (actor.worldPosition.x, actor.worldPosition.y, actor.worldPosition.z)
+            else:
+                print("⚠️ Actor not found, using bird-eye fallback")
+                return request_bird_eye_screenshot()
+        
+        # Get recent movements if not provided
+        if recent_movements is None:
+            recent_movements = getattr(bge.logic, 'vesper_position_history', [])
+        
+        # Get current task if not provided
+        if current_task is None:
+            current_task = getattr(bge.logic, 'vesper_tasks', [''])[
+                getattr(bge.logic, 'vesper_current_task_index', 0)
+            ] if hasattr(bge.logic, 'vesper_tasks') else None
+        
+        print(f"🧠 Using intelligent camera selection for task: '{current_task}'")
+        
+        # Use intelligent camera selection
+        result = capture_with_intelligent_camera(
+            actor_position,
+            (0, 0, 0),  # Default orientation, could be enhanced
+            current_task,
+            recent_movements
+        )
+        
+        if result["success"]:
+            camera_used = result["camera_used"]
+            image_path = result["image_path"]
+            reasoning = result["selection_reasoning"]
+            
+            print(f"✅ Intelligent capture successful using {camera_used}")
+            print(f"💭 Reasoning: {reasoning}")
+            
+            # Update BGE screenshot state to match the intelligent capture
+            if camera_used == "bird_eye":
+                # Update bird-eye screenshot state
+                _init_shot_state()
+                st = bge.logic._vesper_shot
+                st["pending"] = False  # Already completed
+                st["path"] = image_path
+                st["start_time"] = time.time()
+                return image_path
+            else:
+                # For first-person, we need to handle differently
+                # Set a flag that indicates we have a ready screenshot
+                if not hasattr(bge.logic, '_vesper_intelligent_shot'):
+                    bge.logic._vesper_intelligent_shot = {}
+                
+                bge.logic._vesper_intelligent_shot.update({
+                    "pending": False,
+                    "path": image_path,
+                    "camera_type": "first_person",
+                    "start_time": time.time()
+                })
+                return image_path
+        else:
+            print(f"❌ Intelligent capture failed: {result.get('error', 'Unknown')}")
+            print("🔄 Falling back to bird-eye screenshot")
+            return request_bird_eye_screenshot()
+            
+    except Exception as e:
+        print(f"❌ Intelligent screenshot request failed: {e}")
+        print("🔄 Falling back to bird-eye screenshot") 
+        return request_bird_eye_screenshot()
+
+def poll_intelligent_screenshot_ready(min_bytes: int = 2500, timeout_s: float = 5.0):
+    """
+    Poll for intelligent screenshot completion
+    
+    This function handles polling for both bird-eye and first-person screenshots
+    depending on what the intelligent system selected.
+    """
+    
+    # Check if we have an intelligent screenshot ready
+    if hasattr(bge.logic, '_vesper_intelligent_shot'):
+        intel_shot = bge.logic._vesper_intelligent_shot
+        
+        if not intel_shot.get("pending", True):  # If not pending, it's ready
+            path = intel_shot.get("path")
+            camera_type = intel_shot.get("camera_type", "unknown")
+            
+            if path and os.path.exists(path):
+                size = os.path.getsize(path)
+                if size >= min_bytes:
+                    print(f"✅ Intelligent screenshot ready: {camera_type} ({size} bytes)")
+                    
+                    # Clear the intelligent shot state
+                    bge.logic._vesper_intelligent_shot = {"pending": True}
+                    
+                    return path
+    
+    # Fall back to standard bird-eye polling
+    return poll_screenshot_ready(min_bytes, timeout_s)
 
 # =============================
 # JSON parsing helpers
@@ -767,8 +950,6 @@ def parse_vlm_response(response, current_task=None):
                                 else:
                                     print(f"📋 Advanced to next subtask: {next_subtask['description']}")
                                     result["casas_task_complete"] = False
-                else:
-                    print(f"✅ BGE: SERVER VALIDATION PASSED - Task '{current_task}' matches room '{current_room}'")
             
             print(f"🏠 BGE: Current room identified: {current_room}")
             print(f"🪑 BGE: Furniture visible: {furniture_visible}")
@@ -941,6 +1122,18 @@ def vision_only_completion(prompt, image_path):
                 raise Exception("❌ VLM returned insufficient response")
                 
             return result, response_time, timeout_occurred
+            
+        except queue.Empty:
+            timeout_occurred = True
+            print("⏰ WARNING: VLM request timed out after 180 seconds")
+            raise Exception("❌ VLM request timed out")
+        except Exception as e:
+            print(f"❌ ERROR: VLM request failed: {str(e)}")
+            raise e
+            
+    except Exception as e:
+        print(f"❌ CRITICAL ERROR in vision_only_completion: {str(e)}")
+        raise e
 
 def multimodal_vision_completion(prompt, bird_eye_path, first_person_path):
     """Multi-modal vision completion with both bird-eye and first-person views"""
@@ -1056,16 +1249,8 @@ IMAGE 2 - FIRST-PERSON VIEW: Actor's eye-level perspective showing:
         return vision_only_completion(prompt, bird_eye_path)
     
     return result, response_time, timeout_occurred
-            
-        except queue.Empty:
-            # Timeout occurred
-            timeout_occurred = True
-            response_time = time.time() - start_time
-            print(f"⏰ DEBUG: IMAGES-ONLY completion TIMED OUT after {response_time:.1f}s")
-            raise Exception(f"❌ Vision analysis timed out after {response_time:.1f}s")
-        
-    except Exception as e:
-        response_time = time.time() - start_time
+
+def enhanced_multi_call_vlm_completion(prompt, bird_eye_path, first_person_path):
         print(f"❌ IMAGES-ONLY completion failed after {response_time:.1f}s: {e}")
         print(f"🔍 DEBUG: Exception type: {type(e).__name__}")
         raise Exception(f"❌ Vision analysis failed - no text fallback allowed: {e}")
@@ -1543,9 +1728,35 @@ IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtim
 
         print("🔍 BGE: Analyzing runtime image with enhanced layout context...")
         
-        # ENHANCED: Use multi-modal analysis if first-person view is available
+        # ENHANCED: Always attempt multi-modal analysis for better navigation
+        # Try to capture first-person view with shorter timeout
+        try:
+            from first_person_camera import capture_immediate_first_person_view
+            print("🎥 BGE: Attempting immediate first-person capture...")
+            
+            # Quick first-person capture (2-second timeout)
+            scene = bge.logic.getCurrentScene()
+            actor = scene.objects.get("Actor")
+            if actor:
+                fp_result = capture_immediate_first_person_view(actor.worldPosition, actor.worldOrientation)
+                if fp_result and fp_result.get("success"):
+                    first_person_screenshot_path = fp_result.get("path")
+                    print(f"✅ BGE: First-person captured: {first_person_screenshot_path}")
+                else:
+                    print("⚠️ BGE: First-person capture failed - using bird-eye only")
+                    first_person_screenshot_path = None
+            else:
+                print("⚠️ BGE: Actor not found - using bird-eye only")
+                first_person_screenshot_path = None
+        except Exception as e:
+            print(f"⚠️ BGE: First-person capture error: {e} - using bird-eye only")
+            first_person_screenshot_path = None
+        
+        # Use multi-modal analysis if first-person view is available
         if first_person_screenshot_path and os.path.exists(first_person_screenshot_path):
             print("🎥 BGE: Using DUAL-VIEW analysis (first-person + bird-eye)")
+            print(f"   🐦 Bird-eye: {screenshot_path}")
+            print(f"   👁️ First-person: {first_person_screenshot_path}")
             response, response_time, timeout_occurred = multimodal_vision_completion(
                 enhanced_prompt, screenshot_path, first_person_screenshot_path
             )
@@ -1639,10 +1850,10 @@ def move_actor_forward(actor, distance=0.3):
     # Calculate new position
     new_pos = current_pos + forward_vector * distance
     
-    # Apply boundary checks
+    # Apply boundary checks - Updated to match actual house layout
     HOUSE_BOUNDS = {
-        'x_min': -5.5, 'x_max': 1.5,
-        'y_min': -0.5, 'y_max': 5.5
+        'x_min': -10.0, 'x_max': 10.0,
+        'y_min': -5.0, 'y_max': 8.0
     }
     
     # Check boundaries
@@ -1833,18 +2044,18 @@ def main():
         print("   📏 Actor (pink dot) clearly visible against floor")
 
         # Kick off initial screenshot (non-blocking)
-        print("\n📸 BGE: Requesting initial high-quality screenshot...")
-        request_bird_eye_screenshot()
+        print("\n📸 BGE: Requesting initial intelligent screenshot...")
+        request_intelligent_screenshot()
         return  # yield this tick so a frame can render
 
     # If a screenshot is pending, poll it
-    shot_status = poll_screenshot_ready()
+    shot_status = poll_intelligent_screenshot_ready()
     if shot_status is None:
         # Not ready yet; let the engine render another frame
         pass
     elif shot_status == "TIMEOUT":
         # Re-request next frame
-        request_bird_eye_screenshot()
+        request_intelligent_screenshot()
         return
     else:
         # Ready path
@@ -1990,7 +2201,7 @@ def main():
             
             bge.logic.vesper_movement_queue = []  # clear current plan
             if not bge.logic._vesper_shot["pending"]:
-                request_bird_eye_screenshot()
+                request_intelligent_screenshot()
             return
 
         # Detect if stuck (position didn't change)
@@ -2000,12 +2211,12 @@ def main():
             bge.logic.vesper_movement_queue = []  # trigger replanning
             # Request new screenshot immediately
             if not bge.logic._vesper_shot["pending"]:
-                request_bird_eye_screenshot()
+                request_intelligent_screenshot()
             return
 
         # If the short sequence is finished, request a new screenshot for the next cycle
         if not bge.logic.vesper_movement_queue:
-            print("📸 BGE: Short sequence completed - requesting NEW screenshot for re-analysis")
+            print("📸 BGE: Short sequence completed - requesting NEW intelligent screenshot for re-analysis")
             
             # Enhanced task completion validation
             if next_move == "STAY":

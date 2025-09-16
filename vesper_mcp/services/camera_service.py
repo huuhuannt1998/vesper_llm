@@ -2,8 +2,9 @@
 Camera & Visual Input Service
 ============================
 
-Dedicated service for first-person camera management and image capture.
-Extracted from monolithic vesper_mcp_server.py to provide focused visual input capabilities.
+Dedicated service for dual-camera management and image capture.
+Provides both bird-eye and first-person camera capture tools for MCP agents.
+The VLM agent can intelligently choose which camera view to capture based on context.
 """
 
 import asyncio
@@ -20,12 +21,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Create FastMCP instance for camera service
-mcp = FastMCP("Camera Service")
+mcp = FastMCP("Dual Camera Service")
 
 # Configuration
 CAMERA_SERVICE_PORT = 8001
-SCREENSHOT_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "captures", "first_person")
-os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+BIRD_EYE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "captures", "bird_eye")
+FIRST_PERSON_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "captures", "first_person")
+os.makedirs(BIRD_EYE_DIR, exist_ok=True)
+os.makedirs(FIRST_PERSON_DIR, exist_ok=True)
 
 @mcp.tool()
 async def setup_first_person_camera(
@@ -104,14 +107,133 @@ async def setup_first_person_camera(
         }
 
 @mcp.tool()
+async def capture_bird_eye_view(
+    filename: Optional[str] = None,
+    resolution_x: int = 1024,
+    resolution_y: int = 768
+) -> Dict[str, Any]:
+    """
+    Capture bird-eye view screenshot for spatial navigation and room layout understanding.
+    
+    Use this tool when you need:
+    - Overall room layout and spatial relationships
+    - Path planning and obstacle avoidance
+    - Understanding furniture arrangement
+    - Navigation context and room transitions
+    
+    Args:
+        filename: Optional custom filename (auto-generated if not provided)
+        resolution_x: Image width in pixels
+        resolution_y: Image height in pixels
+        
+    Returns:
+        Dictionary with capture results and file path
+    """
+    try:
+        # Generate filename if not provided
+        if not filename:
+            import time
+            timestamp = int(time.time() * 1000)
+            filename = f"bird-eye_{timestamp}.png"
+        
+        # Ensure .png extension
+        if not filename.endswith('.png'):
+            filename += '.png'
+        
+        filepath = os.path.join(BIRD_EYE_DIR, filename)
+        
+        # Configure render settings for bird-eye view
+        scene = bpy.context.scene
+        render = scene.render
+        
+        # Store original settings
+        original_resolution_x = render.resolution_x
+        original_resolution_y = render.resolution_y
+        original_filepath = render.filepath
+        original_camera = scene.camera
+        
+        try:
+            # Find bird-eye camera
+            bird_eye_camera = None
+            for obj in bpy.data.objects:
+                if obj.type == 'CAMERA' and 'bird' in obj.name.lower():
+                    bird_eye_camera = obj
+                    break
+            
+            if not bird_eye_camera:
+                return {
+                    "success": False,
+                    "error": "Bird-eye camera not found. Please create a camera with 'bird' in its name."
+                }
+            
+            # Set bird-eye camera as active
+            scene.camera = bird_eye_camera
+            
+            # Configure render settings
+            render.resolution_x = resolution_x
+            render.resolution_y = resolution_y
+            render.filepath = filepath
+            render.image_settings.file_format = 'PNG'
+            
+            # Ensure bird-eye camera is positioned appropriately
+            if bird_eye_camera.location.z < 5.0:
+                logger.warning(f"Bird-eye camera height is {bird_eye_camera.location.z:.1f}. Consider positioning it higher (Z > 8) for better overview.")
+            
+            # Render the image
+            bpy.ops.render.render(write_still=True)
+            
+            # Verify file was created
+            if not os.path.exists(filepath):
+                return {
+                    "success": False,
+                    "error": "Screenshot file was not created"
+                }
+            
+            file_size = os.path.getsize(filepath)
+            
+            logger.info(f"Bird-eye screenshot captured: {filename} ({file_size} bytes)")
+            
+            return {
+                "success": True,
+                "filepath": filepath,
+                "filename": filename,
+                "camera_used": bird_eye_camera.name,
+                "file_size": file_size,
+                "resolution": f"{resolution_x}x{resolution_y}",
+                "camera_type": "bird_eye",
+                "description": "Top-down view for spatial navigation and room layout"
+            }
+            
+        finally:
+            # Restore original settings
+            render.resolution_x = original_resolution_x
+            render.resolution_y = original_resolution_y
+            render.filepath = original_filepath
+            if original_camera:
+                scene.camera = original_camera
+        
+    except Exception as e:
+        logger.error(f"Error capturing bird-eye view: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@mcp.tool()
 async def capture_first_person_view(
     actor_name: str = "Actor",
     filename: Optional[str] = None,
-    resolution_x: int = 800,
-    resolution_y: int = 600
+    resolution_x: int = 1024,
+    resolution_y: int = 768
 ) -> Dict[str, Any]:
     """
-    Capture first-person view screenshot from actor's perspective.
+    Capture first-person view screenshot from actor's eye-level perspective.
+    
+    Use this tool when you need:
+    - Detailed object interaction and identification
+    - Understanding what's directly accessible to the actor
+    - Reading labels, signs, or fine details
+    - Precise positioning and manipulation context
     
     Args:
         actor_name: Name of the actor whose perspective to capture
@@ -138,7 +260,7 @@ async def capture_first_person_view(
         if not filename.endswith('.png'):
             filename += '.png'
         
-        filepath = os.path.join(SCREENSHOT_DIR, filename)
+        filepath = os.path.join(FIRST_PERSON_DIR, filename)
         
         # Configure render settings
         scene = bpy.context.scene
@@ -194,6 +316,144 @@ async def capture_first_person_view(
         return {
             "success": False,
             "error": str(e)
+        }
+
+@mcp.tool()
+async def get_camera_recommendations(
+    current_task: str,
+    actor_position: Optional[str] = None,
+    recent_actions: Optional[str] = None,
+    current_context: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Get intelligent camera selection recommendations based on current context.
+    
+    This tool helps you decide whether to use bird-eye or first-person view
+    based on your current task and situation.
+    
+    Args:
+        current_task: Description of the current task or goal
+        actor_position: Current actor position and room information
+        recent_actions: Recent movement or action history
+        current_context: Additional context about the situation
+        
+    Returns:
+        Dictionary with camera recommendations and reasoning
+    """
+    try:
+        recommendations = {
+            "bird_eye": {
+                "score": 0,
+                "reasons": []
+            },
+            "first_person": {
+                "score": 0,
+                "reasons": []
+            }
+        }
+        
+        task_lower = current_task.lower() if current_task else ""
+        
+        # Analyze task requirements
+        if any(word in task_lower for word in ["navigate", "go to", "move to", "find room", "explore"]):
+            recommendations["bird_eye"]["score"] += 3
+            recommendations["bird_eye"]["reasons"].append("Navigation tasks benefit from spatial overview")
+        
+        if any(word in task_lower for word in ["use", "interact", "read", "operate", "cook", "clean"]):
+            recommendations["first_person"]["score"] += 3
+            recommendations["first_person"]["reasons"].append("Interaction tasks need detailed object view")
+        
+        if any(word in task_lower for word in ["stuck", "lost", "confused", "path"]):
+            recommendations["bird_eye"]["score"] += 2
+            recommendations["bird_eye"]["reasons"].append("Problem-solving benefits from room layout view")
+        
+        # Analyze context
+        if recent_actions and "repeated" in recent_actions.lower():
+            recommendations["bird_eye"]["score"] += 2
+            recommendations["bird_eye"]["reasons"].append("Repeated actions suggest need for spatial reorientation")
+        
+        if current_context and any(word in current_context.lower() for word in ["detail", "precise", "close"]):
+            recommendations["first_person"]["score"] += 2
+            recommendations["first_person"]["reasons"].append("Context suggests need for detailed view")
+        
+        # Determine recommendation
+        if recommendations["bird_eye"]["score"] > recommendations["first_person"]["score"]:
+            recommended = "bird_eye"
+        elif recommendations["first_person"]["score"] > recommendations["bird_eye"]["score"]:
+            recommended = "first_person"
+        else:
+            recommended = "bird_eye"  # Default to bird-eye for navigation
+            recommendations["bird_eye"]["reasons"].append("Default choice for general navigation")
+        
+        return {
+            "success": True,
+            "recommended_camera": recommended,
+            "confidence": max(recommendations[recommended]["score"] / 5.0, 0.5),
+            "bird_eye_score": recommendations["bird_eye"]["score"],
+            "first_person_score": recommendations["first_person"]["score"],
+            "bird_eye_reasons": recommendations["bird_eye"]["reasons"],
+            "first_person_reasons": recommendations["first_person"]["reasons"],
+            "guidance": {
+                "bird_eye": "Use for: navigation, room layout, path planning, spatial understanding",
+                "first_person": "Use for: object interaction, reading details, precise manipulation"
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating camera recommendations: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e),
+            "recommended_camera": "bird_eye"  # Safe fallback
+        }
+
+@mcp.tool()
+async def get_available_cameras() -> Dict[str, Any]:
+    """
+    List all available cameras in the Blender scene.
+    
+    Returns:
+        Dictionary with information about available cameras
+    """
+    try:
+        cameras = []
+        
+        for obj in bpy.data.objects:
+            if obj.type == 'CAMERA':
+                camera_info = {
+                    "name": obj.name,
+                    "location": [obj.location.x, obj.location.y, obj.location.z],
+                    "rotation": [obj.rotation_euler.x, obj.rotation_euler.y, obj.rotation_euler.z],
+                    "is_active": bpy.context.scene.camera == obj,
+                    "camera_type": "unknown"
+                }
+                
+                # Determine camera type based on name and position
+                name_lower = obj.name.lower()
+                if 'bird' in name_lower or 'eye' in name_lower:
+                    camera_info["camera_type"] = "bird_eye"
+                elif 'fp' in name_lower or 'first' in name_lower or 'actor' in name_lower:
+                    camera_info["camera_type"] = "first_person"
+                elif obj.location.z > 5.0:
+                    camera_info["camera_type"] = "bird_eye"
+                else:
+                    camera_info["camera_type"] = "first_person"
+                
+                cameras.append(camera_info)
+        
+        return {
+            "success": True,
+            "cameras": cameras,
+            "total_count": len(cameras),
+            "active_camera": bpy.context.scene.camera.name if bpy.context.scene.camera else None
+        }
+        
+    except Exception as e:
+        logger.error(f"Error listing cameras: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e),
+            "cameras": []
         }
 
 @mcp.tool()

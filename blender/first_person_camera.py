@@ -34,7 +34,7 @@ class FirstPersonCameraManager:
         self._init_first_person_shot_state()
     
     def _init_first_person_shot_state(self):
-        """Initialize first-person shot state (mirrors bird-eye shot state)"""
+        """Initialize first-person shot state (mirrors bird-eye shot state exactly)"""
         if not hasattr(bge.logic, "_vesper_first_person_shot"):
             bge.logic._vesper_first_person_shot = {
                 "pending": False,
@@ -49,26 +49,31 @@ class FirstPersonCameraManager:
             # Get the current scene
             scene = bge.logic.getCurrentScene()
             
-            # Find or create first-person camera
-            camera_name = "FirstPersonCamera"
+            # Find the specific Actor_FPCamera for first-person view
+            camera_name = "Actor_FPCamera"
             self.camera_object = scene.objects.get(camera_name)
             
-            if not self.camera_object:
-                # Try to find any available camera for first-person use
-                print("🎥 Creating first-person camera setup...")
+            if self.camera_object:
+                print(f"🎥 Found Actor_FPCamera for first-person: {self.camera_object.name}")
+            else:
+                # Try alternative names for first-person camera
+                alternative_names = ["FirstPersonCamera", "FPCamera", "ActorCamera"]
+                for name in alternative_names:
+                    self.camera_object = scene.objects.get(name)
+                    if self.camera_object:
+                        print(f"🎥 Using alternative first-person camera: {self.camera_object.name}")
+                        break
                 
-                # Look for existing cameras that can be repurposed
-                cameras = []
-                for obj in scene.objects:
-                    if hasattr(obj, 'camera') or 'Camera' in obj.name:
-                        cameras.append(obj)
+                if not self.camera_object:
+                    # Look for cameras with FP in the name
+                    for obj in scene.objects:
+                        if "FP" in obj.name and (hasattr(obj, 'camera') or 'Camera' in obj.name):
+                            self.camera_object = obj
+                            print(f"🎥 Found FP camera: {self.camera_object.name}")
+                            break
                 
-                if cameras:
-                    # Use or duplicate an existing camera for first-person view
-                    self.camera_object = cameras[0]  # Use first available camera
-                    print(f"🎥 Using camera for first-person: {self.camera_object.name}")
-                else:
-                    print("⚠️ No camera found for first-person view - will create virtual camera")
+                if not self.camera_object:
+                    print("⚠️ Actor_FPCamera not found - first-person view not available")
                     return
             
             # Configure camera for first-person view
@@ -115,6 +120,69 @@ class FirstPersonCameraManager:
                 
         except Exception as e:
             print(f"❌ Error attaching camera to actor: {e}")
+
+    @staticmethod
+    def _try_offscreen_first_person_capture(camera_obj, output_path: str, width: int = 1024, height: int = 768) -> bool:
+        """Render first-person view from a specific camera without switching active camera.
+        Uses UPBGE/BGE video texture offscreen rendering if available.
+
+        Returns True on success, False otherwise.
+        """
+        try:
+            # Some builds expose offscreen via bge.texture or VideoTexture
+            vt = None
+            try:
+                from bge import texture as vt  # type: ignore
+            except Exception:
+                try:
+                    import VideoTexture as vt  # type: ignore
+                except Exception:
+                    print("⚠️ VideoTexture not available in this BGE build")
+                    return False
+            
+            if vt is None:
+                return False
+                
+            scene = bge.logic.getCurrentScene()
+
+            # Create offscreen renderer bound to the given camera
+            try:
+                renderer = vt.ImageRender(scene, camera_obj, width, height)
+            except (TypeError, AttributeError):
+                try:
+                    # Older API without explicit width/height
+                    renderer = vt.ImageRender(scene, camera_obj)
+                except Exception as e:
+                    print(f"⚠️ Failed to create ImageRender: {e}")
+                    return False
+
+            # Force one render into the offscreen buffer
+            renderer.refresh(True)
+
+            # Try direct save if available
+            if hasattr(renderer, 'save'):
+                try:
+                    renderer.save(output_path)
+                    return os.path.exists(output_path)
+                except Exception as e:
+                    print(f"⚠️ renderer.save() failed: {e}")
+
+            # Fallback: write raw image buffer if exposed
+            if hasattr(renderer, 'image') and renderer.image:
+                # Some builds expose vt.saveImage
+                if hasattr(vt, 'saveImage'):
+                    try:
+                        vt.saveImage(renderer.image, output_path)
+                        return os.path.exists(output_path)
+                    except Exception as e:
+                        print(f"⚠️ vt.saveImage() failed: {e}")
+
+            print("⚠️ Offscreen renderer present but no save method; falling back to active-camera screenshot")
+            return False
+
+        except Exception as e:
+            print(f"⚠️ Offscreen capture not available: {e}")
+            return False
     
     def _captures_dir_first_person(self):
         """Get captures directory for first-person images"""
@@ -126,14 +194,14 @@ class FirstPersonCameraManager:
     def _next_first_person_screenshot_path(self):
         """Generate next screenshot path for first-person capture"""
         captures_dir = self._captures_dir_first_person()
-        existing_files = [f for f in os.listdir(captures_dir) if f.startswith("first_person_") and f.endswith(".png")]
+        existing_files = [f for f in os.listdir(captures_dir) if f.startswith("first-person_") and f.endswith(".png")]
         
         if existing_files:
             # Extract numbers and find the highest
             numbers = []
             for f in existing_files:
                 try:
-                    num_str = f.replace("first_person_", "").replace(".png", "")
+                    num_str = f.replace("first-person_", "").replace(".png", "")
                     numbers.append(int(num_str))
                 except ValueError:
                     continue
@@ -142,12 +210,12 @@ class FirstPersonCameraManager:
         else:
             next_num = 1
         
-        return os.path.join(captures_dir, f"first_person_{next_num:04d}.png")
+        return os.path.join(captures_dir, f"first-person_{next_num:04d}.png")
     
     def request_first_person_screenshot(self, actor_position: Tuple[float, float, float], 
                                       actor_orientation: Tuple[float, float, float]) -> Optional[str]:
         """
-        Request first-person screenshot (follows bird-eye pattern exactly)
+        Request first-person screenshot using the EXACT same pattern as bird-eye
         Non-blocking: returns path immediately; result is polled via poll_first_person_ready()
         """
         self._init_first_person_shot_state()
@@ -160,58 +228,52 @@ class FirstPersonCameraManager:
         if not self.camera_object:
             print("⚠️ BGE: No first-person camera available for screenshot")
             return None
-        
-        # ENHANCED: Optimize camera settings for first-person screenshot
+
+        # Same pattern as bird-eye: optimize camera settings
         try:
-            # Set first-person camera as active for screenshot
-            original_camera = scene.active_camera
+            # Set first-person camera as active IMMEDIATELY (same as bird-eye)
             scene.active_camera = self.camera_object
             
-            # Ensure camera has optimal settings for first-person view
+            # Optimize camera lens (same as bird-eye optimization)
             if hasattr(self.camera_object, 'lens'):
-                # Use standard lens for realistic first-person perspective
-                original_lens = self.camera_object.lens
-                if self.camera_object.lens != 50:  # Standard 50mm lens
+                original_lens = getattr(self.camera_object, 'lens', 50)
+                if self.camera_object.lens != 50:
                     self.camera_object.lens = 50
                     print(f"📷 BGE: Set first-person camera lens to 50mm (was {original_lens})")
             
-            # Verify camera position
+            # Log camera position (same as bird-eye)
             cam_pos = self.camera_object.worldPosition
             print(f"📷 BGE: First-person camera at [{cam_pos.x:.2f}, {cam_pos.y:.2f}, {cam_pos.z:.2f}]")
             
         except Exception as e:
             print(f"⚠️ BGE: First-person camera optimization error: {e}")
-        
-        # Generate screenshot path
+
+        # Generate screenshot path (same as bird-eye)
         shot_path = self._next_first_person_screenshot_path()
-        
-        # ENHANCED: Take high-quality first-person screenshot
+
+        # Take screenshot IMMEDIATELY (same as bird-eye pattern)
         try:
             print(f"📸 BGE: Capturing first-person screenshot...")
             
-            # Use same BGE screenshot method as bird-eye view
+            # Use EXACT same BGE screenshot method as bird-eye view
             bge.render.makeScreenshot(shot_path)
             
-            # Restore original camera if needed
-            if 'original_camera' in locals() and original_camera:
-                scene.active_camera = original_camera
-                
         except Exception as e:
             print(f"❌ BGE: First-person screenshot capture failed: {e}")
             return None
-        
-        # Update shot state (mirrors bird-eye implementation)
+
+        # Update shot state (mirrors bird-eye implementation exactly)
         st = bge.logic._vesper_first_person_shot
         st["pending"] = True
         st["path"] = shot_path
         st["start_time"] = time.time()
         st["tries"] += 1
-        
+
         return shot_path
     
     def poll_first_person_ready(self, min_bytes: int = 2500, timeout_s: float = 5.0) -> Optional[str]:
         """
-        Poll for first-person screenshot completion (mirrors bird-eye poll_screenshot_ready)
+        Poll for first-person screenshot completion using EXACT same pattern as bird-eye
         Returns: screenshot path if ready, None if still pending, "TIMEOUT" if timed out
         """
         self._init_first_person_shot_state()
@@ -219,7 +281,8 @@ class FirstPersonCameraManager:
         
         if not st["pending"]:
             return None
-        
+
+        # Check if file exists and is ready (same logic as bird-eye)
         p = st["path"]
         if p and os.path.exists(p):
             try:
@@ -245,8 +308,8 @@ class FirstPersonCameraManager:
                     print(f"⏳ BGE: First-person screenshot still rendering... ({size}/{min_bytes} bytes)")
             except Exception as e:
                 print(f"⚠️ BGE: First-person screenshot error: {e}")
-        
-        # Check timeout
+
+        # Check timeout (same as bird-eye)
         if time.time() - st["start_time"] > timeout_s:
             st["pending"] = False
             print(f"⏰ BGE: First-person screenshot timeout after {timeout_s}s")
@@ -366,40 +429,136 @@ class MultiModalVLMContext:
     
     def capture_multimodal_screenshots(self, actor_position: Tuple[float, float, float],
                                      actor_orientation: Tuple[float, float, float]) -> Dict[str, Optional[str]]:
-        """Capture both first-person and bird-eye screenshots"""
+        """Capture both first-person and bird-eye screenshots using sequential system"""
         
-        results = {
-            "first_person_path": None,
-            "bird_eye_path": None,
-            "status": "pending"
-        }
-        
-        # Request first-person screenshot
         try:
-            fp_path = self.first_person_manager.request_first_person_screenshot(
-                actor_position, actor_orientation
-            )
-            if fp_path:
-                results["first_person_path"] = fp_path
-                print(f"🎥 First-person screenshot requested: {os.path.basename(fp_path)}")
-        except Exception as e:
-            print(f"❌ First-person screenshot request failed: {e}")
-        
-        # Request bird-eye screenshot (import the function from main module)
-        try:
-            from llm_bge_navigation import request_bird_eye_screenshot
-            be_path = request_bird_eye_screenshot()
-            if be_path:
-                results["bird_eye_path"] = be_path
-                print(f"🐦 Bird-eye screenshot requested: {os.path.basename(be_path)}")
-        except Exception as e:
-            print(f"❌ Bird-eye screenshot request failed: {e}")
-        
-        return results
+            # Use the new sequential dual camera system
+            from sequential_dual_camera import start_dual_camera_capture
+            
+            result = start_dual_camera_capture(actor_position, actor_orientation)
+            
+            if result["success"]:
+                return {
+                    "first_person_path": None,  # Will be available after polling
+                    "bird_eye_path": result.get("bird_eye_path"),
+                    "status": "sequential_pending",
+                    "sequential_status": result["status"]
+                }
+            else:
+                print(f"❌ Sequential dual capture failed to start: {result.get('error', 'Unknown')}")
+                return {
+                    "first_person_path": None,
+                    "bird_eye_path": None,
+                    "status": "failed",
+                    "error": result.get('error', 'Sequential capture failed')
+                }
+                
+        except ImportError:
+            print("⚠️ Sequential dual camera not available, falling back to old method")
+            
+            # Fallback to original method
+            results = {
+                "first_person_path": None,
+                "bird_eye_path": None,
+                "status": "pending"
+            }
+            
+            # Request first-person screenshot
+            try:
+                fp_path = self.first_person_manager.request_first_person_screenshot(
+                    actor_position, actor_orientation
+                )
+                if fp_path:
+                    results["first_person_path"] = fp_path
+                    print(f"🎥 First-person screenshot requested: {os.path.basename(fp_path)}")
+            except Exception as e:
+                print(f"❌ First-person screenshot request failed: {e}")
+            
+            # Request bird-eye screenshot
+            try:
+                from llm_bge_navigation import request_bird_eye_screenshot
+                be_path = request_bird_eye_screenshot()
+                if be_path:
+                    results["bird_eye_path"] = be_path
+                    print(f"🐦 Bird-eye screenshot requested: {os.path.basename(be_path)}")
+            except Exception as e:
+                print(f"❌ Bird-eye screenshot request failed: {e}")
+            
+            return results
     
     def poll_multimodal_ready(self, capture_results: Dict[str, Optional[str]], 
                             timeout_s: float = 10.0) -> Dict[str, Any]:
-        """Poll for both screenshots to be ready"""
+        """Poll for both screenshots to be ready - supports sequential and legacy modes"""
+        
+        # Check if using sequential capture system
+        if capture_results.get("status") == "sequential_pending":
+            return self._poll_sequential_capture(timeout_s)
+        
+        # Legacy polling for backward compatibility
+        return self._poll_legacy_capture(capture_results, timeout_s)
+    
+    def _poll_sequential_capture(self, timeout_s: float) -> Dict[str, Any]:
+        """Poll sequential dual camera capture"""
+        
+        try:
+            from sequential_dual_camera import poll_dual_camera_capture
+            
+            start_time = time.time()
+            
+            while time.time() - start_time < timeout_s:
+                result = poll_dual_camera_capture()
+                
+                if result["status"] == "complete":
+                    print("🎉 Sequential dual capture completed successfully")
+                    return {
+                        "first_person_ready": True,
+                        "bird_eye_ready": True,
+                        "first_person_path": result["first_person_path"],
+                        "bird_eye_path": result["bird_eye_path"],
+                        "timeout": False,
+                        "sequential": True,
+                        "capture_time": result.get("capture_time", 0)
+                    }
+                elif not result["success"]:
+                    print(f"❌ Sequential capture failed: {result.get('error', 'Unknown')}")
+                    return {
+                        "first_person_ready": False,
+                        "bird_eye_ready": False,
+                        "first_person_path": None,
+                        "bird_eye_path": None,
+                        "timeout": False,
+                        "error": result.get("error", "Sequential capture failed"),
+                        "sequential": True
+                    }
+                
+                # Still in progress
+                time.sleep(0.2)
+            
+            # Timeout
+            print(f"⏰ Sequential capture timeout after {timeout_s}s")
+            return {
+                "first_person_ready": False,
+                "bird_eye_ready": False,
+                "first_person_path": None,
+                "bird_eye_path": None,
+                "timeout": True,
+                "sequential": True
+            }
+            
+        except ImportError:
+            print("⚠️ Sequential capture not available during polling")
+            return {
+                "first_person_ready": False,
+                "bird_eye_ready": False,
+                "first_person_path": None,
+                "bird_eye_path": None,
+                "timeout": True,
+                "error": "Sequential system unavailable"
+            }
+    
+    def _poll_legacy_capture(self, capture_results: Dict[str, Optional[str]], 
+                           timeout_s: float) -> Dict[str, Any]:
+        """Legacy polling method for backward compatibility"""
         
         start_time = time.time()
         status = {
@@ -522,3 +681,84 @@ def poll_multimodal_navigation_ready(capture_results: Dict[str, Any],
     
     # Poll for both screenshots
     return multimodal_vlm_context.poll_multimodal_ready(capture_results, timeout_s)
+
+
+def capture_immediate_first_person_view(actor_position, actor_orientation):
+    """Immediate first-person capture that uses one-frame deferred request/poll.
+    Tries offscreen first; if unavailable, switches active camera, defers 1 frame, then captures.
+    """
+    import time
+
+    try:
+        scene = bge.logic.getCurrentScene()
+
+        # Locate the FP camera
+        first_person_camera = scene.objects.get("Actor_FPCamera")
+        if not first_person_camera:
+            for name in ["FPCamera", "FirstPersonCamera", "ActorCamera"]:
+                first_person_camera = scene.objects.get(name)
+                if first_person_camera:
+                    print(f"🎥 Using alternative first-person camera: {name}")
+                    break
+        if not first_person_camera:
+            for obj in scene.objects:
+                if "FP" in obj.name and (hasattr(obj, 'camera') or 'Camera' in obj.name):
+                    first_person_camera = obj
+                    print(f"🎥 Found FP camera: {obj.name}")
+                    break
+        if not first_person_camera:
+            print("⚠️ First-person camera not found")
+            return {"success": False, "error": "Camera not found"}
+
+        # Position and lens
+        if hasattr(actor_position, '__iter__'):
+            first_person_camera.worldPosition = [actor_position[0], actor_position[1], actor_position[2] + 1.7]
+        if hasattr(actor_orientation, '__iter__'):
+            first_person_camera.worldOrientation = actor_orientation
+        if hasattr(first_person_camera, 'lens'):
+            try:
+                if first_person_camera.lens != 50.0:
+                    first_person_camera.lens = 50.0
+            except Exception:
+                pass
+
+        # Try offscreen first
+        captures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "captures", "first_person")
+        os.makedirs(captures_dir, exist_ok=True)
+        existing = [f for f in os.listdir(captures_dir) if f.startswith("first-person_") and f.endswith(".png")]
+        if existing:
+            nums = []
+            for f in existing:
+                try:
+                    nums.append(int(f.replace("first-person_", "").replace(".png", "")))
+                except ValueError:
+                    pass
+            next_num = max(nums) + 1 if nums else 1
+        else:
+            next_num = 1
+        output_path = os.path.join(captures_dir, f"first-person_{next_num:04d}.png")
+
+        if FirstPersonCameraManager._try_offscreen_first_person_capture(first_person_camera, output_path, 1024, 768):
+            print(f"📸 Offscreen first-person capture saved: {output_path}")
+            return {"success": True, "path": output_path}
+
+        # Use staged request/poll approach
+        mgr = get_first_person_camera()
+        req_path = mgr.request_first_person_screenshot(actor_position, actor_orientation)
+        if not req_path:
+            return {"success": False, "error": "Request failed"}
+
+        # Poll synchronously for a short timeout
+        start = time.time()
+        while time.time() - start < 5.0:
+            result = mgr.poll_first_person_ready()
+            if result and result != "TIMEOUT":
+                return {"success": True, "path": result}
+            if result == "TIMEOUT":
+                break
+            time.sleep(0.05)
+        return {"success": False, "error": "Timeout or invalid file"}
+
+    except Exception as e:
+        print(f"❌ First-person capture failed: {e}")
+        return {"success": False, "error": str(e)}
