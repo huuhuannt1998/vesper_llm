@@ -50,13 +50,34 @@ class FirstPersonCameraManager:
             scene = bge.logic.getCurrentScene()
             
             # Find the specific Actor_FPCamera for first-person view
-            camera_name = "Actor_FPCamera"
-            self.camera_object = scene.objects.get(camera_name)
+            # ENHANCED: Check for child objects of Actor first
+            actor = scene.objects.get("Actor")
+            self.camera_object = None
             
-            if self.camera_object:
-                print(f"🎥 Found Actor_FPCamera for first-person: {self.camera_object.name}")
+            if actor:
+                print(f"🚶 Found Actor, checking for child cameras...")
+                
+                # Check Actor's children for FP camera
+                if hasattr(actor, 'children'):
+                    for child in actor.children:
+                        if child.name == "Actor_FPCamera" or "FPCamera" in child.name:
+                            if hasattr(child, 'camera') or 'Camera' in child.name:
+                                self.camera_object = child
+                                print(f"🎥 Found child first-person camera: {child.name}")
+                                break
+                
+                # Also check scene-level objects (fallback)
+                if not self.camera_object:
+                    camera_name = "Actor_FPCamera"
+                    self.camera_object = scene.objects.get(camera_name)
+                    if self.camera_object:
+                        print(f"🎥 Found scene-level Actor_FPCamera: {self.camera_object.name}")
             else:
-                # Try alternative names for first-person camera
+                print("⚠️ Actor not found, checking scene-level cameras only")
+                self.camera_object = scene.objects.get("Actor_FPCamera")
+            
+            # Fallback: Try alternative camera names
+            if not self.camera_object:
                 alternative_names = ["FirstPersonCamera", "FPCamera", "ActorCamera"]
                 for name in alternative_names:
                     self.camera_object = scene.objects.get(name)
@@ -64,17 +85,17 @@ class FirstPersonCameraManager:
                         print(f"🎥 Using alternative first-person camera: {self.camera_object.name}")
                         break
                 
+                # Last resort: Search all objects for FP cameras
                 if not self.camera_object:
-                    # Look for cameras with FP in the name
                     for obj in scene.objects:
                         if "FP" in obj.name and (hasattr(obj, 'camera') or 'Camera' in obj.name):
                             self.camera_object = obj
                             print(f"🎥 Found FP camera: {self.camera_object.name}")
                             break
-                
-                if not self.camera_object:
-                    print("⚠️ Actor_FPCamera not found - first-person view not available")
-                    return
+            
+            if not self.camera_object:
+                print("⚠️ Actor_FPCamera not found as child or scene object - first-person view not available")
+                return
             
             # Configure camera for first-person view
             if self.camera_object:
@@ -803,8 +824,29 @@ def capture_immediate_first_person_view(actor_position, actor_orientation):
         
         scene = bge.logic.getCurrentScene()
 
-        # Locate the FP camera
-        first_person_camera = scene.objects.get("Actor_FPCamera")
+        # Locate the FP camera - ENHANCED to check Actor children first
+        actor = scene.objects.get("Actor")
+        first_person_camera = None
+        
+        if actor:
+            print(f"🚶 Checking Actor children for first-person camera...")
+            
+            # Check Actor's children first
+            if hasattr(actor, 'children'):
+                for child in actor.children:
+                    if child.name == "Actor_FPCamera" or "FPCamera" in child.name:
+                        if hasattr(child, 'camera') or 'Camera' in child.name:
+                            first_person_camera = child
+                            print(f"🎥 Found child first-person camera: {child.name}")
+                            break
+        
+        # Fallback to scene-level search
+        if not first_person_camera:
+            first_person_camera = scene.objects.get("Actor_FPCamera")
+            if first_person_camera:
+                print(f"🎥 Found scene-level Actor_FPCamera")
+        
+        # Try alternative names
         if not first_person_camera:
             for name in ["FPCamera", "FirstPersonCamera", "ActorCamera"]:
                 first_person_camera = scene.objects.get(name)

@@ -1,0 +1,32 @@
+{
+  "services": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "c:\\Users\\hbui11\\Desktop\\vesper_llm"],
+      "env": {},
+      "enabled": true,
+      "description": "File system access for VESPER project"
+    },
+    "web_search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": ""
+      },
+      "enabled": false,
+      "description": "Web search capabilities (requires API key)"
+    },
+    "github": {
+      "command": "npx", 
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+      },
+      "enabled": false,
+      "description": "GitHub repository access (requires token)"
+    }
+  },
+  "timeout": 30,
+  "retry_attempts": 3,
+  "log_level": "INFO"
+}

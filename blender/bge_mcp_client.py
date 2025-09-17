@@ -29,6 +29,8 @@ class BGEMCPClient:
         self.config_path = config_path
         self.config = self._load_config()
         self.session = None
+        self._event_loop = None
+        self._loop_thread = None
         self.last_health_check = 0
         self.health_check_interval = self.config.get("health_check_interval", 30)
         self.request_timeout = self.config.get("request_timeout", 10)
@@ -63,18 +65,49 @@ class BGEMCPClient:
             }
     
     def _initialize_session(self):
-        """Initialize aiohttp session"""
+        """Initialize aiohttp session with BGE-compatible event loop"""
         
         try:
             # Try to get existing event loop
             loop = asyncio.get_event_loop()
+            if loop.is_closed():
+                raise RuntimeError("Event loop is closed")
         except RuntimeError:
-            # Create new event loop if none exists
+            # Create new event loop if none exists or is closed
+            print("🔄 BGE: Creating new event loop for MCP services")
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
+            
+        # Ensure the loop is running in a separate thread for BGE compatibility
+        import threading
+        
+        if not hasattr(self, '_loop_thread') or not self._loop_thread.is_alive():
+            self._loop_thread = threading.Thread(target=self._run_event_loop, daemon=True)
+            self._loop_thread.start()
+            time.sleep(0.1)  # Give thread time to start
         
         timeout = aiohttp.ClientTimeout(total=self.request_timeout)
-        self.session = aiohttp.ClientSession(timeout=timeout)
+        # Create session in the event loop thread
+        future = asyncio.run_coroutine_threadsafe(
+            self._create_session_async(timeout), loop
+        )
+        self.session = future.result(timeout=5)
+        
+    def _run_event_loop(self):
+        """Run event loop in separate thread for BGE compatibility"""
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        self._event_loop = loop
+        try:
+            loop.run_forever()
+        except Exception as e:
+            print(f"⚠️ Event loop error: {e}")
+        finally:
+            loop.close()
+            
+    async def _create_session_async(self, timeout):
+        """Create aiohttp session asynchronously"""
+        return aiohttp.ClientSession(timeout=timeout)
     
     async def _ensure_session(self):
         """Ensure session is available"""
@@ -82,10 +115,31 @@ class BGEMCPClient:
         if self.session is None or self.session.closed:
             self._initialize_session()
     
-    async def _make_request(self, method: str, url: str, data: Dict = None) -> Optional[Dict]:
-        """Make HTTP request to MCP service"""
+    def make_request_sync(self, method: str, url: str, data: Dict = None) -> Optional[Dict]:
+        """Make synchronous HTTP request (BGE-compatible wrapper)"""
         
-        await self._ensure_session()
+        if not self._event_loop or not self._loop_thread.is_alive():
+            print("⚠️ Event loop not available, reinitializing...")
+            self._initialize_session()
+            
+        try:
+            # Run async request in the event loop thread
+            future = asyncio.run_coroutine_threadsafe(
+                self._make_request_async(method, url, data), 
+                self._event_loop
+            )
+            return future.result(timeout=self.request_timeout)
+            
+        except Exception as e:
+            print(f"❌ MCP request failed: {e}")
+            return None
+    
+    async def _make_request_async(self, method: str, url: str, data: Dict = None) -> Optional[Dict]:
+        """Make HTTP request to MCP service (async implementation)"""
+        
+        if self.session is None or self.session.closed:
+            timeout = aiohttp.ClientTimeout(total=self.request_timeout)
+            self.session = aiohttp.ClientSession(timeout=timeout)
         
         try:
             if method.upper() == "GET":
@@ -98,81 +152,63 @@ class BGEMCPClient:
                         return await response.json()
             
             print(f"⚠️ Request failed: {method} {url} -> {response.status}")
+        except asyncio.TimeoutError:
+            print(f"⏰ Request timeout: {method} {url}")
             return None
-            
         except Exception as e:
-            print(f"❌ Request error: {method} {url} -> {str(e)}")
+            print(f"❌ Request error: {method} {url} -> {e}")
             return None
     
-    def _run_async(self, coro):
-        """Run async function in sync context"""
+    def cleanup(self):
+        """Cleanup resources"""
+        if self.session and not self.session.closed:
+            # Schedule session close in event loop
+            if self._event_loop and self._loop_thread.is_alive():
+                asyncio.run_coroutine_threadsafe(
+                    self.session.close(), self._event_loop
+                )
         
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # If loop is already running, create a task
-                future = asyncio.ensure_future(coro)
-                # Wait for completion (this is a simplified approach)
-                while not future.done():
-                    time.sleep(0.01)
-                return future.result()
-            else:
-                return loop.run_until_complete(coro)
-        except RuntimeError:
-            # No event loop, create one
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                return loop.run_until_complete(coro)
-            finally:
-                loop.close()
+        if self._event_loop and self._loop_thread.is_alive():
+            self._event_loop.call_soon_threadsafe(self._event_loop.stop)
+            self._loop_thread.join(timeout=2)
     
     def check_services_health(self) -> Dict[str, bool]:
         """Check health of all MCP services"""
         
-        async def _check_health():
-            health_status = {}
-            
-            # Check orchestration service
-            orch_url = f"{self.config['orchestration_url']}/health"
-            result = await self._make_request("GET", orch_url)
-            health_status["orchestration"] = result is not None
-            
-            # Check individual services
-            for service_name, service_config in self.config["services"].items():
-                service_url = f"{service_config['url']}/health"
-                result = await self._make_request("GET", service_url)
-                health_status[service_name] = result is not None
-            
-            return health_status
+        health_status = {}
         
-        return self._run_async(_check_health())
+        # Check orchestration service
+        orch_url = f"{self.config['orchestration_url']}/health"
+        result = self.make_request_sync("GET", orch_url)
+        health_status["orchestration"] = result is not None
+        
+        # Check individual services
+        for service_name, service_config in self.config.get("services", {}).items():
+            service_url = f"{service_config['url']}/health"
+            result = self.make_request_sync("GET", service_url)
+            health_status[service_name] = result is not None
+        
+        return health_status
     
     def get_comprehensive_context(self, current_task: str = None, additional_context: Dict = None) -> Optional[Dict]:
         """Get comprehensive context from orchestration service"""
         
-        async def _get_context():
-            url = f"{self.config['orchestration_url']}/get_comprehensive_context"
-            data = {
-                "current_task": current_task,
-                "additional_context": additional_context or {}
-            }
-            return await self._make_request("POST", url, data)
-        
-        return self._run_async(_get_context())
+        url = f"{self.config['orchestration_url']}/get_comprehensive_context"
+        data = {
+            "current_task": current_task,
+            "additional_context": additional_context or {}
+        }
+        return self.make_request_sync("POST", url, data)
     
     def create_vlm_decision_prompt(self, current_task: str, context: Dict = None) -> Optional[Dict]:
         """Create VLM decision prompt via orchestration service"""
         
-        async def _create_prompt():
-            url = f"{self.config['orchestration_url']}/create_vlm_decision_prompt"
-            data = {
-                "current_task": current_task,
-                "context": context or {}
-            }
-            return await self._make_request("POST", url, data)
-        
-        return self._run_async(_create_prompt())
+        url = f"{self.config['orchestration_url']}/create_vlm_decision_prompt"
+        data = {
+            "current_task": current_task,
+            "context": context or {}
+        }
+        return self.make_request_sync("POST", url, data)
     
     def execute_tool_action(self, tool_name: str, parameters: Dict) -> Optional[Dict]:
         """Execute a tool action via orchestration service"""

@@ -182,17 +182,38 @@ def load_vesper_tasks():
                 with open(task_file, 'r', encoding='utf-8') as f:
                     content = f.read().strip()
                     if content:
-                        # Parse CASAS task format: Task Description|Room Sequence|Required Items|Success Criteria
+                        # Parse CASAS task format: Extract clean task names from markdown
                         casas_tasks = []
                         for line in content.split('\n'):
-                            if line.strip() and not line.startswith('#'):
-                                parts = line.split('|')
-                                if parts:
-                                    casas_tasks.append(parts[0].strip())  # Just the task description
+                            line = line.strip()
+                            # Skip comments, empty lines, markdown headers, and decorative lines
+                            if (line and 
+                                not line.startswith('#') and 
+                                not line.startswith('##') and 
+                                not line.startswith('###') and 
+                                not line.startswith('```') and
+                                not line.startswith('-') and
+                                not line.startswith('*') and
+                                '**t' in line and ':' in line):
+                                
+                                # Extract task name from markdown format like "1. **t1: Make a phone call**"
+                                if '**t' in line and ':' in line:
+                                    # Find the task description between : and **
+                                    start = line.find(':') + 1
+                                    end = line.find('**', start)
+                                    if end == -1:
+                                        end = len(line)
+                                    task_name = line[start:end].strip()
+                                    if task_name and len(task_name) > 3:  # Valid task name
+                                        casas_tasks.append(task_name)
                         
-                        if casas_tasks:
-                            print(f"✅ BGE: Loaded {len(casas_tasks)} CASAS tasks: {casas_tasks}")
-                            return casas_tasks
+                        # If no clean tasks found, use fallback
+                        if not casas_tasks:
+                            print("⚠️ BGE: No clean tasks extracted from CASAS file, using fallback")
+                            casas_tasks = ["Make a phone call", "Wash hands", "Cook oatmeal", "Eat meal", "Clean dishes"]
+                        
+                        print(f"✅ BGE: Loaded {len(casas_tasks)} CASAS tasks: {casas_tasks}")
+                        return casas_tasks
         
         # Fallback to regular task files
         task_files = [
@@ -1319,6 +1340,18 @@ def get_navigation_sequence_with_vlm(screenshot_path, current_task):
             if unique_positions <= 3:
                 print(f"🔄 BGE: LOOP DETECTED - Only {unique_positions} unique positions in last 6 moves")
                 print(f"📍 BGE: Recent path: {recent_positions}")
+                
+                # Add oscillation detection for same room + repeated movements
+                if bge.logic.analysis_count > 8:
+                    print(f"🚨 BGE: EXCESSIVE ANALYSIS - {bge.logic.analysis_count} attempts, forcing exploration")
+                    # Force the VLM to try a different strategy
+                    exploration_context = f"\n\n🚨 CRITICAL: {bge.logic.analysis_count} analysis attempts made. Current room: LIVING_ROOM repeatedly detected. Actor position: {current_pos}. Recent positions: {recent_positions}. MUST try completely different movement direction to escape current area."
+                else:
+                    exploration_context = ""
+            else:
+                exploration_context = ""
+        else:
+            exploration_context = ""
             
         # Check if actor is drifting toward extreme coordinates
         if abs(actor.worldPosition.x) > 10 or abs(actor.worldPosition.y) > 10:
@@ -1703,6 +1736,8 @@ Movement options: "UP", "DOWN", "LEFT", "RIGHT", "STAY" ONLY (use ONE direction 
 
 {device_prompts}
 
+{exploration_context}
+
 NAVIGATION HINTS FOR TASK "{current_task}":
 🏠 House Layout: Kitchen is typically LEFT or UP from living room center
 🎯 Your Goal: Navigate FROM current room TO target room for task completion
@@ -1741,34 +1776,134 @@ IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtim
         # ENHANCED: Always attempt multi-modal analysis for better navigation
         # Try to capture first-person view with shorter timeout
         try:
-            from first_person_camera import capture_immediate_first_person_view
-            print("🎥 BGE: Attempting immediate first-person capture...")
+            # Use direct Actor_FPCamera approach - no external imports needed
+            print("🎥 BGE: Attempting direct first-person capture...")
             
-            # Quick first-person capture (2-second timeout)
+            # Quick first-person capture using direct Actor_FPCamera
             scene = bge.logic.getCurrentScene()
             actor = scene.objects.get("Actor")
             if actor:
-                fp_result = capture_immediate_first_person_view(actor.worldPosition, actor.worldOrientation)
-                if fp_result and fp_result.get("success"):
-                    first_person_screenshot_path = fp_result.get("path")
-                    print(f"✅ BGE: First-person captured: {first_person_screenshot_path}")
+                # Find the Actor_FPCamera child - try multiple methods
+                fp_camera = None
+                
+                # Method 1: Direct scene lookup
+                fp_camera = scene.objects.get("Actor_FPCamera")
+                if fp_camera:
+                    print(f"✅ BGE: Found FP camera in scene: {fp_camera.name}")
                 else:
-                    print("⚠️ BGE: Complex first-person failed, trying simplified method...")
-                    # Fallback to simplified first-person camera
+                    # Method 2: Search through actor children
+                    if hasattr(actor, 'children'):
+                        for child in actor.children:
+                            if child.name == "Actor_FPCamera":
+                                fp_camera = child
+                                print(f"✅ BGE: Found FP camera child: {child.name}")
+                                break
+                    
+                    # Method 3: Search all scene objects for camera with Actor_ prefix
+                    if not fp_camera:
+                        for obj in scene.objects:
+                            if obj.name == "Actor_FPCamera" and hasattr(obj, 'camera'):
+                                fp_camera = obj
+                                print(f"✅ BGE: Found FP camera in scene objects: {obj.name}")
+                                break
+                
+                if fp_camera:
+                    # Store original active camera
+                    original_camera = scene.active_camera
+                    
                     try:
-                        from simple_first_person_fix import simple_first_person_screenshot
-                        simple_fp_path = simple_first_person_screenshot(
-                            actor.worldPosition, actor.worldOrientation
-                        )
-                        if simple_fp_path:
-                            first_person_screenshot_path = simple_fp_path
-                            print(f"✅ BGE: Simplified first-person captured: {simple_fp_path}")
-                        else:
-                            print("⚠️ BGE: All first-person methods failed - using bird-eye only")
+                        # Import time module at the beginning
+                        import time
+                        
+                        # Switch to first-person camera
+                        scene.active_camera = fp_camera
+                        print(f"📷 BGE: Switched to FP camera: {fp_camera.name}")
+                        
+                        # Force BGE to update the view
+                        for i in range(5):
+                            bge.logic.NextFrame()
+                            time.sleep(0.02)
+                        
+                        # Generate screenshot path
+                        vesper_root = r"C:\Users\hbui11\Desktop\vesper_llm"
+                        captures_dir = os.path.join(vesper_root, "blender", "captures", "first_person")
+                        os.makedirs(captures_dir, exist_ok=True)
+                        
+                        timestamp = int(time.time() * 1000)
+                        fp_shot_path = os.path.join(captures_dir, f"direct_fp_{timestamp}.png")
+                        
+                        print(f"📸 BGE: Capturing FP screenshot to: {fp_shot_path}")
+                        
+                        # Enhanced BGE screenshot capture with better timing
+                        try:
+                            # Force scene update to ensure camera switch takes effect
+                            bge.logic.NextFrame()
+                            bge.logic.NextFrame() 
+                            time.sleep(0.1)
+                            
+                            # Try primary screenshot method with BGE
+                            print(f"🎥 BGE: Attempting primary screenshot method...")
+                            screenshot_result = bge.render.makeScreenshot(fp_shot_path)
+                            print(f"🔍 BGE: Primary screenshot command returned: {screenshot_result}")
+                            
+                            # Give more time for file write in BGE
+                            time.sleep(0.8)
+                            
+                            # Check if primary method worked
+                            if os.path.exists(fp_shot_path) and os.path.getsize(fp_shot_path) > 1000:
+                                file_size = os.path.getsize(fp_shot_path)
+                                print(f"✅ BGE: Primary FP screenshot successful: {file_size} bytes")
+                                first_person_screenshot_path = fp_shot_path
+                            else:
+                                # Try alternative method with more frame updates
+                                print(f"🔄 BGE: Primary method failed, trying alternative...")
+                                
+                                # Alternative: More aggressive frame updates
+                                for i in range(10):
+                                    bge.logic.NextFrame()
+                                    time.sleep(0.05)
+                                
+                                # Generate new timestamp for alternative attempt
+                                alt_timestamp = int(time.time() * 1000) + 1
+                                alt_fp_shot_path = os.path.join(captures_dir, f"direct_fp_alt_{alt_timestamp}.png")
+                                
+                                print(f"🎥 BGE: Alternative screenshot to: {alt_fp_shot_path}")
+                                alt_result = bge.render.makeScreenshot(alt_fp_shot_path)
+                                time.sleep(1.0)  # Longer wait for alternative
+                                
+                                if os.path.exists(alt_fp_shot_path) and os.path.getsize(alt_fp_shot_path) > 1000:
+                                    file_size = os.path.getsize(alt_fp_shot_path)
+                                    print(f"✅ BGE: Alternative FP screenshot successful: {file_size} bytes")
+                                    first_person_screenshot_path = alt_fp_shot_path
+                                else:
+                                    print(f"❌ BGE: Both primary and alternative methods failed")
+                                    first_person_screenshot_path = None
+                                
+                        except Exception as screenshot_error:
+                            print(f"❌ BGE: Screenshot capture error: {screenshot_error}")
                             first_person_screenshot_path = None
-                    except Exception as simple_e:
-                        print(f"⚠️ BGE: Simplified first-person also failed: {simple_e} - using bird-eye only")
+                        
+                        # Restore original camera immediately
+                        scene.active_camera = original_camera
+                        print(f"🔄 BGE: Restored original camera: {original_camera.name}")
+                        
+                        # Force update to restore view
+                        for i in range(3):
+                            bge.logic.NextFrame()
+                            time.sleep(0.01)
+                            
+                    except Exception as capture_e:
+                        print(f"⚠️ BGE: FP capture error: {capture_e}")
+                        # Always restore original camera on error
+                        try:
+                            scene.active_camera = original_camera
+                        except:
+                            pass
                         first_person_screenshot_path = None
+                else:
+                    print("⚠️ BGE: Actor_FPCamera not found despite multiple search methods")
+                    print(f"   Searched scene objects: {[obj.name for obj in scene.objects if 'Camera' in obj.name]}")
+                    first_person_screenshot_path = None
             else:
                 print("⚠️ BGE: Actor not found - using bird-eye only")
                 first_person_screenshot_path = None
@@ -1792,8 +1927,12 @@ IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtim
     else:
         # Standard single-image analysis
         print("🔍 BGE: Standard images-only analysis...")
+        
+        # Build prompt with exploration context
+        standard_prompt = f"{system_prompt}\n\n{exploration_context}\n\n{user_prompt}"
+        
         response, response_time, timeout_occurred = vision_only_completion(
-            f"{system_prompt}\n\n{user_prompt}",
+            standard_prompt,
             screenshot_path
         )
         
