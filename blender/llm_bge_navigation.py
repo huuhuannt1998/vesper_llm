@@ -1819,6 +1819,22 @@ IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtim
                         scene.active_camera = fp_camera
                         print(f"📷 BGE: Switched to FP camera: {fp_camera.name}")
                         
+                        # Diagnostic information
+                        print(f"🔍 BGE: Camera diagnostics:")
+                        print(f"   - Active camera: {scene.active_camera.name}")
+                        print(f"   - FP camera position: {fp_camera.worldPosition}")
+                        print(f"   - FP camera orientation: {fp_camera.worldOrientation}")
+                        print(f"   - Actor position: {actor.worldPosition}")
+                        print(f"   - Camera type: {type(fp_camera)}")
+                        
+                        # Check if camera has valid properties
+                        if hasattr(fp_camera, 'camera'):
+                            print(f"   - Camera data: {fp_camera.camera}")
+                            if hasattr(fp_camera.camera, 'lens'):
+                                print(f"   - Camera lens: {fp_camera.camera.lens}")
+                        else:
+                            print(f"   - WARNING: No camera data found!")
+                        
                         # Force BGE to update the view
                         for i in range(5):
                             bge.logic.NextFrame()
@@ -1836,48 +1852,122 @@ IMAGES-ONLY ANALYSIS: Base your response entirely on what you see in this runtim
                         
                         # Enhanced BGE screenshot capture with better timing
                         try:
-                            # Force scene update to ensure camera switch takes effect
-                            bge.logic.NextFrame()
-                            bge.logic.NextFrame() 
-                            time.sleep(0.1)
+                            # Method 1: Direct camera screenshot with forced render
+                            print(f"🎥 BGE: Attempting Method 1 - Direct screenshot with forced render...")
                             
-                            # Try primary screenshot method with BGE
-                            print(f"🎥 BGE: Attempting primary screenshot method...")
+                            # Force multiple frame updates to ensure camera switch takes effect
+                            for i in range(10):
+                                bge.logic.NextFrame()
+                                time.sleep(0.01)
+                            
+                            # Try to force a render update
+                            try:
+                                # Force viewport update if available
+                                import bgl
+                                bgl.glFlush()
+                                bgl.glFinish()
+                            except:
+                                pass  # bgl might not be available in all BGE versions
+                            
+                            # Additional frame updates
+                            for i in range(5):
+                                bge.logic.NextFrame()
+                                time.sleep(0.02)
+                            
+                            # Primary screenshot attempt
                             screenshot_result = bge.render.makeScreenshot(fp_shot_path)
-                            print(f"🔍 BGE: Primary screenshot command returned: {screenshot_result}")
+                            print(f"🔍 BGE: Method 1 screenshot result: {screenshot_result}")
                             
-                            # Give more time for file write in BGE
-                            time.sleep(0.8)
+                            # Extended wait for file creation
+                            time.sleep(1.2)
                             
-                            # Check if primary method worked
+                            # Check if Method 1 worked
                             if os.path.exists(fp_shot_path) and os.path.getsize(fp_shot_path) > 1000:
                                 file_size = os.path.getsize(fp_shot_path)
-                                print(f"✅ BGE: Primary FP screenshot successful: {file_size} bytes")
+                                print(f"✅ BGE: Method 1 success - FP screenshot captured: {file_size} bytes")
                                 first_person_screenshot_path = fp_shot_path
                             else:
-                                # Try alternative method with more frame updates
-                                print(f"🔄 BGE: Primary method failed, trying alternative...")
+                                # Method 2: Alternative camera positioning approach
+                                print(f"🔄 BGE: Method 1 failed, trying Method 2 - Alternative positioning...")
                                 
-                                # Alternative: More aggressive frame updates
-                                for i in range(10):
+                                # Store original camera state
+                                original_pos = fp_camera.worldPosition.copy()
+                                original_orient = fp_camera.worldOrientation.copy()
+                                
+                                # Temporarily move first-person camera slightly to force update
+                                fp_camera.worldPosition = [
+                                    actor.worldPosition.x + 0.01,
+                                    actor.worldPosition.y + 0.01, 
+                                    actor.worldPosition.z + 1.8
+                                ]
+                                
+                                # More aggressive frame updates
+                                for i in range(15):
                                     bge.logic.NextFrame()
-                                    time.sleep(0.05)
+                                    time.sleep(0.03)
                                 
-                                # Generate new timestamp for alternative attempt
-                                alt_timestamp = int(time.time() * 1000) + 1
-                                alt_fp_shot_path = os.path.join(captures_dir, f"direct_fp_alt_{alt_timestamp}.png")
+                                # Alternative screenshot attempt
+                                alt_timestamp = int(time.time() * 1000) + 10
+                                alt_fp_shot_path = os.path.join(captures_dir, f"direct_fp_method2_{alt_timestamp}.png")
                                 
-                                print(f"🎥 BGE: Alternative screenshot to: {alt_fp_shot_path}")
+                                print(f"🎥 BGE: Method 2 screenshot to: {alt_fp_shot_path}")
                                 alt_result = bge.render.makeScreenshot(alt_fp_shot_path)
-                                time.sleep(1.0)  # Longer wait for alternative
+                                
+                                # Restore camera position
+                                fp_camera.worldPosition = original_pos
+                                fp_camera.worldOrientation = original_orient
+                                
+                                time.sleep(1.0)
                                 
                                 if os.path.exists(alt_fp_shot_path) and os.path.getsize(alt_fp_shot_path) > 1000:
                                     file_size = os.path.getsize(alt_fp_shot_path)
-                                    print(f"✅ BGE: Alternative FP screenshot successful: {file_size} bytes")
+                                    print(f"✅ BGE: Method 2 success - FP screenshot captured: {file_size} bytes")
                                     first_person_screenshot_path = alt_fp_shot_path
                                 else:
-                                    print(f"❌ BGE: Both primary and alternative methods failed")
-                                    first_person_screenshot_path = None
+                                    # Method 3: Simplified fallback - just switch camera and capture
+                                    print(f"🔄 BGE: Method 2 failed, trying Method 3 - Simplified capture...")
+                                    
+                                    # Simple approach - just set active camera and capture immediately
+                                    scene.active_camera = fp_camera
+                                    time.sleep(0.2)
+                                    
+                                    simple_timestamp = int(time.time() * 1000) + 20
+                                    simple_fp_shot_path = os.path.join(captures_dir, f"direct_fp_simple_{simple_timestamp}.png")
+                                    
+                                    simple_result = bge.render.makeScreenshot(simple_fp_shot_path)
+                                    time.sleep(0.8)
+                                    
+                                    if os.path.exists(simple_fp_shot_path) and os.path.getsize(simple_fp_shot_path) > 500:
+                                        file_size = os.path.getsize(simple_fp_shot_path)
+                                        print(f"✅ BGE: Method 3 success - FP screenshot captured: {file_size} bytes")
+                                        first_person_screenshot_path = simple_fp_shot_path
+                                    else:
+                                        print(f"❌ BGE: All 3 methods failed to capture FP screenshot")
+                                        
+                                        # Final diagnostic: Check if makeScreenshot works at all
+                                        print(f"🔍 BGE: Final diagnostic - testing makeScreenshot function...")
+                                        test_timestamp = int(time.time() * 1000) + 30
+                                        test_shot_path = os.path.join(captures_dir, f"diagnostic_test_{test_timestamp}.png")
+                                        
+                                        # Test with current active camera (should be FP camera)
+                                        test_result = bge.render.makeScreenshot(test_shot_path)
+                                        print(f"   - makeScreenshot test result: {test_result}")
+                                        print(f"   - Test path: {test_shot_path}")
+                                        
+                                        time.sleep(0.5)
+                                        if os.path.exists(test_shot_path):
+                                            test_size = os.path.getsize(test_shot_path)
+                                            print(f"   - Test file created: {test_size} bytes")
+                                            
+                                            if test_size > 500:
+                                                print(f"✅ BGE: Test screenshot worked - using as FP capture")
+                                                first_person_screenshot_path = test_shot_path
+                                            else:
+                                                print(f"⚠️ BGE: Test screenshot too small")
+                                                first_person_screenshot_path = None
+                                        else:
+                                            print(f"❌ BGE: Test screenshot file not created")
+                                            first_person_screenshot_path = None
                                 
                         except Exception as screenshot_error:
                             print(f"❌ BGE: Screenshot capture error: {screenshot_error}")

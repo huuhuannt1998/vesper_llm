@@ -81,7 +81,7 @@ class BGEMCPClient:
         # Ensure the loop is running in a separate thread for BGE compatibility
         import threading
         
-        if not hasattr(self, '_loop_thread') or not self._loop_thread.is_alive():
+        if not hasattr(self, '_loop_thread') or self._loop_thread is None or not self._loop_thread.is_alive():
             self._loop_thread = threading.Thread(target=self._run_event_loop, daemon=True)
             self._loop_thread.start()
             time.sleep(0.1)  # Give thread time to start
@@ -118,7 +118,7 @@ class BGEMCPClient:
     def make_request_sync(self, method: str, url: str, data: Dict = None) -> Optional[Dict]:
         """Make synchronous HTTP request (BGE-compatible wrapper)"""
         
-        if not self._event_loop or not self._loop_thread.is_alive():
+        if not self._event_loop or self._loop_thread is None or not self._loop_thread.is_alive():
             print("⚠️ Event loop not available, reinitializing...")
             self._initialize_session()
             
