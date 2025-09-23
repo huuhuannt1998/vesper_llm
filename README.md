@@ -8,6 +8,44 @@
 
 VESPER LLM is a comprehensive AI-powered research platform combining Vision Language Models (VLMs) with 3D navigation, smart home simulation, and human activity pattern analysis. This production-ready system enables advanced research in embodied AI, smart home automation, and VLM evaluation.
 
+# VESPER Development Notes
+
+## Meeting Summary (09/19/2025)
+
+In today’s meeting, we discussed the current limitations of UPBGE regarding multiple active cameras. Since UPBGE does not allow two active cameras at the same time, we agreed to adjust the approach for feeding the Vision-Language Model (VLM) with new inputs.
+
+Key decisions:
+1. **First-Person Camera Input**:  
+   Instead of relying on bird’s-eye view images, the VLM will now receive input images captured from the first-person (FP) view camera attached to the actor. This provides a more realistic perspective for navigation and interaction tasks.
+
+2. **House Floorplan Reference**:  
+   A separate floorplan of the house layout will be created, annotated with **room labels** and **furniture labels**. This floorplan will act as a reference map for the VLM, enabling it to reason about spatial relationships and room connectivity even when working with FP camera images.
+
+These changes aim to improve the VLM’s ability to understand both the **local perspective (FP view)** and the **global house context (floorplan reference)**.
+
+---
+
+## To-Do List for Next Week (09/22–09/26, 2025)
+
+- [ ] Implement FP camera setup:
+  - Attach FP camera to actor object.
+  - Ensure camera follows actor’s position and rotation smoothly.
+  - Capture and stream FP camera images for VLM input.
+
+- [ ] Create annotated floorplan:
+  - Generate a 2D floorplan of the house layout.
+  - Add labels for **rooms** (e.g., Kitchen, Living Room, Bedroom).
+  - Add labels for **key furniture** (e.g., Sofa, Bed, Table).
+  - Export in a format accessible to the VLM as a static reference.
+
+- [ ] Update VLM integration:
+  - Replace bird’s-eye image pipeline with FP camera image input.
+  - Add mechanism to reference the floorplan when reasoning about navigation tasks.
+
+- [ ] Documentation:
+  - Update Blender setup instructions for FP camera.
+  - Document how the floorplan is generated, annotated, and used by the VLM.
+  - 
 ## ✨ Key Features
 
 ### 🤖 AI-Powered 3D Navigation
