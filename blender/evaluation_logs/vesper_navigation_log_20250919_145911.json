@@ -1,0 +1,101 @@
+{
+  "session_id": "20250919_145911",
+  "start_time": 1758308351.6331518,
+  "tasks_completed": 0,
+  "tasks_failed": 0,
+  "total_steps": 2,
+  "total_screenshots": 2,
+  "total_llm_calls": 2,
+  "total_device_interactions": 0,
+  "total_subtasks_completed": 0,
+  "task_details": [
+    {
+      "task_name": "Make a phone call",
+      "task_index": 0,
+      "start_time": 1758308373.0864093,
+      "start_position": null,
+      "end_position": null,
+      "completion_time": null,
+      "steps_taken": 2,
+      "screenshots_captured": 2,
+      "llm_calls": 2,
+      "success": false,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "UP",
+          "from_position": [
+            0.25,
+            -0.3
+          ],
+          "to_position": [
+            0.09,
+            -0.05
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758308377.200563
+        },
+        {
+          "step": 2,
+          "action": "UP",
+          "from_position": [
+            0.09,
+            -0.05
+          ],
+          "to_position": [
+            -0.08,
+            0.19
+          ],
+          "room_detected": "BEDROOM",
+          "timestamp": 1758308382.826213
+        }
+      ],
+      "room_detections": [
+        {
+          "step": 1,
+          "room": "LIVING_ROOM",
+          "position": [
+            0.09,
+            -0.05
+          ]
+        },
+        {
+          "step": 2,
+          "room": "BEDROOM",
+          "position": [
+            -0.08,
+            0.19
+          ]
+        }
+      ],
+      "vlm_responses": [
+        {
+          "call_number": 1,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 259,
+          "response_time": 3.6922590732574463,
+          "timeout": false,
+          "timestamp": 1758308377.1875634
+        },
+        {
+          "call_number": 2,
+          "room_detected": "BEDROOM",
+          "furniture_visible": [
+            "bed"
+          ],
+          "task_complete": false,
+          "response_length": 240,
+          "response_time": 3.508249282836914,
+          "timeout": false,
+          "timestamp": 1758308382.8222134
+        }
+      ]
+    }
+  ]
+}

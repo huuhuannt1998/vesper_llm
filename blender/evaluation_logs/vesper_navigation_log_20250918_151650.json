@@ -1,0 +1,346 @@
+{
+  "session_id": "20250918_151650",
+  "start_time": 1758223010.0202742,
+  "tasks_completed": 0,
+  "tasks_failed": 0,
+  "total_steps": 9,
+  "total_screenshots": 9,
+  "total_llm_calls": 9,
+  "total_device_interactions": 0,
+  "total_subtasks_completed": 0,
+  "task_details": [
+    {
+      "task_name": "Make a phone call",
+      "task_index": 0,
+      "start_time": 1758223031.8672922,
+      "start_position": null,
+      "end_position": null,
+      "completion_time": null,
+      "steps_taken": 9,
+      "screenshots_captured": 9,
+      "llm_calls": 9,
+      "success": false,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "UP",
+          "from_position": [
+            -1.75,
+            -2.92
+          ],
+          "to_position": [
+            -1.75,
+            -2.62
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758223036.1515899
+        },
+        {
+          "step": 2,
+          "action": "UP",
+          "from_position": [
+            -1.75,
+            -2.62
+          ],
+          "to_position": [
+            -1.75,
+            -2.32
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758223042.2338574
+        },
+        {
+          "step": 3,
+          "action": "LEFT",
+          "from_position": [
+            -1.75,
+            -2.32
+          ],
+          "to_position": [
+            -2.05,
+            -2.32
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758223048.3370628
+        },
+        {
+          "step": 4,
+          "action": "UP",
+          "from_position": [
+            -2.05,
+            -2.32
+          ],
+          "to_position": [
+            -2.35,
+            -2.32
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758223054.4026082
+        },
+        {
+          "step": 5,
+          "action": "UP",
+          "from_position": [
+            -2.35,
+            -2.32
+          ],
+          "to_position": [
+            -2.65,
+            -2.32
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758223060.6371613
+        },
+        {
+          "step": 6,
+          "action": "UP",
+          "from_position": [
+            -2.65,
+            -2.32
+          ],
+          "to_position": [
+            -2.95,
+            -2.32
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758223066.7277453
+        },
+        {
+          "step": 7,
+          "action": "UP",
+          "from_position": [
+            -2.95,
+            -2.32
+          ],
+          "to_position": [
+            -3.25,
+            -2.32
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758223072.8114445
+        },
+        {
+          "step": 8,
+          "action": "LEFT",
+          "from_position": [
+            -3.25,
+            -2.32
+          ],
+          "to_position": [
+            -3.25,
+            -2.62
+          ],
+          "room_detected": "BEDROOM",
+          "timestamp": 1758223078.8093402
+        },
+        {
+          "step": 9,
+          "action": "UP",
+          "from_position": [
+            -3.25,
+            -2.62
+          ],
+          "to_position": [
+            -3.25,
+            -2.92
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758223084.869726
+        }
+      ],
+      "room_detections": [
+        {
+          "step": 1,
+          "room": "LIVING_ROOM",
+          "position": [
+            -1.75,
+            -2.62
+          ]
+        },
+        {
+          "step": 2,
+          "room": "LIVING_ROOM",
+          "position": [
+            -1.75,
+            -2.32
+          ]
+        },
+        {
+          "step": 3,
+          "room": "LIVING_ROOM",
+          "position": [
+            -2.05,
+            -2.32
+          ]
+        },
+        {
+          "step": 4,
+          "room": "LIVING_ROOM",
+          "position": [
+            -2.35,
+            -2.32
+          ]
+        },
+        {
+          "step": 5,
+          "room": "LIVING_ROOM",
+          "position": [
+            -2.65,
+            -2.32
+          ]
+        },
+        {
+          "step": 6,
+          "room": "LIVING_ROOM",
+          "position": [
+            -2.95,
+            -2.32
+          ]
+        },
+        {
+          "step": 7,
+          "room": "LIVING_ROOM",
+          "position": [
+            -3.25,
+            -2.32
+          ]
+        },
+        {
+          "step": 8,
+          "room": "BEDROOM",
+          "position": [
+            -3.25,
+            -2.62
+          ]
+        },
+        {
+          "step": 9,
+          "room": "LIVING_ROOM",
+          "position": [
+            -3.25,
+            -2.92
+          ]
+        }
+      ],
+      "vlm_responses": [
+        {
+          "call_number": 1,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 251,
+          "response_time": 3.6791465282440186,
+          "timeout": false,
+          "timestamp": 1758223036.1395438
+        },
+        {
+          "call_number": 2,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 250,
+          "response_time": 3.672466278076172,
+          "timeout": false,
+          "timestamp": 1758223042.2308562
+        },
+        {
+          "call_number": 3,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 255,
+          "response_time": 3.6828482151031494,
+          "timeout": false,
+          "timestamp": 1758223048.3335
+        },
+        {
+          "call_number": 4,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 250,
+          "response_time": 3.637990713119507,
+          "timeout": false,
+          "timestamp": 1758223054.4006069
+        },
+        {
+          "call_number": 5,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 262,
+          "response_time": 3.750466823577881,
+          "timeout": false,
+          "timestamp": 1758223060.632163
+        },
+        {
+          "call_number": 6,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 250,
+          "response_time": 3.661302328109741,
+          "timeout": false,
+          "timestamp": 1758223066.724746
+        },
+        {
+          "call_number": 7,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "TV"
+          ],
+          "task_complete": false,
+          "response_length": 240,
+          "response_time": 3.670942783355713,
+          "timeout": false,
+          "timestamp": 1758223072.8084452
+        },
+        {
+          "call_number": 8,
+          "room_detected": "BEDROOM",
+          "furniture_visible": [
+            "bed"
+          ],
+          "task_complete": false,
+          "response_length": 261,
+          "response_time": 3.597323417663574,
+          "timeout": false,
+          "timestamp": 1758223078.8053372
+        },
+        {
+          "call_number": 9,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 251,
+          "response_time": 3.6494855880737305,
+          "timeout": false,
+          "timestamp": 1758223084.8652027
+        }
+      ]
+    }
+  ]
+}

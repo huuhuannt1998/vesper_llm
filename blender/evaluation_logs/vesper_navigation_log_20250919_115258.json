@@ -1,0 +1,172 @@
+{
+  "session_id": "20250919_115258",
+  "start_time": 1758297178.93716,
+  "tasks_completed": 0,
+  "tasks_failed": 0,
+  "total_steps": 4,
+  "total_screenshots": 4,
+  "total_llm_calls": 4,
+  "total_device_interactions": 0,
+  "total_subtasks_completed": 0,
+  "task_details": [
+    {
+      "task_name": "Make a phone call",
+      "task_index": 0,
+      "start_time": 1758297197.9929428,
+      "start_position": null,
+      "end_position": null,
+      "completion_time": null,
+      "steps_taken": 4,
+      "screenshots_captured": 4,
+      "llm_calls": 4,
+      "success": false,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "UP",
+          "from_position": [
+            -1.75,
+            -2.92
+          ],
+          "to_position": [
+            -1.79,
+            -2.63
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758297201.8931358
+        },
+        {
+          "step": 2,
+          "action": "UP",
+          "from_position": [
+            -1.79,
+            -2.63
+          ],
+          "to_position": [
+            -1.83,
+            -2.33
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758297207.566207
+        },
+        {
+          "step": 3,
+          "action": "LEFT",
+          "from_position": [
+            -1.83,
+            -2.33
+          ],
+          "to_position": [
+            -2.12,
+            -2.37
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758297213.3298337
+        },
+        {
+          "step": 4,
+          "action": "LEFT",
+          "from_position": [
+            -2.12,
+            -2.37
+          ],
+          "to_position": [
+            -2.08,
+            -2.67
+          ],
+          "room_detected": "LIVING_ROOM",
+          "timestamp": 1758297219.0559423
+        }
+      ],
+      "room_detections": [
+        {
+          "step": 1,
+          "room": "LIVING_ROOM",
+          "position": [
+            -1.79,
+            -2.63
+          ]
+        },
+        {
+          "step": 2,
+          "room": "LIVING_ROOM",
+          "position": [
+            -1.83,
+            -2.33
+          ]
+        },
+        {
+          "step": 3,
+          "room": "LIVING_ROOM",
+          "position": [
+            -2.12,
+            -2.37
+          ]
+        },
+        {
+          "step": 4,
+          "room": "LIVING_ROOM",
+          "position": [
+            -2.08,
+            -2.67
+          ]
+        }
+      ],
+      "vlm_responses": [
+        {
+          "call_number": 1,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 251,
+          "response_time": 3.5262110233306885,
+          "timeout": false,
+          "timestamp": 1758297201.8841412
+        },
+        {
+          "call_number": 2,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 250,
+          "response_time": 3.576795816421509,
+          "timeout": false,
+          "timestamp": 1758297207.5622077
+        },
+        {
+          "call_number": 3,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "coffee table"
+          ],
+          "task_complete": false,
+          "response_length": 254,
+          "response_time": 3.669877290725708,
+          "timeout": false,
+          "timestamp": 1758297213.3268332
+        },
+        {
+          "call_number": 4,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": [
+            "sofa",
+            "TV"
+          ],
+          "task_complete": false,
+          "response_length": 255,
+          "response_time": 3.6291067600250244,
+          "timeout": false,
+          "timestamp": 1758297219.052942
+        }
+      ]
+    }
+  ]
+}
