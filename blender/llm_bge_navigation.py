@@ -36,6 +36,211 @@ try:
 except ImportError:
     MCP_INTEGRATION_AVAILABLE = False
 
+# =============================
+# VESPER Evaluation Metrics & Logging System
+# =============================
+class VESPERMetricsLogger:
+    """Comprehensive logging and metrics tracking for VESPER navigation evaluation"""
+    
+    def __init__(self):
+        self.session_start_time = time.time()
+        self.current_task_start_time = None
+        self.log_dir = os.path.join(r"C:\Users\hbui11\Desktop\vesper_llm\blender", "evaluation_logs")
+        os.makedirs(self.log_dir, exist_ok=True)
+        
+        # Session log file with timestamp
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        self.log_file = os.path.join(self.log_dir, f"vesper_navigation_log_{timestamp}.json")
+        
+        # Initialize metrics tracking
+        self.session_data = {
+            "session_id": timestamp,
+            "start_time": self.session_start_time,
+            "tasks_completed": 0,
+            "tasks_failed": 0,
+            "total_steps": 0,
+            "total_screenshots": 0,
+            "total_llm_calls": 0,
+            "total_device_interactions": 0,  # Track virtual device interactions
+            "total_subtasks_completed": 0,   # Track CASAS subtask completion
+            "task_details": []
+        }
+        
+        # Current task tracking
+        self.current_task_data = None
+        
+        print(f"📊 VESPER: Metrics logging initialized - {self.log_file}")
+
+    def start_task(self, task_name, task_index):
+        """Log the start of a new task"""
+        # Map CASAS task names to IDs for dataset compatibility
+        casas_task_mapping = {
+            "Make a phone call": "t1",
+            "Wash hands": "t2", 
+            "Cook oatmeal": "t3",
+            "Eat meal": "t4",
+            "Clean dishes": "t5"
+        }
+        
+        casas_task_id = casas_task_mapping.get(task_name, f"t{task_index + 1}")
+        
+        self.current_task_start_time = time.time()
+        self.current_task_data = {
+            "task_name": task_name,
+            "task_index": task_index,
+            "casas_task_id": casas_task_id,
+            "casas_compatible": True,
+            "start_time": self.current_task_start_time,
+            "start_position": None,
+            "end_position": None,
+            "completion_time": None,
+            "steps_taken": 0,
+            "screenshots_captured": 0,
+            "llm_calls": 0,
+            "success": False,
+            "failure_reason": None,
+            "movement_path": [],
+            "room_detections": [],
+            "vlm_responses": []
+        }
+        
+        # Add task to session immediately so it appears in JSON
+        self.session_data["task_details"].append(self.current_task_data)
+        
+        print(f"📋 METRICS: Starting task {task_index + 1}: '{task_name}'")
+        self._log_to_file()
+    
+    def log_step(self, step_number, action, old_pos, new_pos, room_detected=None):
+        """Log each movement step"""
+        if self.current_task_data:
+            self.current_task_data["steps_taken"] += 1
+            self.current_task_data["movement_path"].append({
+                "step": step_number,
+                "action": action,
+                "from_position": [round(old_pos[0], 2), round(old_pos[1], 2)],
+                "to_position": [round(new_pos[0], 2), round(new_pos[1], 2)],
+                "room_detected": room_detected,
+                "timestamp": time.time()
+            })
+            
+            if room_detected:
+                self.current_task_data["room_detections"].append({
+                    "step": step_number,
+                    "room": room_detected,
+                    "position": [round(new_pos[0], 2), round(new_pos[1], 2)]
+                })
+        
+        self.session_data["total_steps"] += 1
+        
+        # Save session data after each step
+        self._log_to_file()
+        
+        print(f"📊 METRICS: Step {step_number} - {action} from [{old_pos[0]:.1f}, {old_pos[1]:.1f}] to [{new_pos[0]:.1f}, {new_pos[1]:.1f}]")
+        if room_detected:
+            print(f"🏠 METRICS: Room detected - {room_detected}")
+    
+    def log_screenshot(self, screenshot_path, analysis_count):
+        """Log screenshot capture and analysis"""
+        if self.current_task_data:
+            self.current_task_data["screenshots_captured"] += 1
+        
+        self.session_data["total_screenshots"] += 1
+        
+        # Save session data after each screenshot
+        self._log_to_file()
+        
+        print(f"📸 METRICS: Screenshot {self.session_data['total_screenshots']} captured - Analysis #{analysis_count}")
+    
+    def log_llm_call(self, response_data, room_detected, furniture_visible, task_complete, response_time=None, timeout=False):
+        """Log LLM/VLM response details"""
+        if self.current_task_data:
+            self.current_task_data["llm_calls"] += 1
+            self.current_task_data["vlm_responses"].append({
+                "call_number": self.current_task_data["llm_calls"],
+                "room_detected": room_detected,
+                "furniture_visible": furniture_visible,
+                "task_complete": task_complete,
+                "response_length": len(str(response_data)),
+                "response_time": response_time,
+                "timeout": timeout,
+                "timestamp": time.time()
+            })
+        
+        self.session_data["total_llm_calls"] += 1
+        
+        # Save session data after each LLM call
+        self._log_to_file()
+        
+        timeout_msg = " (TIMEOUT)" if timeout else ""
+        time_msg = f" ({response_time:.1f}s)" if response_time else ""
+        print(f"🧠 METRICS: LLM Call {self.session_data['total_llm_calls']}{timeout_msg}{time_msg} - Room: {room_detected}, Task Complete: {task_complete}")
+    
+    def complete_task(self, success=True, failure_reason=None, final_position=None):
+        """Mark current task as completed"""
+        if self.current_task_data:
+            completion_time = time.time() - self.current_task_start_time
+            self.current_task_data["completion_time"] = completion_time
+            self.current_task_data["success"] = success
+            self.current_task_data["failure_reason"] = failure_reason
+            self.current_task_data["end_position"] = [round(final_position[0], 2), round(final_position[1], 2)] if final_position else None
+            
+            # Update session totals
+            if success:
+                self.session_data["tasks_completed"] += 1
+                print(f"✅ METRICS: Task COMPLETED in {completion_time:.1f}s with {self.current_task_data['steps_taken']} steps")
+            else:
+                self.session_data["tasks_failed"] += 1
+                print(f"❌ METRICS: Task FAILED after {completion_time:.1f}s - {failure_reason}")
+            
+            # Task is already in session_data["task_details"], just reset current_task_data
+            self.current_task_data = None
+            
+            self._log_to_file()
+            self._print_task_summary()
+    
+    def _print_task_summary(self):
+        """Print summary of current session metrics"""
+        total_tasks = self.session_data["tasks_completed"] + self.session_data["tasks_failed"]
+        success_rate = (self.session_data["tasks_completed"] / total_tasks * 100) if total_tasks > 0 else 0
+        session_time = time.time() - self.session_start_time
+        
+        print("\n" + "="*60)
+        print("📊 VESPER NAVIGATION METRICS SUMMARY")
+        print("="*60)
+        print(f"⏱️  Session Duration: {session_time:.1f}s")
+        print(f"🎯 Tasks Completed: {self.session_data['tasks_completed']}/{total_tasks} ({success_rate:.1f}%)")
+        print(f"👣 Total Steps: {self.session_data['total_steps']}")
+        print(f"📸 Screenshots Taken: {self.session_data['total_screenshots']}")
+        print(f"🧠 LLM Calls Made: {self.session_data['total_llm_calls']}")
+        
+        if self.session_data["task_details"]:
+            avg_steps = sum(task["steps_taken"] for task in self.session_data["task_details"]) / len(self.session_data["task_details"])
+            avg_time = sum(task["completion_time"] for task in self.session_data["task_details"] if task["completion_time"]) / len([t for t in self.session_data["task_details"] if t["completion_time"]])
+            print(f"📈 Average Steps per Task: {avg_steps:.1f}")
+            print(f"📈 Average Time per Task: {avg_time:.1f}s")
+        
+        print("="*60)
+        print(f"💾 Full log saved to: {self.log_file}")
+        print("="*60 + "\n")
+    
+    def _log_to_file(self):
+        """Save current metrics to JSON file"""
+        try:
+            with open(self.log_file, 'w', encoding='utf-8') as f:
+                json.dump(self.session_data, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"⚠️ METRICS: Failed to save log file - {e}")
+
+# Initialize global metrics logger
+metrics_logger = None
+
+def get_metrics_logger():
+    """Get or create the global metrics logger"""
+    global metrics_logger
+    if metrics_logger is None:
+        metrics_logger = VESPERMetricsLogger()
+    return metrics_logger
+
 def debug_scene_objects():
     """Debug function to list all objects in the scene"""
     try:
@@ -506,6 +711,9 @@ def execute_movement(action):
             print(f"🔍 Available objects: {[obj.name for obj in scene.objects]}")
             return False
         
+        # Store position before movement for logging
+        old_position = [actor.worldPosition.x, actor.worldPosition.y]
+        
         # Movement parameters - smaller for better VLM feedback
         MOVE_SPEED = 0.8      # Reduced for frequent VLM updates
         TURN_SPEED = 0.2      # Smaller rotation for precise control
@@ -608,6 +816,19 @@ def execute_movement(action):
         print(f"🧭 Actor orientation after: {final_orient.to_euler()}")
         print(f"📏 Distance moved: {distance_moved:.3f} units")
         print(f"🔄 Orientation change: {orientation_changed:.3f} radians")
+        
+        # Log movement step for metrics
+        new_position = [final_pos.x, final_pos.y]
+        if hasattr(bge.logic, 'metrics_logger') and hasattr(bge.logic, 'navigation_step'):
+            # Try to get current room (this would need to be enhanced with room detection)
+            current_room = "UNKNOWN"  # Could be enhanced with room detection logic
+            bge.logic.metrics_logger.log_step(
+                bge.logic.navigation_step + 1, 
+                action.upper(), 
+                old_position, 
+                new_position, 
+                current_room
+            )
         
         if movement_success:
             if action.upper() in ["LEFT", "RIGHT"]:
@@ -771,13 +992,13 @@ def main():
         if not hasattr(bge.logic, "vesper_continuous_nav"):
             bge.logic.vesper_continuous_nav = True
             
-            # Task list - you can modify this list
+            # CASAS-aligned ADL Task list for comparable evaluation
             bge.logic.vesper_tasks = [
-                "find the phone",
-                "go to the kitchen", 
-                "go to the bedroom",
-                "go to the bathroom",
-                "return to living room"
+                "Make a phone call",     # t1: Move to phone in dining room
+                "Wash hands",            # t2: Move to kitchen sink
+                "Cook oatmeal",          # t3: Cook in kitchen per directions
+                "Eat meal",              # t4: Take food to dining room
+                "Clean dishes"           # t5: Take dishes to sink and clean
             ]
             
             bge.logic.current_task_index = 0
@@ -803,6 +1024,11 @@ def main():
                 print("❌ LLM initialization failed")
                 return False
         
+        # Initialize metrics logging
+        if not hasattr(bge.logic, 'metrics_logger'):
+            bge.logic.metrics_logger = get_metrics_logger()
+            print("📊 Metrics logging system initialized")
+        
         bge.logic.startup_complete = True
         print("🎮 Starting continuous task execution...")
     
@@ -823,15 +1049,38 @@ def run_continuous_navigation():
         # Check if all tasks are completed
         if bge.logic.current_task_index >= len(bge.logic.vesper_tasks):
             print("🎉 ALL TASKS COMPLETED! Navigation system finished.")
+            
+            # Print final metrics summary
+            if hasattr(bge.logic, 'metrics_logger'):
+                bge.logic.metrics_logger._print_task_summary()
+            
             return
         
         # Get current task
         current_task = bge.logic.vesper_tasks[bge.logic.current_task_index]
         
+        # Check if this is a new task and log it
+        if not hasattr(bge.logic, 'current_task_logged') or bge.logic.current_task_logged != bge.logic.current_task_index:
+            if hasattr(bge.logic, 'metrics_logger'):
+                bge.logic.metrics_logger.start_task(current_task, bge.logic.current_task_index)
+            bge.logic.current_task_logged = bge.logic.current_task_index
+        
         # Check if current task has exceeded max steps
         if bge.logic.navigation_step >= bge.logic.max_steps_per_task:
             print(f"⏰ Task '{current_task}' exceeded max steps ({bge.logic.max_steps_per_task})")
             print("➡️ Moving to next task...")
+            
+            # Log task completion/failure
+            if hasattr(bge.logic, 'metrics_logger'):
+                scene = bge.logic.getCurrentScene()
+                actor = scene.objects.get("Actor")
+                final_pos = [actor.worldPosition.x, actor.worldPosition.y] if actor else None
+                bge.logic.metrics_logger.complete_task(
+                    success=False, 
+                    failure_reason=f"Exceeded max steps ({bge.logic.max_steps_per_task})",
+                    final_position=final_pos
+                )
+            
             bge.logic.current_task_index += 1
             bge.logic.navigation_step = 0
             time.sleep(2.0)  # Brief pause between tasks
@@ -843,6 +1092,10 @@ def run_continuous_navigation():
         
         # Capture dual images (FP view + house layout)
         fp_image_path, house_layout_path = capture_dual_images()
+        
+        # Log screenshot capture
+        if hasattr(bge.logic, 'metrics_logger') and fp_image_path and fp_image_path != "dummy_screenshot.png":
+            bge.logic.metrics_logger.log_screenshot(fp_image_path, bge.logic.navigation_step + 1)
         
         # Always try VLM analysis first, even with dummy screenshot
         if fp_image_path == "dummy_screenshot.png":
@@ -877,9 +1130,36 @@ def run_continuous_navigation():
             print(f"🤖 VLM Decision: {action}")
             print(f"💭 VLM Reasoning: {reasoning}")
             
+            # Log VLM response for metrics
+            if hasattr(bge.logic, 'metrics_logger'):
+                current_room = navigation_result.get('current_room', 'UNKNOWN')
+                furniture = navigation_result.get('furniture_visible', 'None specified')
+                response_time = navigation_result.get('response_time', None)
+                timeout = navigation_result.get('timeout_occurred', False)
+                
+                bge.logic.metrics_logger.log_llm_call(
+                    navigation_result,
+                    current_room,
+                    furniture,
+                    task_complete,
+                    response_time,
+                    timeout
+                )
+            
             # Check if VLM thinks task is complete
             if task_complete:
                 print(f"✅ VLM reports task '{current_task}' is COMPLETE!")
+                
+                # Log successful task completion
+                if hasattr(bge.logic, 'metrics_logger'):
+                    scene = bge.logic.getCurrentScene()
+                    actor = scene.objects.get("Actor")
+                    final_pos = [actor.worldPosition.x, actor.worldPosition.y] if actor else None
+                    bge.logic.metrics_logger.complete_task(
+                        success=True,
+                        final_position=final_pos
+                    )
+                
                 bge.logic.current_task_index += 1
                 bge.logic.navigation_step = 0
                 time.sleep(2.0)  # Shorter pause for faster progression
@@ -1152,18 +1432,42 @@ CRITICAL NAVIGATION RULES:
 - If you see a wall directly ahead, you MUST turn
 - Furniture blocks movement - navigate around it
 
-🗺️ SPATIAL REASONING:
-- Use the house layout to understand room connections
-- Identify which room you're currently in from the first-person view
-- Plan the route to the target room using available doorways
-- Consider room transitions and hallway navigation
+🗺️ HOUSE LAYOUT KNOWLEDGE (Based on floor plan):
+- **LIVING ROOM**: Large room on the left with sofas, dining table, and TV area
+- **KITCHEN**: Upper center room with appliances, connected to living room
+- **BEDROOM**: Lower right room with bed, connected to bathroom area  
+- **BATHROOM**: Small room on the right with toilet and bathtub
+- **HALLWAYS**: Connect all rooms - use these for navigation between areas
 
-🎯 TASK-SPECIFIC TARGETS:
-- "find the phone": Look for phones, check tables, counters, living areas
-- "go to kitchen": Navigate to cooking/dining area with appliances
-- "go to bedroom": Find sleeping area with beds
-- "go to bathroom": Find area with toilet/bathing facilities
-- "return to living room": Go back to main seating/TV area
+🧭 ROOM CONNECTIONS & NAVIGATION PATHS:
+- From LIVING ROOM → KITCHEN: Go through the central doorway/opening  
+- From LIVING ROOM → BEDROOM: Navigate through the hallway system
+- From LIVING ROOM → BATHROOM: Go to bedroom area first, then bathroom
+- From KITCHEN → Other rooms: Return to living room first, then navigate
+- Use doorways and openings visible in the floor plan to move between rooms
+
+📍 NAVIGATION TIPS:
+- The actor typically starts in or near the LIVING ROOM area
+- Look for furniture patterns to identify rooms (sofa=living room, bed=bedroom, etc.)
+- Use the floor plan as your map - it shows exact room positions and connections
+- Doorways appear as openings/gaps in walls on the floor plan
+- If lost, navigate back to the large LIVING ROOM and reorient using the floor plan
+
+🎯 TASK-SPECIFIC ROOM TARGETS (CASAS ADL Tasks):
+- **"Make a phone call"**: Navigate to DINING ROOM to access phone and phone book
+- **"Wash hands"**: Navigate to KITCHEN (sink area) or BATHROOM for hand washing
+- **"Cook oatmeal"**: Navigate to KITCHEN (stove, pots, ingredients area)
+- **"Eat meal"**: Navigate to DINING ROOM for eating location
+- **"Clean dishes"**: Navigate to KITCHEN (sink area) for dishwashing
+
+📋 CASAS TASK COMPLETION CRITERIA:
+- **"Make a phone call"**: COMPLETE when you reach DINING ROOM and can see phone/table area
+- **"Wash hands"**: COMPLETE when you reach KITCHEN sink area OR BATHROOM with visible sink
+- **"Cook oatmeal"**: COMPLETE when you reach KITCHEN and can see stove/cooking area
+- **"Eat meal"**: COMPLETE when you reach DINING ROOM and can see dining table/eating area  
+- **"Clean dishes"**: COMPLETE when you reach KITCHEN sink area where dishes can be washed
+
+🚨 TASK COMPLETION RULE: Set "task_complete": true ONLY when you have successfully navigated to the correct room for the current CASAS task and can see the relevant furniture/appliances.
 
 MOVEMENT COMMANDS:
 - FORWARD: Move straight ahead (only if path is clear!)
@@ -1172,29 +1476,37 @@ MOVEMENT COMMANDS:
 - RIGHT: Turn body right (human-like rotation, no forward movement)
 
 DECISION PROCESS:
-1. Analyze first-person view for immediate obstacles
-2. Check house layout for target room location  
-3. Plan safe path avoiding obstacles
-4. Choose movement that progresses toward goal while avoiding collisions
+1. **IDENTIFY CURRENT ROOM**: Look at first-person view and match with floor plan layout
+2. **LOCATE TARGET ROOM**: Find target room on floor plan (Living Room, Kitchen, Bedroom, Bathroom)
+3. **PLAN ROUTE**: Trace path from current room to target using doorways shown on floor plan
+4. **CHECK IMMEDIATE VIEW**: Look for obstacles, walls, furniture in first-person view
+5. **EXECUTE SAFE MOVEMENT**: Choose action that progresses toward target while avoiding collisions
 
-🚀 MOVEMENT STRATEGY (CRITICAL):
-- If you see a WALL directly ahead → Turn LEFT or RIGHT to find clear path
-- If you see an OPEN DOORWAY or clear space → Move FORWARD immediately
+🚀 NAVIGATION STRATEGY (CRITICAL):
+- **Use Floor Plan as GPS**: The house layout shows exactly where each room is located
+- **Follow Doorway Connections**: Look for openings between rooms shown on floor plan
+- **Wall Detection**: If you see a WALL directly ahead → Turn LEFT or RIGHT to find clear path
+- **Forward Progress**: If you see an OPEN DOORWAY or clear space → Move FORWARD immediately
+- **Room Identification**: Match what you see in first-person view with the floor plan layout
 - AVOID endless turning - after 1-2 turns, you should try FORWARD
 - Look for doorways, hallways, and open pathways to move through
 - Don't just spin in place - FORWARD movement is essential for progress
 
 RESPOND WITH JSON ONLY:
 {{
-    "current_room": "name_of_room_from_first_person_view", 
+    "current_room": "LIVING_ROOM|KITCHEN|BEDROOM|BATHROOM|DINING_ROOM|HALLWAY|UNKNOWN",
+    "target_room": "LIVING_ROOM|KITCHEN|BEDROOM|BATHROOM|DINING_ROOM",
+    "casas_task": "Make a phone call|Wash hands|Cook oatmeal|Eat meal|Clean dishes",
     "visible_obstacles": ["walls", "furniture", "objects_blocking_path"],
-    "clear_directions": ["directions_with_open_paths"],
-    "target_room": "room_needed_for_task_{task}",
-    "path_strategy": "how_to_reach_target_avoiding_obstacles",
+    "clear_directions": ["directions_with_open_paths_or_doorways"],
+    "relevant_furniture": ["phone", "sink", "stove", "table", "counter", "etc"],
+    "floor_plan_analysis": "what_you_see_on_the_floor_plan_for_navigation",
+    "route_plan": "step_by_step_path_from_current_to_target_room",
     "movement_decision": "FORWARD|BACKWARD|LEFT|RIGHT",
-    "reasoning": "why_this_movement_is_safe_and_progresses_toward_goal",
-    "obstacle_warning": "any_immediate_collision_risks", 
+    "reasoning": "why_this_movement_progresses_toward_target_room_safely",
+    "doorway_visible": "yes|no - can_you_see_a_doorway_or_opening_ahead",
     "task_complete": false,
+    "casas_completion_reason": "explanation_if_task_complete_is_true",
     "confidence": "high|medium|low"
 }}
 
