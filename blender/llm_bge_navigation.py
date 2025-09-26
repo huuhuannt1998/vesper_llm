@@ -36,6 +36,33 @@ try:
 except ImportError:
     MCP_INTEGRATION_AVAILABLE = False
 
+# Position Mapping Integration (NEW)
+try:
+    import sys
+    import os
+    
+    # Add map directory to path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    map_dir = os.path.join(os.path.dirname(current_dir), 'map')
+    if map_dir not in sys.path:
+        sys.path.insert(0, map_dir)
+    
+    from bge_integration import (
+        get_navigation_mapper,
+        update_actor_position_map,
+        get_current_position_map,
+        generate_session_summary_map
+    )
+    from enhanced_vlm_analysis import (
+        analyze_navigation_with_position_map,
+        enhanced_analyze_dual_image_navigation
+    )
+    POSITION_MAPPING_AVAILABLE = True
+    print("✅ Position mapping system integrated")
+except ImportError as e:
+    POSITION_MAPPING_AVAILABLE = False
+    print(f"⚠️ Position mapping not available: {e}")
+
 # =============================
 # VESPER Evaluation Metrics & Logging System
 # =============================
@@ -315,12 +342,24 @@ def setup_python_path():
         return False
 
 def initialize_llm_client():
-    """Initialize LLM client with Ollama connection"""
+    """Initialize LLM client with Open WebUI or Ollama connection"""
     global llm_complete_func
     
     try:
         # Setup Python path first
         setup_python_path()
+        
+        # Check and display current LLM configuration
+        use_openwebui = os.getenv("USE_OPENWEBUI", "true").lower() == "true"
+        openwebui_model = os.getenv("OPENWEBUI_MODEL", "OpenGVLab/InternVL3_5-30B-A3B")
+        openwebui_url = os.getenv("OPENWEBUI_URL", "http://cci-siscluster1.charlotte.edu:8080/api/chat/completions")
+        
+        print(f"🔍 BGE Navigation LLM Configuration:")
+        if use_openwebui:
+            print(f"  🚀 Using Open WebUI Server: {openwebui_url}")
+            print(f"  🤖 Model: {openwebui_model}")
+        else:
+            print(f"  🔄 Using Ollama (fallback mode)")
         
         # Import VLM client from backend
         from backend.app.llm.client import chat_completion_with_vision
@@ -354,6 +393,8 @@ def initialize_llm_client():
         
         llm_complete_func = vlm_wrapper
         print("✅ LLM client initialized successfully with VLM wrapper")
+        if use_openwebui:
+            print(f"🎉 BGE Navigation connected to Open WebUI model: {openwebui_model}")
         return True
         
     except Exception as e:
@@ -1191,22 +1232,44 @@ def run_continuous_navigation():
             print("🛑 Navigation halted due to VLM failure")
             return
         
-        if not house_layout_path:
-            print("⚠️ House layout not available, using FP view only")
-        
-        # Get actor position for context
+        # Get actor position for context and mapping
         scene = bge.logic.getCurrentScene()
         actor = scene.objects.get("Actor")
         current_position = f"({actor.worldPosition[0]:.1f}, {actor.worldPosition[1]:.1f})" if actor else "unknown"
-        
-        # Analyze with VLM using both images
-        navigation_result = analyze_dual_image_navigation(
-            fp_image_path, 
-            house_layout_path, 
-            current_task, 
-            current_position,
-            bge.logic.navigation_step
-        )
+        world_coords = (actor.worldPosition[0], actor.worldPosition[1]) if actor else (0, 0)
+
+        # Enhanced analysis with position mapping
+        if POSITION_MAPPING_AVAILABLE and actor:
+            print("🗺️ Using enhanced position-aware navigation analysis")
+            
+            # Extract previously detected room for mapping
+            previous_room = None
+            if hasattr(bge.logic, 'last_detected_room'):
+                previous_room = bge.logic.last_detected_room
+            
+            navigation_result = enhanced_analyze_dual_image_navigation(
+                fp_image_path,
+                house_layout_path, 
+                current_task,
+                current_position,
+                bge.logic.navigation_step,
+                world_coords=world_coords,
+                room_detected=previous_room
+            )
+            
+            # Store detected room for next iteration
+            if navigation_result and 'current_room' in navigation_result:
+                bge.logic.last_detected_room = navigation_result['current_room']
+            
+        else:
+            print("📍 Using standard dual-image navigation analysis")
+            navigation_result = analyze_dual_image_navigation(
+                fp_image_path, 
+                house_layout_path, 
+                current_task, 
+                current_position,
+                bge.logic.navigation_step
+            )
         
         if not navigation_result:
             print("❌ Image-based VLM failed - stopping navigation (no fallback)")
@@ -1439,6 +1502,46 @@ CRITICAL NAVIGATION RULES:
 - **BATHROOM**: Small room on the right with toilet and bathtub
 - **HALLWAYS**: Connect all rooms - use these for navigation between areas
 
+🔍 SPECIFIC VISUAL CUES FOR THIS HOUSE:
+**LIVING ROOM Identification:**
+- Large open space with seating furniture (sofas, chairs)
+- Dining table and chairs (often confused as dining room - this IS the dining area)
+- TV or entertainment area
+- Multiple furniture pieces, well-lit, spacious feel
+- Central location connecting to other rooms
+
+**KITCHEN Identification:**
+- Cooking appliances: stove, oven, microwave
+- Kitchen counters and cabinets along walls  
+- Sink (important for "wash hands" task)
+- Refrigerator (large white/metallic appliance)
+- Compact space with functional cooking layout
+
+**BEDROOM Identification:**
+- Bed as the dominant furniture piece
+- Dresser, nightstands, closet
+- Personal items, clothing storage
+- More intimate, private space feeling
+- Usually connected to bathroom
+
+**BATHROOM Identification:**
+- Toilet (white porcelain fixture)
+- Bathtub or shower area
+- Bathroom sink and mirror
+- Tiled floors/walls (different texture)
+- Small, enclosed private space
+
+**DINING_ROOM vs LIVING_ROOM:**
+- In this house, the dining area is PART OF the living room
+- If you see dining table with chairs, you're in LIVING_ROOM (not separate dining room)
+- Only use DINING_ROOM if there's a separate room with ONLY dining furniture
+
+**HALLWAY Identification:**
+- Narrow corridor space
+- Doors/openings on both sides
+- Minimal or no furniture
+- Transitional space between rooms
+
 🧭 ROOM CONNECTIONS & NAVIGATION PATHS:
 - From LIVING ROOM → KITCHEN: Go through the central doorway/opening  
 - From LIVING ROOM → BEDROOM: Navigate through the hallway system
@@ -1477,10 +1580,28 @@ MOVEMENT COMMANDS:
 
 DECISION PROCESS:
 1. **IDENTIFY CURRENT ROOM**: Look at first-person view and match with floor plan layout
+   - What furniture do you see? Match with room identification guide above
+   - Cross-reference with floor plan to confirm room location
+   - Be confident in your identification - avoid UNKNOWN unless truly unclear
+
 2. **LOCATE TARGET ROOM**: Find target room on floor plan (Living Room, Kitchen, Bedroom, Bathroom)
+   - Use CASAS task mapping to know where to go
+   - Find the target room's position on the floor plan
+
 3. **PLAN ROUTE**: Trace path from current room to target using doorways shown on floor plan
+   - Look at floor plan to see how rooms connect
+   - Identify which direction leads toward target room
+
 4. **CHECK IMMEDIATE VIEW**: Look for obstacles, walls, furniture in first-person view
+   - Is the path ahead clear or blocked?
+   - Can you see a doorway or opening?
+   - Are there walls or furniture blocking movement?
+
 5. **EXECUTE SAFE MOVEMENT**: Choose action that progresses toward target while avoiding collisions
+   - If path is clear → FORWARD
+   - If wall ahead → LEFT or RIGHT to find opening
+   - If stuck → BACKWARD then try different direction
+   - Always explain your reasoning clearly
 
 🚀 NAVIGATION STRATEGY (CRITICAL):
 - **Use Floor Plan as GPS**: The house layout shows exactly where each room is located
@@ -1492,23 +1613,61 @@ DECISION PROCESS:
 - Look for doorways, hallways, and open pathways to move through
 - Don't just spin in place - FORWARD movement is essential for progress
 
+🏠 ENHANCED ROOM IDENTIFICATION GUIDE (CRITICAL):
+**STEP 1: ANALYZE FIRST-PERSON VIEW**
+Look for these distinctive furniture/features:
+- **LIVING ROOM**: Sofas, couch, TV, coffee table, large open space
+- **KITCHEN**: Stove, refrigerator, sink, counters, cabinets, cooking appliances
+- **DINING ROOM**: Dining table, chairs, possibly phone on table/wall
+- **BEDROOM**: Bed, dresser, nightstand, closet, personal items
+- **BATHROOM**: Toilet, bathtub, sink, mirror, tiles, small space
+- **HALLWAY**: Narrow corridor, doors on sides, no major furniture
+
+**STEP 2: CROSS-REFERENCE WITH FLOOR PLAN**
+- Match furniture patterns you see with room locations on the floor plan
+- Use the floor plan to confirm which room the furniture pattern indicates
+- Look for architectural features (walls, openings, room size) that match the floor plan
+
+**STEP 3: MAKE CONFIDENT ROOM IDENTIFICATION**
+- If you see a sofa/couch → likely LIVING_ROOM
+- If you see stove/refrigerator → likely KITCHEN  
+- If you see bed → likely BEDROOM
+- If you see toilet/bathtub → likely BATHROOM
+- If you see dining table → likely DINING_ROOM
+- If you see narrow corridor → likely HALLWAY
+- Only use UNKNOWN if absolutely no identifying features visible
+
+**STEP 4: VALIDATE WITH FLOOR PLAN POSITION**
+- Check if your identified room matches the expected position on floor plan
+- Ensure the room connection makes sense based on previous movements
+- Use the floor plan as ground truth for room layout and connections
+
 RESPOND WITH JSON ONLY:
 {{
-    "current_room": "LIVING_ROOM|KITCHEN|BEDROOM|BATHROOM|DINING_ROOM|HALLWAY|UNKNOWN",
-    "target_room": "LIVING_ROOM|KITCHEN|BEDROOM|BATHROOM|DINING_ROOM",
-    "casas_task": "Make a phone call|Wash hands|Cook oatmeal|Eat meal|Clean dishes",
-    "visible_obstacles": ["walls", "furniture", "objects_blocking_path"],
-    "clear_directions": ["directions_with_open_paths_or_doorways"],
-    "relevant_furniture": ["phone", "sink", "stove", "table", "counter", "etc"],
-    "floor_plan_analysis": "what_you_see_on_the_floor_plan_for_navigation",
-    "route_plan": "step_by_step_path_from_current_to_target_room",
-    "movement_decision": "FORWARD|BACKWARD|LEFT|RIGHT",
-    "reasoning": "why_this_movement_progresses_toward_target_room_safely",
-    "doorway_visible": "yes|no - can_you_see_a_doorway_or_opening_ahead",
+    "current_room": "LIVING_ROOM",
+    "target_room": "KITCHEN", 
+    "casas_task": "Cook oatmeal",
+    "visible_obstacles": ["wall ahead", "chair blocking"],
+    "clear_directions": ["left turn available", "doorway visible"],
+    "relevant_furniture": ["sofa", "coffee table", "TV"],
+    "floor_plan_analysis": "Currently in living room based on sofa and TV, need to go to kitchen in upper area",
+    "route_plan": "Turn left to find doorway, then forward to kitchen area",
+    "movement_decision": "LEFT",
+    "reasoning": "Wall ahead, turning left to find kitchen doorway",
+    "doorway_visible": "no",
     "task_complete": false,
-    "casas_completion_reason": "explanation_if_task_complete_is_true",
-    "confidence": "high|medium|low"
+    "casas_completion_reason": "Not in target room yet",
+    "confidence": "high"
 }}
+
+IMPORTANT JSON RULES:
+- "current_room": Use ONLY ONE of: LIVING_ROOM, KITCHEN, BEDROOM, BATHROOM, DINING_ROOM, HALLWAY, UNKNOWN
+- "movement_decision": Use ONLY ONE of: FORWARD, BACKWARD, LEFT, RIGHT  
+- "doorway_visible": Use ONLY: "yes" or "no"
+- "task_complete": Use ONLY: true or false
+- "confidence": Use ONLY ONE of: high, medium, low
+
+The above is an EXAMPLE - analyze YOUR actual images and provide YOUR specific observations!
 
 REMEMBER: After turning to avoid obstacles, you should move FORWARD when you see clear space or doorways. Don't keep turning forever!{turn_warning}"""
         
