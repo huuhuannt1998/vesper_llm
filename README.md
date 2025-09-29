@@ -30,13 +30,13 @@ These changes aim to improve the VLM’s ability to understand both the **local 
 ### **Priority 1: Movement System & Obstacle Avoidance**
 - **Issue**: Actor gets stuck against furniture/walls despite clear VLM navigation decisions
 - **Root Cause**: Inadequate obstacle avoidance - only minor rotations when blocked
-- **Impact**: VLM sees clear path but physical movement fails (position stuck at same coordinates)
+- **Impact**: VLM sees a clear path, but physical movement fails (position stuck at the same coordinates)
 - **Required Fix**: Enhanced obstacle avoidance with proper LEFT/RIGHT/BACKWARD navigation attempts
 
 ### **Priority 2: VLM-Movement System Communication**
 - **Issue**: Disconnect between VLM spatial understanding and movement execution
-- **Root Cause**: VLM unaware of physical obstacles, movement system doesn't inform VLM of failures  
-- **Impact**: Repeated FORWARD commands when actor is physically blocked
+- **Root Cause**: VLM is  unaware of physical obstacles, the movement system doesn't inform VLM of failures  
+- **Impact**: Repeated FORWARD commands when the actor is physically blocked
 - **Required Fix**: Bidirectional feedback system between VLM and movement execution
 
 ### **Priority 3: Room Detection System Synchronization**
@@ -62,7 +62,7 @@ These changes aim to improve the VLM’s ability to understand both the **local 
   - [ ] Create smooth turning animations for directional changes
 
 - [ ] **Develop intelligent path finding**
-  - [ ] Implement A* pathfinding algorithm for complex obstacle navigation
+  - [ ] Implement a pathfinding algorithm for complex obstacle navigation
   - [ ] Add wall-following behavior when completely blocked
   - [ ] Create dynamic obstacle map from collision detection
 
@@ -152,7 +152,6 @@ These changes aim to improve the VLM’s ability to understand both the **local 
   - ✅ Real-time position mapping system (`position_mapper.py`)
   - ✅ Dynamic navigation context maps (`navigation_context_###.png`)
   - ✅ Actor position tracking and visualization on house layout
-  - ✅ Sequential numbering system (001, 002, 003...) for image management
   - ✅ **Dual-image VLM system**: FP view + navigation map simultaneously
   - ✅ OpenWebUI multi-image support for `OpenGVLab/InternVL3_5-30B-A3B`
   
