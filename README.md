@@ -158,10 +158,10 @@ These changes aim to improve the VLM’s ability to understand both the **local 
   **Example VLM Input Images:**
   
   *First-Person View (FP Camera):*
-  ![First-Person View](blender/captures/fp_view_007.png)
+  ![First-Person View](blender/captures/fp_view_001.png)
   
   *Navigation Context Map (Dynamic Position Tracking):*
-  ![Navigation Context](map/generated_maps/navigation_context_007.png)
+  ![Navigation Context](map/generated_maps/navigation_context_001.png)
   
   These two images are simultaneously sent to the VLM (OpenGVLab/InternVL3_5-30B-A3B) for spatial reasoning:
   - **FP View**: Shows what the actor currently sees (furniture, walls, doorways)
