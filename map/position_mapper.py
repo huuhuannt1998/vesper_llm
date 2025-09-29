@@ -483,13 +483,17 @@ class VESPERPositionMapper:
         # Add minimal info overlay
         self._draw_minimal_info_overlay(draw)
         
-        # Save navigation context map
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  
-        filename = f"navigation_context_{timestamp}.png"
+        # Save navigation context map with sequential numbering
+        map_number = self._get_next_map_number()
+        filename = f"navigation_context_{map_number:03d}.png"
         output_path = os.path.join(self.map_output_dir, filename)
         
         map_image.save(output_path)
         print(f"🧭 Navigation context map generated: {filename}")
+        
+        # PRESERVE ALL MAPS: Cleanup disabled to keep complete navigation history
+        # To re-enable cleanup, uncomment the line below:
+        # self._cleanup_old_maps(keep_last=10)
         
         return output_path
     
@@ -537,6 +541,123 @@ class VESPERPositionMapper:
         
         print(f"💾 Position data saved: {filename}")
         return output_path
+
+    def _get_next_map_number(self):
+        """Get the next sequential map number based on existing files"""
+        try:
+            if not os.path.exists(self.map_output_dir):
+                return 1
+            
+            # Find all navigation context maps with numbers
+            existing_numbers = []
+            for filename in os.listdir(self.map_output_dir):
+                if filename.startswith("navigation_context_") and filename.endswith(".png"):
+                    # Extract number from filename like navigation_context_001.png
+                    try:
+                        number_part = filename.replace("navigation_context_", "").replace(".png", "")
+                        if number_part.isdigit():
+                            existing_numbers.append(int(number_part))
+                    except:
+                        continue
+            
+            # Return next number in sequence
+            if existing_numbers:
+                return max(existing_numbers) + 1
+            else:
+                return 1
+                
+        except Exception as e:
+            print(f"⚠️ Error getting map number, using 1: {e}")
+            return 1
+
+    def _cleanup_old_maps(self, keep_last=10):
+        """Keep only the last N navigation context maps to prevent directory clutter"""
+        try:
+            if not os.path.exists(self.map_output_dir):
+                return
+            
+            # Find all numbered navigation context maps
+            numbered_maps = []
+            for filename in os.listdir(self.map_output_dir):
+                if filename.startswith("navigation_context_") and filename.endswith(".png"):
+                    try:
+                        number_part = filename.replace("navigation_context_", "").replace(".png", "")
+                        if number_part.isdigit():
+                            filepath = os.path.join(self.map_output_dir, filename)
+                            numbered_maps.append((filepath, int(number_part)))
+                    except:
+                        continue
+            
+            # If we have more than keep_last maps, delete the oldest ones
+            if len(numbered_maps) > keep_last:
+                numbered_maps.sort(key=lambda x: x[1])  # Sort by number
+                maps_to_delete = numbered_maps[:-keep_last]  # Keep only the last N
+                
+                for filepath, number in maps_to_delete:
+                    try:
+                        os.remove(filepath)
+                        print(f"🗑️ Cleaned up old map: navigation_context_{number:03d}.png")
+                    except:
+                        pass
+                        
+        except Exception as e:
+            print(f"⚠️ Error cleaning up old maps: {e}")
+
+    def manual_cleanup_maps(self, keep_last=None):
+        """Manually clean up old maps (since auto-cleanup is disabled)
+        
+        Args:
+            keep_last: Number of recent maps to keep. If None, shows count only.
+        """
+        try:
+            if not os.path.exists(self.map_output_dir):
+                print("📁 Map output directory doesn't exist")
+                return
+            
+            # Find all numbered navigation context maps
+            numbered_maps = []
+            for filename in os.listdir(self.map_output_dir):
+                if filename.startswith("navigation_context_") and filename.endswith(".png"):
+                    try:
+                        number_part = filename.replace("navigation_context_", "").replace(".png", "")
+                        if number_part.isdigit():
+                            filepath = os.path.join(self.map_output_dir, filename)
+                            numbered_maps.append((filepath, int(number_part)))
+                    except:
+                        continue
+            
+            total_maps = len(numbered_maps)
+            print(f"📊 Found {total_maps} navigation context maps")
+            
+            if keep_last is None:
+                print("💡 To clean up, call: mapper.manual_cleanup_maps(keep_last=20)")
+                return total_maps
+            
+            if total_maps <= keep_last:
+                print(f"✅ No cleanup needed - only {total_maps} maps (keeping {keep_last})")
+                return total_maps
+            
+            # Sort by number and delete oldest ones
+            numbered_maps.sort(key=lambda x: x[1])
+            maps_to_delete = numbered_maps[:-keep_last]
+            
+            print(f"🗑️ Cleaning up {len(maps_to_delete)} old maps (keeping last {keep_last})")
+            deleted_count = 0
+            
+            for filepath, number in maps_to_delete:
+                try:
+                    os.remove(filepath)
+                    deleted_count += 1
+                    print(f"  🗑️ Deleted: navigation_context_{number:03d}.png")
+                except Exception as e:
+                    print(f"  ⚠️ Failed to delete map {number:03d}: {e}")
+            
+            print(f"✅ Cleanup complete! Deleted {deleted_count}/{len(maps_to_delete)} old maps")
+            return total_maps - deleted_count
+            
+        except Exception as e:
+            print(f"❌ Error during manual cleanup: {e}")
+            return 0
 
 # Convenience functions for easy integration
 def create_position_mapper(house_layout_path=None):

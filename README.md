@@ -25,27 +25,153 @@ These changes aim to improve the VLM’s ability to understand both the **local 
 
 ---
 
-## To-Do List for Next Week (09/22–09/26, 2025)
+## 🚨 Current Challenges (09/29, 2025)
 
-- [ ] Implement FP camera setup:
-  - Attach FP camera to actor object.
+### **Priority 1: Movement System & Obstacle Avoidance**
+- **Issue**: Actor gets stuck against furniture/walls despite clear VLM navigation decisions
+- **Root Cause**: Inadequate obstacle avoidance - only minor rotations when blocked
+- **Impact**: VLM sees clear path but physical movement fails (position stuck at same coordinates)
+- **Required Fix**: Enhanced obstacle avoidance with proper LEFT/RIGHT/BACKWARD navigation attempts
+
+### **Priority 2: VLM-Movement System Communication**
+- **Issue**: Disconnect between VLM spatial understanding and movement execution
+- **Root Cause**: VLM unaware of physical obstacles, movement system doesn't inform VLM of failures  
+- **Impact**: Repeated FORWARD commands when actor is physically blocked
+- **Required Fix**: Bidirectional feedback system between VLM and movement execution
+
+### **Priority 3: Room Detection System Synchronization**
+- **Issue**: VLM correctly identifies rooms ("LIVING_ROOM") but system logs show "UNKNOWN"
+- **Root Cause**: Mismatch between VLM analysis and internal room detection system
+- **Impact**: Navigation context inconsistency affecting spatial planning
+- **Required Fix**: Synchronize VLM room detection with system state management
+
+### **Priority 4: Stuck State Detection & Recovery**
+- **Issue**: No automatic detection when actor is completely immobilized
+- **Root Cause**: Missing position validation and stuck state recovery mechanisms
+- **Impact**: Navigation continues indefinitely without progress
+- **Required Fix**: Position change validation and recovery behavior system
+
+---
+
+## 🛠️ Solution Todo List for Current Challenges (09/29, 2025)
+
+### **🎯 Priority 1: Enhanced Obstacle Avoidance System**
+- [ ] **Implement multi-directional obstacle checking**
+  - [ ] Add LEFT/RIGHT ray casting when FORWARD is blocked
+  - [ ] Implement BACKWARD navigation as last resort option
+  - [ ] Create smooth turning animations for directional changes
+
+- [ ] **Develop intelligent path finding**
+  - [ ] Implement A* pathfinding algorithm for complex obstacle navigation
+  - [ ] Add wall-following behavior when completely blocked
+  - [ ] Create dynamic obstacle map from collision detection
+
+- [ ] **Enhance collision detection system**
+  - [ ] Increase ray casting precision and distance
+  - [ ] Add multiple detection points around actor (front, sides, corners)
+  - [ ] Implement graduated collision response (slow down before stopping)
+
+### **🔄 Priority 2: VLM-Movement Feedback Loop**
+- [ ] **Create bidirectional communication system**
+  - [ ] Send obstacle detection results to VLM
+  - [ ] Implement movement failure notifications
+  - [ ] Add real-time position validation feedback
+
+- [ ] **Develop adaptive VLM prompting**
+  - [ ] Include obstacle information in VLM context
+  - [ ] Add "movement failed" status to VLM input
+  - [ ] Implement alternative route suggestion system
+
+- [ ] **Build movement execution validation**
+  - [ ] Track position changes after movement commands
+  - [ ] Detect when actor remains stationary despite movement attempts
+  - [ ] Trigger VLM re-evaluation when movement fails
+
+### **🏠 Priority 3: Room Detection Synchronization**
+- [ ] **Unify room detection systems**
+  - [ ] Synchronize VLM room identification with system logs
+  - [ ] Create single source of truth for current room state
+  - [ ] Implement room transition validation
+
+- [ ] **Enhance spatial awareness**
+  - [ ] Add room boundary detection using collision system
+  - [ ] Implement doorway detection and navigation
+  - [ ] Create room-specific navigation strategies
+
+### **🚨 Priority 4: Stuck State Recovery System**
+- [ ] **Implement position monitoring**
+  - [ ] Track actor position changes over time windows
+  - [ ] Define stuck state thresholds (position unchanged for N steps)
+  - [ ] Add movement velocity tracking
+
+- [ ] **Create recovery behaviors**
+  - [ ] Random walk behavior when completely stuck
+  - [ ] Teleport to known safe positions as last resort
+  - [ ] Reset navigation system and restart pathfinding
+
+- [ ] **Add comprehensive logging**
+  - [ ] Log all movement attempts and results
+  - [ ] Track obstacle detection events
+  - [ ] Monitor VLM decision-making patterns for debugging
+
+### **📊 Priority 5: Performance Optimization**
+- [ ] **Optimize VLM call frequency**
+  - [ ] Cache recent VLM decisions for similar situations
+  - [ ] Implement movement confidence scoring
+  - [ ] Reduce redundant obstacle checking
+
+- [ ] **Enhance debugging capabilities**
+  - [ ] Add real-time movement visualization
+  - [ ] Create movement decision trees for analysis
+  - [ ] Implement step-by-step navigation replay system
+
+---
+## ✅ Completed Tasks (09/22–09/29, 2025)
+
+- [x] **Implement FP camera setup**:
+  - ✅ Attached FP camera to actor object (`Actor_FPCamera`)
   - Ensure camera follows actor’s position and rotation smoothly.
   - Capture and stream FP camera images for VLM input.
 
-- [ ] Create annotated floorplan:
-  - Generate a 2D floorplan of the house layout.
-  - Add labels for **rooms** (e.g., Kitchen, Living Room, Bedroom).
-  - Add labels for **key furniture** (e.g., Sofa, Bed, Table).
-  - Export in a format accessible to the VLM as a static reference.
+- [x] **Create annotated floorplan**:
+  - ✅ Generated 2D floorplan of house layout (`house_layout_reference2.png`)
+  - ✅ Added labels for **rooms** (Kitchen, Living Room, Bedroom, Bathroom)
+  - ✅ Added labels for **key furniture** (Sofa, Bed, Table, appliances)
+  - ✅ Exported in format accessible to VLM as static reference
 
-- [ ] Update VLM integration:
+- [x] **Update VLM integration**:
   - Replace bird’s-eye image pipeline with FP camera image input.
   - Add mechanism to reference the floorplan when reasoning about navigation tasks.
 
-- [ ] Documentation:
-  - Update Blender setup instructions for FP camera.
-  - Document how the floorplan is generated, annotated, and used by the VLM.
-  - 
+- [x] **Documentation**:
+  - ✅ Updated Blender setup instructions for FP camera
+  - ✅ Documented floorplan generation and annotation process
+  - ✅ Created comprehensive navigation system documentation
+
+- [x] **Dynamic navigation map generation**:
+  - ✅ Real-time position mapping system (`position_mapper.py`)
+  - ✅ Dynamic navigation context maps (`navigation_context_###.png`)
+  - ✅ Actor position tracking and visualization on house layout
+  - ✅ Sequential numbering system (001, 002, 003...) for image management
+  - ✅ **Dual-image VLM system**: FP view + navigation map simultaneously
+  - ✅ OpenWebUI multi-image support for `OpenGVLab/InternVL3_5-30B-A3B`
+  
+  **Example VLM Input Images:**
+  
+  *First-Person View (FP Camera):*
+  ![First-Person View](blender/captures/fp_view_007.png)
+  
+  *Navigation Context Map (Dynamic Position Tracking):*
+  ![Navigation Context](map/generated_maps/navigation_context_007.png)
+  
+  These two images are simultaneously sent to the VLM (OpenGVLab/InternVL3_5-30B-A3B) for spatial reasoning:
+  - **FP View**: Shows what the actor currently sees (furniture, walls, doorways)
+  - **Navigation Map**: Shows actor's position (red dot) relative to house layout and rooms
+  - **Combined Analysis**: VLM uses both perspectives for intelligent navigation decisions
+
+---
+
+
 ## ✨ Key Features
 
 ### 🤖 AI-Powered 3D Navigation

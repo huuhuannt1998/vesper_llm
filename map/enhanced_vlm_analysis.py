@@ -11,7 +11,7 @@ import sys
 import time
 from datetime import datetime
 
-def analyze_navigation_with_position_map(fp_image_path, position_map_path, house_layout_path, task, current_position, step_number, world_coords, room_detected=None):
+def analyze_navigation_with_position_map(fp_image_path, position_map_path, house_layout_path, task, current_position, step_number, world_coords, room_detected=None, llm_func=None):
     """Enhanced navigation analysis using position-aware mapping
     
     Args:
@@ -23,14 +23,31 @@ def analyze_navigation_with_position_map(fp_image_path, position_map_path, house
         step_number: Current navigation step
         world_coords: (world_x, world_y) coordinates
         room_detected: Previously detected room
+        llm_func: LLM completion function to use
         
     Returns:
         Navigation result with enhanced spatial awareness
     """
     try:
-        # Import required modules
-        global llm_complete_func
-        if 'llm_complete_func' not in globals():
+        # Use passed LLM function or try to import from BGE navigation
+        if llm_func:
+            llm_complete_func = llm_func
+        else:
+            # Try to import from the BGE navigation module
+            try:
+                import sys
+                current_dir = os.path.dirname(os.path.dirname(__file__))
+                blender_dir = os.path.join(current_dir, 'blender')
+                if blender_dir not in sys.path:
+                    sys.path.insert(0, blender_dir)
+                
+                import llm_bge_navigation
+                llm_complete_func = getattr(llm_bge_navigation, 'llm_complete_func', None)
+            except Exception as e:
+                print(f"❌ Could not import LLM function: {e}")
+                llm_complete_func = None
+        
+        if not llm_complete_func:
             print("❌ LLM client not available")
             return None
         
@@ -47,11 +64,16 @@ def analyze_navigation_with_position_map(fp_image_path, position_map_path, house
         else:
             print("⚠️ Position map not available - using standard dual-image analysis")
         
-        # Wait for screenshot readiness
-        screenshot_ready = _wait_for_screenshot(fp_image_path)
-        if not screenshot_ready:
+        # Wait for screenshot readiness with fallback
+        screenshot_result = _wait_for_screenshot(fp_image_path)
+        if not screenshot_result:
             print("❌ Screenshot not ready")
             return None
+        elif isinstance(screenshot_result, str):
+            # Fallback screenshot path returned
+            fp_image_path = screenshot_result
+            print(f"📷 Enhanced analysis using fallback image: {os.path.basename(fp_image_path)}")
+        # else screenshot_result is True, use original fp_image_path
         
         # Build enhanced prompt with position awareness
         prompt = _build_position_aware_prompt(task, current_position, step_number, world_coords, use_position_map)
@@ -105,19 +127,42 @@ def analyze_navigation_with_position_map(fp_image_path, position_map_path, house
         return None
 
 def _wait_for_screenshot(fp_image_path, max_wait=2.0, min_size=2500):
-    """Wait for screenshot to be ready for analysis"""
+    """Wait for screenshot to be ready for analysis with fallback logic"""
+    import time
     wait_interval = 0.3
     attempts = int(max_wait / wait_interval)
     
+    # First, try to wait for the current screenshot
     for attempt in range(attempts):
         if os.path.exists(fp_image_path):
             try:
                 file_size = os.path.getsize(fp_image_path)
                 if file_size >= min_size:
+                    print(f"✅ Enhanced analysis screenshot ready: {os.path.basename(fp_image_path)} ({file_size:,} bytes)")
                     return True
             except:
                 pass
         time.sleep(wait_interval)
+    
+    # If current screenshot not ready, look for recent screenshots (same logic as standard analysis)
+    print(f"⏳ Current screenshot not ready in enhanced analysis, checking for recent screenshots...")
+    captures_dir = os.path.dirname(fp_image_path)
+    if os.path.exists(captures_dir):
+        existing_files = [f for f in os.listdir(captures_dir) if f.startswith("fp_view_") and f.endswith(".png")]
+        if existing_files:
+            existing_files.sort(reverse=True)
+            recent_screenshot = os.path.join(captures_dir, existing_files[0])
+            
+            if os.path.exists(recent_screenshot):
+                try:
+                    file_size = os.path.getsize(recent_screenshot)
+                    if file_size > 1000:  # Lower threshold for fallback
+                        print(f"📸 Enhanced analysis using recent screenshot: {os.path.basename(recent_screenshot)} ({file_size:,} bytes)")
+                        # Update the fp_image_path to point to the recent screenshot
+                        # Note: This is a bit hacky but needed for compatibility
+                        return recent_screenshot  # Return the path instead of True
+                except:
+                    pass
     
     return False
 
@@ -196,7 +241,7 @@ RESPOND WITH JSON:
     return base_prompt
 
 # Integration function for existing navigation system
-def enhanced_analyze_dual_image_navigation(fp_image_path, house_layout_path, task, current_position, step_number, world_coords=None, room_detected=None):
+def enhanced_analyze_dual_image_navigation(fp_image_path, house_layout_path, task, current_position, step_number, world_coords=None, room_detected=None, llm_func=None):
     """Drop-in replacement for analyze_dual_image_navigation with position mapping
     
     This function can replace the existing analyze_dual_image_navigation function
@@ -208,7 +253,7 @@ def enhanced_analyze_dual_image_navigation(fp_image_path, house_layout_path, tas
     
     if world_coords:
         try:
-            # Import the mapping integration
+            # Try to import the mapping integration from BGE
             from bge_integration import update_actor_position_map
             
             world_x, world_y = world_coords
@@ -219,20 +264,78 @@ def enhanced_analyze_dual_image_navigation(fp_image_path, house_layout_path, tas
                 target_room=_extract_target_room(task)
             )
             
-        except Exception as e:
-            print(f"⚠️ Position mapping not available: {e}")
+        except ImportError:
+            # BGE integration not available - try position mapper directly
+            try:
+                from position_mapper import VESPERPositionMapper
+                
+                world_x, world_y = world_coords
+                mapper = VESPERPositionMapper()
+                
+                # Generate position map for this analysis step
+                position_map_path = mapper.create_actor_position_map(
+                    world_x, world_y,
+                    room_name=room_detected or "UNKNOWN",
+                    task_name=task,
+                    target_room=_extract_target_room(task),
+                    step_number=step_number
+                )
+                
+            except Exception as e:
+                print(f"⚠️ Position mapping not available: {e}")
     
     # Use enhanced analysis if position map is available
     if position_map_path:
         return analyze_navigation_with_position_map(
             fp_image_path, position_map_path, house_layout_path,
-            task, current_position, step_number, world_coords, room_detected
+            task, current_position, step_number, world_coords, room_detected, llm_func
         )
     else:
-        # Fallback to original analysis method
-        print("⚠️ Falling back to standard dual-image analysis")
-        # This would call the original function - for now, return None
-        return None
+        # Fallback to standard VLM analysis without position mapping
+        print("⚠️ Falling back to standard VLM analysis")
+        
+        # Perform standard VLM analysis with available images
+        if not llm_func:
+            print("❌ No LLM function available for fallback analysis")
+            return None
+            
+        try:
+            # Build basic navigation prompt
+            prompt = f"""You are an expert AI navigation assistant analyzing indoor environments.
+
+TASK: {task}
+CURRENT POSITION: {current_position}
+STEP: {step_number}
+ROOM DETECTED: {room_detected or "Unknown"}
+
+Analyze the provided first-person view image and provide navigation guidance.
+
+RESPONSE FORMAT (JSON):
+{{
+    "movement_decision": "FORWARD|BACKWARD|LEFT|RIGHT|STOP",
+    "reasoning": "Brief explanation of decision",
+    "current_room": "Room type detected",
+    "confidence": "0.0-1.0",
+    "task_complete": false
+}}"""
+
+            # Call VLM with just the first-person view
+            images = [fp_image_path]
+            if house_layout_path and os.path.exists(house_layout_path):
+                images.append(house_layout_path)
+                
+            result = llm_func(prompt, images)
+            
+            if result:
+                print(f"✅ Standard VLM analysis completed")
+                return _parse_navigation_result(result)
+            else:
+                print("❌ Standard VLM analysis failed")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Fallback analysis failed: {e}")
+            return None
 
 def _extract_target_room(task):
     """Extract target room from CASAS task"""
@@ -244,6 +347,41 @@ def _extract_target_room(task):
         "Clean dishes": "KITCHEN"
     }
     return task_room_mapping.get(task, "UNKNOWN")
+
+def _parse_navigation_result(llm_result):
+    """Parse LLM result into structured navigation response"""
+    if not llm_result:
+        return None
+        
+    import json
+    import re
+    
+    try:
+        # Try to extract JSON from the response
+        json_match = re.search(r'\{.*?\}', llm_result, re.DOTALL)
+        if json_match:
+            result_data = json.loads(json_match.group())
+        else:
+            # Create basic response from text
+            result_data = {
+                "movement_decision": "FORWARD",
+                "reasoning": llm_result[:100] + "..." if len(llm_result) > 100 else llm_result,
+                "current_room": "UNKNOWN",
+                "confidence": 0.5,
+                "task_complete": False
+            }
+        
+        return result_data
+        
+    except Exception as e:
+        print(f"⚠️ Could not parse LLM result: {e}")
+        return {
+            "movement_decision": "FORWARD",
+            "reasoning": "Parse error - proceeding forward",
+            "current_room": "UNKNOWN",
+            "confidence": 0.3,
+            "task_complete": False
+        }
 
 if __name__ == "__main__":
     print("🗺️ Enhanced VLM Position-Aware Analysis Module")
