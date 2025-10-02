@@ -71,7 +71,7 @@ class BGENavigationMapper:
         print("⚠️ House layout reference not found in expected locations")
         return None
     
-    def update_position(self, world_x, world_y, room=None, task=None, target_room=None):
+    def update_position(self, world_x, world_y, room=None, task=None, target_room=None, orientation=None):
         """Update actor position and generate map if needed
         
         Args:
@@ -79,6 +79,7 @@ class BGENavigationMapper:
             room: Current room detection from VLM
             task: Current CASAS task
             target_room: Target room for current task
+            orientation: Actor's facing angle in radians
             
         Returns:
             Path to generated position map (if created), None otherwise
@@ -88,7 +89,7 @@ class BGENavigationMapper:
         
         try:
             # Update position in mapper
-            self.mapper.update_actor_position(world_x, world_y, room, task, target_room)
+            self.mapper.update_actor_position(world_x, world_y, room, task, target_room, orientation)
             
             self.step_counter += 1
             
@@ -136,16 +137,19 @@ def get_navigation_mapper():
         _global_navigation_mapper = BGENavigationMapper()
     return _global_navigation_mapper
 
-def update_actor_position_map(world_x, world_y, room=None, task=None, target_room=None):
+def update_actor_position_map(world_x, world_y, room=None, task=None, target_room=None, orientation=None):
     """Convenient function to update actor position and get map
     
     This function can be called directly from llm_bge_navigation.py
+    
+    Args:
+        orientation: Actor's facing angle in radians (Z-axis rotation in BGE)
     
     Returns:
         Path to position-aware navigation map
     """
     mapper = get_navigation_mapper()
-    return mapper.update_position(world_x, world_y, room, task, target_room)
+    return mapper.update_position(world_x, world_y, room, task, target_room, orientation)
 
 def get_current_position_map():
     """Get the current position map for VLM analysis"""

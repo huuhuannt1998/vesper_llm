@@ -1,4 +1,4 @@
-﻿import bge
+import bge
 import mathutils
 import os
 import sys
@@ -629,11 +629,11 @@ CRITICAL ANALYSIS REQUIREMENTS:
 FIRST-PERSON VIEW CONTEXT:
 - You are seeing through the actor's eyes inside the house
 - Look for doors, hallways, furniture to identify current location
-- Check for clear paths forward, left, or right
+- Check for clear paths in all directions
 - Avoid moving into walls or furniture
 - Navigate toward rooms appropriate for the current task
 
-MOVEMENT OPTIONS: FORWARD, LEFT, RIGHT, BACKWARD
+MOVEMENT OPTIONS: NORTH, SOUTH, EAST, WEST (preferred directional) or FORWARD, LEFT, RIGHT, BACKWARD (legacy)
 RESPONSE FORMAT: JSON only with navigation decision"""
 
         # User prompt for first-person navigation
@@ -652,7 +652,7 @@ RESPOND WITH JSON ONLY:
     "visible_objects": ["furniture", "items", "doors"],
     "safe_directions": ["directions_with_clear_paths"],
     "task_relevant_direction": "direction_toward_task_room",
-    "movement_decision": "FORWARD|LEFT|RIGHT|BACKWARD",
+    "movement_decision": "NORTH|SOUTH|EAST|WEST",
     "reasoning": "brief_explanation_of_decision"
 }}
 
@@ -724,7 +724,7 @@ def parse_navigation_response(response):
                     return None
             
             # Validate movement decision
-            valid_movements = ['FORWARD', 'LEFT', 'RIGHT', 'BACKWARD']
+            valid_movements = ['FORWARD', 'LEFT', 'RIGHT', 'BACKWARD', 'NORTH', 'SOUTH', 'EAST', 'WEST']
             if result['movement_decision'] not in valid_movements:
                 print(f"⚠️ ï¸ Invalid movement decision: {result['movement_decision']}")
                 return None
@@ -844,6 +844,16 @@ def execute_movement(action):
                 actor.applyRotation([0, 0, -TURN_SPEED/MOVE_FRAMES], True)
             movement_success = True
                 
+        elif action.upper() in ["NORTH", "SOUTH", "EAST", "WEST"]:
+            print(f"Executing directional movement: {action.upper()}")
+            # Use the directional movement function
+            success = execute_directional_movement(action.upper())
+            if success:
+                movement_success = True
+            else:
+                print(f"âŒ Directional movement failed: {action}")
+                return False
+                
         else:
             print(f"Unknown action: {action}")
             return False
@@ -905,6 +915,93 @@ def execute_movement(action):
 
 
 
+
+def execute_directional_movement(direction):
+    """Execute directional movement: turn to face direction, then move forward
+    
+    Args:
+        direction: NORTH, SOUTH, EAST, WEST
+    
+    Returns:
+        bool: True if successful
+    """
+    import math
+    
+    try:
+        scene = bge.logic.getCurrentScene()
+        actor = scene.objects.get("Actor")
+        
+        if not actor:
+            print("❌ No actor found")
+            return False
+        
+        # Get current orientation
+        current_orientation = actor.worldOrientation.to_euler().z
+        
+        # Define target angles for each direction (in radians)
+        # BGE uses Z-axis rotation: 0 = East, π/2 = North, π = West, -π/2 or 3π/2 = South
+        direction_angles = {
+            'NORTH': math.pi / 2,      # 90° - facing up on map
+            'SOUTH': -math.pi / 2,     # -90° or 270° - facing down on map
+            'EAST': 0,                 # 0° - facing right on map
+            'WEST': math.pi            # 180° - facing left on map
+        }
+        
+        direction_upper = direction.upper()
+        if direction_upper not in direction_angles:
+            print(f"❌ Invalid direction: {direction}")
+            return False
+        
+        target_angle = direction_angles[direction_upper]
+        
+        # Calculate angular difference
+        angle_diff = target_angle - current_orientation
+        
+        # Normalize angle to [-π, π]
+        while angle_diff > math.pi:
+            angle_diff -= 2 * math.pi
+        while angle_diff < -math.pi:
+            angle_diff += 2 * math.pi
+        
+        print(f"🧭 Turning to face {direction_upper}")
+        print(f"   Current: {current_orientation * 180 / math.pi:.1f}°")
+        print(f"   Target: {target_angle * 180 / math.pi:.1f}°")
+        print(f"   Rotation needed: {angle_diff * 180 / math.pi:.1f}°")
+        
+        # Turn to face the direction
+        TURN_FRAMES = 20
+        for _ in range(TURN_FRAMES):
+            actor.applyRotation([0, 0, angle_diff / TURN_FRAMES], True)
+        
+        time.sleep(0.2)
+        
+        # Now move forward in that direction
+        print(f"➡️ Moving FORWARD (towards {direction_upper})")
+        MOVE_SPEED = 0.8
+        MOVE_FRAMES = 15
+        
+        for _ in range(MOVE_FRAMES):
+            actor.applyMovement([0, MOVE_SPEED / MOVE_FRAMES, 0], True)
+        
+        time.sleep(0.3)
+        
+        # Verify final position
+        final_pos = actor.worldPosition
+        final_orientation = actor.worldOrientation.to_euler().z
+        
+        print(f"✅ Moved to {direction_upper}")
+        print(f"   Final position: ({final_pos.x:.2f}, {final_pos.y:.2f})")
+        print(f"   Final orientation: {final_orientation * 180 / math.pi:.1f}°")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Directional movement failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
 def run_navigation_task(task_name, max_steps=10):
     """Run a navigation task with simplified first-person capture"""
     try:
@@ -960,7 +1057,7 @@ def run_navigation_task(task_name, max_steps=10):
                 # Fallback to old format
                 action = result.get('next_action', '')
             
-            if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT', 'UP', 'DOWN']:
+            if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'NORTH', 'SOUTH', 'EAST', 'WEST']:
                 print(f"ðŸŽ¯ Navigation decision: {action}")
                 print(f"ðŸ’­ Reasoning: {result.get('reasoning', 'No reasoning provided')}")
                 
@@ -1257,7 +1354,7 @@ def run_continuous_navigation():
                 return
             
             # Execute movement
-            if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT', 'UP', 'DOWN']:
+            if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'NORTH', 'SOUTH', 'EAST', 'WEST']:
                 success = execute_movement(action)
                 if success:
                     print(f"✅ Movement executed: {action}")
@@ -1301,7 +1398,7 @@ def run_continuous_navigation():
             return
         
         # Execute movement
-        if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT', 'UP', 'DOWN']:
+        if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'NORTH', 'SOUTH', 'EAST', 'WEST']:
             success = execute_movement(action)
             if success:
                 print(f"✅ Movement executed: {action}")
@@ -1325,58 +1422,48 @@ def run_continuous_navigation():
         time.sleep(2.0)
 
 def capture_dual_images():
-    """Capture both first-person view and generate/get navigation context map"""
+    """Capture both first-person view and generate navigation context map with actor position"""
     try:
         # Capture first-person screenshot
         fp_image_path = take_enhanced_screenshot()
         
-        # Generate navigation context map using position mapper
+        # Generate navigation context map with actor position using position mapper
         map_context_path = None
         
-        # Try to generate navigation context using MCP integration
-        if MCP_INTEGRATION_AVAILABLE:
-            try:
-                mcp_result = get_navigation_context()
-                # Check if MCP returns a valid file path (string)
-                if isinstance(mcp_result, str) and os.path.exists(mcp_result):
-                    map_context_path = mcp_result
-                    print(f"🗺️ Generated MCP navigation context: {os.path.basename(map_context_path)}")
-                elif isinstance(mcp_result, dict):
-                    print("⚠️ MCP returned dict instead of file path - skipping MCP")
-                else:
-                    print(f"⚠️ MCP returned invalid result: {type(mcp_result)}")
-            except Exception as e:
-                print(f"⚠️ MCP navigation context generation failed: {e}")
-        
-        # Try position mapper directly
-        if not map_context_path and POSITION_MAPPING_AVAILABLE:
+        # Try position mapper to generate map with actor position marked
+        if POSITION_MAPPING_AVAILABLE:
             try:
                 # Get current actor position for map generation
                 scene = bge.logic.getCurrentScene()
                 actor = scene.objects.get("Actor")
                 if actor:
-                    # Extract individual coordinates (NOT as a list)
+                    # Extract individual coordinates
                     world_x = actor.worldPosition.x
                     world_y = actor.worldPosition.y
+                    
+                    # Get actor orientation (Z-axis rotation)
+                    orientation = actor.worldOrientation.to_euler().z
                     
                     # Get current task info for context
                     current_task = getattr(bge.logic, 'current_task', 'Navigate')
                     current_room = getattr(bge.logic, 'current_room', None)
                     
-                    print(f"🗺️ Generating map for Actor at ({world_x:.2f}, {world_y:.2f})")
+                    orientation_deg = orientation * (180 / 3.14159)
+                    print(f"🗺️ Generating position map for Actor at ({world_x:.2f}, {world_y:.2f}), facing {orientation_deg:.1f}°")
                     print(f"🎯 Task: {current_task}, Room: {current_room}")
                     
-                    # Update position map and generate context
+                    # Update position map and generate context with actor marker
                     map_context_path = update_actor_position_map(
                         world_x, world_y, 
                         room=current_room, 
-                        task=current_task
+                        task=current_task,
+                        orientation=orientation
                     )
                     
                     if map_context_path and os.path.exists(map_context_path):
-                        print(f"✅ Generated position map: {os.path.basename(map_context_path)}")
+                        print(f"✅ Generated navigation map: {os.path.basename(map_context_path)}")
                     else:
-                        print(f"⚠️ Position mapper result: {map_context_path}")
+                        print(f"⚠️ Position mapper returned: {map_context_path}")
                         map_context_path = None
                 else:
                     print("⚠️ No Actor found for position mapping")
@@ -1385,21 +1472,15 @@ def capture_dual_images():
                 import traceback
                 traceback.print_exc()
         
-        # Final fallback: Try to get existing navigation context map
-        if not map_context_path:
-            map_context_path = get_most_recent_navigation_map()
-        
-        # Last resort: Use static house layout
+        # Fallback: Use static house layout if position map generation failed
         if not map_context_path:
             map_context_path = load_house_plan()
             print("🔍 Using static house layout as fallback")
-        else:
-            print(f"🗺️ Using updated navigation context map: {os.path.basename(map_context_path)}")
         
         return fp_image_path, map_context_path
         
     except Exception as e:
-        print(f"âŒ Dual image capture failed: {e}")
+        print(f"❌ Dual image capture failed: {e}")
         return None, None
 
 def get_most_recent_navigation_map():
@@ -1527,9 +1608,9 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
             print("âŒ No first-person image path provided")
             return None
         
-        # Wait briefly for BGE's async screenshot to complete (like backup)
-        max_wait = 2  # Maximum 2 seconds like backup
-        wait_interval = 0.3  # Check every 0.3 seconds
+        # Wait briefly for BGE's async screenshot to complete
+        max_wait = 3  # Maximum 3 seconds (increased for reliability)
+        wait_interval = 0.5  # Check every 0.5 seconds
         screenshot_ready = False
         
         for attempt in range(int(max_wait / wait_interval)):
@@ -1552,9 +1633,10 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
                 # Find most recent fp_view screenshot
                 existing_files = [f for f in os.listdir(captures_dir) if f.startswith("fp_view_") and f.endswith(".png")]
                 if existing_files:
-                    # Sort by filename to get most recent
-                    existing_files.sort(reverse=True)
-                    recent_screenshot = os.path.join(captures_dir, existing_files[0])
+                    # Sort by file modification time (most recent first)
+                    existing_files_with_time = [(f, os.path.getmtime(os.path.join(captures_dir, f))) for f in existing_files]
+                    existing_files_with_time.sort(key=lambda x: x[1], reverse=True)
+                    recent_screenshot = os.path.join(captures_dir, existing_files_with_time[0][0])
                     
                     # Check if we're about to use the same screenshot as last time
                     if hasattr(bge.logic, 'last_used_screenshot') and recent_screenshot == bge.logic.last_used_screenshot:
@@ -1565,8 +1647,9 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
                         # Check again for newer screenshots
                         existing_files = [f for f in os.listdir(captures_dir) if f.startswith("fp_view_") and f.endswith(".png")]
                         if existing_files:
-                            existing_files.sort(reverse=True)
-                            newer_screenshot = os.path.join(captures_dir, existing_files[0])
+                            existing_files_with_time = [(f, os.path.getmtime(os.path.join(captures_dir, f))) for f in existing_files]
+                            existing_files_with_time.sort(key=lambda x: x[1], reverse=True)
+                            newer_screenshot = os.path.join(captures_dir, existing_files_with_time[0][0])
                             if newer_screenshot != bge.logic.last_used_screenshot:
                                 recent_screenshot = newer_screenshot
                                 print(f"ðŸ“¸ Found newer screenshot: {os.path.basename(recent_screenshot)}")
@@ -1623,94 +1706,190 @@ CURRENT POSITION: {current_position}
 STEP: {step_number + 1}
 
 CRITICAL NAVIGATION RULES:
-🚧 OBSTACLE AVOIDANCE: 
+� DOOR-FIRST NAVIGATION (MOST IMPORTANT):
+- **WALLS ARE SOLID**: You CANNOT walk through walls under any circumstances
+- **DOORS ARE REQUIRED**: Every room transition requires finding and using a door
+- **Check Map for Doors**: Look at floor plan (IMAGE 2) - doorways appear as openings/gaps
+- **Face the Door**: Before moving forward, ensure you're aligned with a doorway opening
+- **Turn to Find Doors**: If blocked by wall, turn LEFT or RIGHT to locate the door
+
+�🚧 OBSTACLE AVOIDANCE: 
 - Do NOT walk through walls, furniture, or objects
-- Look for DOORWAYS and open pathways
-- If you see a wall directly ahead, you MUST turn
-- Furniture blocks movement - navigate around it
+- ALWAYS look for doorway openings before entering rooms
+- If you see a wall directly ahead, you MUST turn to find the door
+- Furniture blocks movement - navigate around it or through available doorways
+- Use the floor plan to identify where doors are located before attempting to enter
 
-🗺️ HOUSE LAYOUT KNOWLEDGE (Based on floor plan):
-- **LIVING ROOM**: Large room on the left with sofas, dining table, and TV area
-- **KITCHEN**: Upper center room with appliances, connected to living room
-- **BEDROOM**: Lower right room with bed, connected to bathroom area  
-- **BATHROOM**: Small room on the right with toilet and bathtub
-- **HALLWAYS**: Connect all rooms - use these for navigation between areas
+🗺️ HOUSE LAYOUT WITH LABELED OBJECTS:
+**CRITICAL**: The floor plan (IMAGE 2) shows the complete house layout with DIRECT LABELS on all furniture
+- Each piece of furniture has its name labeled directly on it (e.g., "Sofa", "Stove", "Bed", "Toilet")
+- Room names may be labeled in their respective areas
+- Wall boundaries and doorway openings are clearly marked with gaps in the walls
+- Use these furniture labels to identify which room you're in and plan your navigation route
 
-🔍 SPECIFIC VISUAL CUES FOR THIS HOUSE:
-**LIVING ROOM Identification:**
-- Large open space with seating furniture (sofas, chairs)
-- Dining table and chairs (often confused as dining room - this IS the dining area)
-- TV or entertainment area
-- Multiple furniture pieces, well-lit, spacious feel
-- Central location connecting to other rooms
+📋 ROOM IDENTIFICATION USING LABELED OBJECTS:
 
-**KITCHEN Identification:**
-- Cooking appliances: stove, oven, microwave
-- Kitchen counters and cabinets along walls  
-- Sink (important for "wash hands" task)
-- Refrigerator (large white/metallic appliance)
-- Compact space with functional cooking layout
+**LIVING ROOM - Look for these labeled objects:**
+- **Labeled furniture**: "Sofa", "Chair", "Coffee Table", "Dining Table", "TV"
+- **Visual characteristics**: Large open space with multiple furniture pieces
+- **Location on map**: Check where these furniture labels cluster together
+- **First-person verification**: Match what you see (sofa, chairs, dining table) with map labels
 
-**BEDROOM Identification:**
-- Bed as the dominant furniture piece
-- Dresser, nightstands, closet
-- Personal items, clothing storage
-- More intimate, private space feeling
-- Usually connected to bathroom
+**KITCHEN - Look for these labeled objects:**
+- **Labeled appliances**: "Stove", "Oven", "Refrigerator", "Sink", "Counter"
+- **Visual characteristics**: Compact space with appliances along walls
+- **Location on map**: Find where cooking-related labels are grouped
+- **First-person verification**: Match what you see (stove, counters, cabinets) with map labels
 
-**BATHROOM Identification:**
-- Toilet (white porcelain fixture)
-- Bathtub or shower area
-- Bathroom sink and mirror
-- Tiled floors/walls (different texture)
-- Small, enclosed private space
+**BEDROOM - Look for these labeled objects:**
+- **Labeled furniture**: "Bed", "Dresser", "Nightstand", "Closet"
+- **Visual characteristics**: Private space with bed as primary furniture
+- **Location on map**: Find where "Bed" label is positioned
+- **First-person verification**: Match what you see (bed, dresser) with map labels
 
-**DINING_ROOM vs LIVING_ROOM:**
-- In this house, the dining area is PART OF the living room
-- If you see dining table with chairs, you're in LIVING_ROOM (not separate dining room)
-- Only use DINING_ROOM if there's a separate room with ONLY dining furniture
+**BATHROOM - Look for these labeled objects:**
+- **Labeled fixtures**: "Toilet", "Bathtub", "Shower", "Sink", "Mirror"
+- **Visual characteristics**: Small enclosed space with plumbing fixtures
+- **Location on map**: Find where bathroom fixture labels are grouped
+- **First-person verification**: Match what you see (toilet, tub, sink) with map labels
 
-**HALLWAY Identification:**
-- Narrow corridor space
-- Doors/openings on both sides
-- Minimal or no furniture
-- Transitional space between rooms
+🚪 CRITICAL DOOR NAVIGATION RULES:
+**YOU MUST USE DOORS - CANNOT WALK THROUGH WALLS!**
+1. **Identify Doors on Map**: Look for doorway openings/gaps in walls on floor plan
+2. **Align with Doorway**: Position yourself to face the door opening directly
+3. **Navigate Through Opening**: Move FORWARD only when facing a doorway
+4. **Wall Detection**: If you see a solid wall, you MUST turn to find the door
+5. **Room Transitions**: Each room change requires going through a doorway
 
-🧭 ROOM CONNECTIONS & NAVIGATION PATHS:
-- From LIVING ROOM → KITCHEN: Go through the central doorway/opening  
-- From LIVING ROOM → BEDROOM: Navigate through the hallway system
-- From LIVING ROOM → BATHROOM: Go to bedroom area first, then bathroom
-- From KITCHEN → Other rooms: Return to living room first, then navigate
-- Use doorways and openings visible in the floor plan to move between rooms
+**Common Door Locations (check your map):**
+- Living Room ↔ Kitchen: Central doorway/opening between rooms
+- Living Room ↔ Hallway: Corridor entrance from living area
+- Hallway ↔ Bedroom: Door opening to bedroom
+- Bedroom ↔ Bathroom: Private door connection
+- Look for doorway indicators (gaps/openings) on the floor plan
 
-📍 NAVIGATION TIPS:
-- The actor typically starts in or near the LIVING ROOM area
-- Look for furniture patterns to identify rooms (sofa=living room, bed=bedroom, etc.)
-- Use the floor plan as your map - it shows exact room positions and connections
-- Doorways appear as openings/gaps in walls on the floor plan
-- If lost, navigate back to the large LIVING ROOM and reorient using the floor plan
+🧭 NAVIGATION STRATEGY WITH LABELED OBJECTS:
+**Step 1 - Read Object Labels on Map:**
+- Examine IMAGE 2 (floor plan) for furniture name labels
+- Identify which furniture labels are around you
+- Match visible furniture with labeled objects on map
 
-🎯 TASK-SPECIFIC ROOM TARGETS (CASAS ADL Tasks):
-- **"Make a phone call"**: Navigate to DINING ROOM to access phone and phone book
-- **"Wash hands"**: Navigate to KITCHEN (sink area) or BATHROOM for hand washing
-- **"Cook oatmeal"**: Navigate to KITCHEN (stove, pots, ingredients area)
-- **"Eat meal"**: Navigate to DINING ROOM for eating location
-- **"Clean dishes"**: Navigate to KITCHEN (sink area) for dishwashing
+**Step 2 - Identify Current Room:**
+- Look at what furniture you see in first-person view (IMAGE 1)
+- Find those same furniture labels on the floor plan (IMAGE 2)
+- Group of related labels indicates your room type:
+  * "Sofa" + "Coffee Table" + "TV" = LIVING_ROOM
+  * "Stove" + "Sink" + "Refrigerator" = KITCHEN
+  * "Bed" + "Dresser" + "Nightstand" = BEDROOM
+  * "Toilet" + "Bathtub" + "Sink" = BATHROOM
+
+**Step 3 - Find Target Room on Map:**
+- Locate the target room's characteristic furniture labels
+- Example: To find kitchen, look for "Stove" and "Sink" labels on map
+- Note the position relative to your current location
+
+**Step 4 - Plan Door-Based Route:**
+- Trace a path from your position to target using doorways only
+- Doorways are shown as GAPS in the walls on the map
+- Identify which doors you need to pass through
+- NEVER plan a route that goes through solid walls
+
+**Step 5 - Navigate to Nearest Door:**
+- If not facing a door, turn LEFT or RIGHT to find doorway opening
+- Use FORWARD to approach the door opening
+- Align yourself with the doorway before proceeding
+
+**Step 6 - Verify Room Transitions:**
+- After passing through door, check new room's furniture labels
+- Confirm labels match expected room type
+- Update your mental map of your position
+
+📐 POSITION AWARENESS USING MAP:
+- Use furniture labels around you to identify your location
+- Compare visible furniture with labeled objects on the floor plan
+- Use furniture groups to triangulate exact room location
+- Doorways are the ONLY valid transition points between rooms
+- If position seems wrong, reorient using visible furniture labels and map layout
+
+🎯 TASK-SPECIFIC ROOM TARGETS WITH LABELED OBJECTS:
+**Process: Check Object Labels → Find Door → Navigate Through Door → Verify Room**
+
+- **"Go to kitchen"**: 
+  1. Find "Stove" and "Sink" labels on floor plan (IMAGE 2)
+  2. Locate doorway opening between your position and kitchen area
+  3. Navigate through door (NOT through walls)
+  4. Verify by seeing stove/sink/counters in first-person view
+  
+- **"Go to bedroom"**:
+  1. Find "Bed" label on floor plan (IMAGE 2)
+  2. May need to pass through hallway first
+  3. Use bedroom door opening
+  4. Verify by seeing bed and dresser in first-person view
+  
+- **"Go to livingroom"**:
+  1. Find "Sofa" and "Dining Table" labels on floor plan (IMAGE 2)
+  2. Usually central area with multiple doorways
+  3. Navigate through nearest doorway
+  4. Verify by seeing sofa/chairs/dining table in first-person view
+
+- **"Wash hands"**: 
+  * Kitchen option: Find "Sink" label in kitchen area (with "Stove" nearby)
+  * Bathroom option: Find "Sink" label in bathroom area (with "Toilet" nearby)
+  * Navigate through doors to reach the appropriate sink
+
+- **"Cook oatmeal"**: 
+  * Find "Stove" label on map (indicates kitchen)
+  * Navigate through doors to kitchen
+  * Verify by seeing stove/oven in first-person view
 
 📋 CASAS TASK COMPLETION CRITERIA:
-- **"Make a phone call"**: COMPLETE when you reach DINING ROOM and can see phone/table area
-- **"Wash hands"**: COMPLETE when you reach KITCHEN sink area OR BATHROOM with visible sink
-- **"Cook oatmeal"**: COMPLETE when you reach KITCHEN and can see stove/cooking area
-- **"Eat meal"**: COMPLETE when you reach DINING ROOM and can see dining table/eating area  
-- **"Clean dishes"**: COMPLETE when you reach KITCHEN sink area where dishes can be washed
+- **Room Navigation Tasks**: COMPLETE when you:
+  1. Successfully passed through the appropriate doorway
+  2. Are inside the target room (verified by map indicators)
+  3. Can see matching furniture from first-person view
+  4. Room label on map matches your target room
 
-🚨 TASK COMPLETION RULE: Set "task_complete": true ONLY when you have successfully navigated to the correct room for the current CASAS task and can see the relevant furniture/appliances.
+- **Activity Tasks**: COMPLETE when you reach the correct room AND see required furniture:
+  - "Wash hands": Kitchen/bathroom with sink visible
+  - "Cook": Kitchen with stove visible  
+  - "Make call": Dining area with table visible
 
-MOVEMENT COMMANDS:
-- FORWARD: Move straight ahead (only if path is clear!)
+🚨 TASK COMPLETION RULE: Set "task_complete": true ONLY when:
+1. You used DOORS to enter the room (not walls)
+2. Map indicators confirm you're in the correct room
+3. First-person view shows expected furniture for the task
+
+MOVEMENT COMMANDS - DIRECTIONAL NAVIGATION SYSTEM:
+
+🧭 **PRIMARY COMMANDS (RECOMMENDED)** - Cardinal Directional Movement:
+- **NORTH**: Turn to face NORTH (up on map) then move forward in that direction
+- **SOUTH**: Turn to face SOUTH (down on map) then move forward in that direction  
+- **EAST**: Turn to face EAST (right on map) then move forward in that direction
+- **WEST**: Turn to face WEST (left on map) then move forward in that direction
+
+📍 **ORIENTATION INDICATOR ON MAP**:
+- The red arrow/triangle on the navigation map shows which direction the actor is currently facing
+- **CRITICAL**: Look at the arrow direction carefully - it changes as actor turns
+- Arrow directions: UP=North, RIGHT=East, DOWN=South, LEFT=West
+- Use this arrow to understand current orientation before choosing movement
+- **Do NOT assume arrow direction** - analyze it fresh in each image
+
+✅ **DIRECTIONAL MOVEMENT BENEFITS**:
+- More efficient than multiple turn + forward combinations
+- Actor automatically turns to face direction then moves forward
+- Clear spatial understanding using cardinal directions
+- Map arrow helps you plan the most efficient route
+
+🔧 **MANUAL COMMANDS (LEGACY SUPPORT)** - For fine adjustments only:
+- FORWARD: Move straight ahead in current facing direction (only if path is clear!)
 - BACKWARD: Move backward (use when stuck or need to retreat)
 - LEFT: Turn body left (human-like rotation, no forward movement)
 - RIGHT: Turn body right (human-like rotation, no forward movement)
+
+💡 **WHEN TO USE EACH SYSTEM**:
+- Use NORTH/SOUTH/EAST/WEST when navigating between rooms or moving toward specific locations
+- Use FORWARD/BACKWARD/LEFT/RIGHT for minor adjustments or exploring within a room
+- PREFER directional commands for efficiency
 
 🚨 CRITICAL LOOP PREVENTION TRAINING:
 
@@ -1764,14 +1943,22 @@ DECISION PROCESS:
    - Are there walls or furniture blocking movement?
 
 5. **EXECUTE SAFE MOVEMENT**: Choose action that progresses toward target while avoiding collisions
-   - If path is clear → FORWARD
-   - If wall ahead → LEFT or RIGHT to find opening
+   - If path is clear AND facing a doorway → FORWARD
+   - If wall ahead → LEFT or RIGHT to find door opening
    - If stuck → BACKWARD then try different direction
-   - Always explain your reasoning clearly
+   - Always explain reasoning including: map indicators seen, doors identified, current room confirmed
+
+**REASONING MUST INCLUDE:**
+- "Map shows [ROOM NAME] label at [direction]"
+- "See [furniture indicator] on map matching [furniture] in view"
+- "Door opening visible on map at [location], turning to align"
+- "Passed through doorway, now in [ROOM] confirmed by [furniture indicators]"
 
 🚀 NAVIGATION STRATEGY (CRITICAL):
-- **Use Floor Plan as GPS**: The house layout shows exactly where each room is located
-- **Follow Doorway Connections**: Look for openings between rooms shown on floor plan
+- **Read Map Labels First**: Look for room name text on floor plan IMAGE 1
+- **Match Furniture Indicators**: Compare map icons with first-person view furniture
+- **Locate Door Openings**: Find doorway gaps on map before attempting room transitions
+- **Never Cross Walls**: All room changes require going through marked doorways
 - **Wall Detection**: If you see a WALL directly ahead → Turn LEFT or RIGHT to find clear path
 - **Forward Progress**: If you see an OPEN DOORWAY or clear space → Move FORWARD immediately
 - **Room Identification**: Match what you see in first-person view with the floor plan layout
@@ -1812,47 +1999,58 @@ RESPOND WITH JSON ONLY:
 {{
     "current_room": "LIVING_ROOM",
     "target_room": "KITCHEN", 
-    "casas_task": "Cook oatmeal",
-    "visible_obstacles": ["wall ahead", "chair blocking"],
-    "clear_directions": ["left turn available", "doorway visible"],
+    "casas_task": "Go to the kitchen",
+    "visible_obstacles": ["wall ahead", "chair on left"],
+    "clear_directions": ["doorway visible at 2 o'clock", "opening on right"],
     "relevant_furniture": ["sofa", "coffee table", "TV"],
-    "floor_plan_analysis": "Currently in living room based on sofa and TV, need to go to kitchen in upper area",
-    "route_plan": "I see partial clearing ahead after turning left, will move forward to make progress",
-    "movement_decision": "FORWARD",
-    "reasoning": "Turned left last step and can see some open space ahead. Following loop prevention rule: turn then forward. Making spatial progress toward kitchen.",
-    "doorway_visible": "no",
+    "floor_plan_analysis": "Map shows 'Sofa' and 'Coffee Table' labels at my position - confirms LIVING_ROOM. 'Stove' and 'Sink' labels visible to the north - indicates KITCHEN. Doorway gap visible on map between rooms.",
+    "route_plan": "See doorway opening on floor plan between 'Sofa' labels (living room) and 'Stove' labels (kitchen). Need to align with door then move forward through it.",
+    "movement_decision": "NORTH",
+    "reasoning": "Navigation map shows red orientation arrow indicating current facing direction. Target kitchen is NORTH from current position based on floor plan. Using directional command to turn toward kitchen and move forward through doorway. Must use door - cannot go through walls.",
+    "doorway_visible": "yes",
     "task_complete": false,
-    "casas_completion_reason": "Not in target room yet",
+    "casas_completion_reason": "Still in living room, need to pass through doorway to enter kitchen",
     "confidence": "high"
 }}
 
 IMPORTANT JSON RULES:
 - "current_room": Use ONLY ONE of: LIVING_ROOM, KITCHEN, BEDROOM, BATHROOM, DINING_ROOM, HALLWAY, UNKNOWN
-- "movement_decision": Use ONLY ONE of: FORWARD, BACKWARD, LEFT, RIGHT  
+- "movement_decision": Use ONLY ONE of: NORTH, SOUTH, EAST, WEST (preferred) or FORWARD, BACKWARD, LEFT, RIGHT (legacy)
 - "doorway_visible": Use ONLY: "yes" or "no"
 - "task_complete": Use ONLY: true or false
 - "confidence": Use ONLY ONE of: high, medium, low
 
-**ADDITIONAL LOOP PREVENTION EXAMPLES:**
+**ADDITIONAL DOOR-BASED NAVIGATION EXAMPLES:**
 
-SCENARIO 1 - After recent turns (GOOD):
-"reasoning": "Turned RIGHT last step, now see partial open space ahead. Following forward bias principle - moving ahead instead of turning again."
-"movement_decision": "FORWARD"
+SCENARIO 1 - Directional navigation to kitchen (BEST):
+"reasoning": "Map shows kitchen is NORTH of current position. Red arrow shows current orientation. Need to turn toward kitchen and move through doorway."
+"movement_decision": "NORTH"
+"doorway_visible": "yes"
 
-SCENARIO 2 - Multiple obstacles but avoiding loops (GOOD):  
-"reasoning": "Wall directly ahead but turned LEFT twice recently. Seeing slight clearing on right side, committing to FORWARD to break turning pattern."
-"movement_decision": "FORWARD"
+SCENARIO 2 - Navigating to bedroom (GOOD):  
+"reasoning": "Map shows bedroom is EAST of living room. Red arrow indicates current facing direction. Need to go EAST toward bedroom area."
+"movement_decision": "EAST"
+"doorway_visible": "no"
 
-SCENARIO 3 - Clear forward path (GOOD):
-"reasoning": "Open doorway visible ahead, clear path to make progress toward target room."
-"movement_decision": "FORWARD"
+SCENARIO 3 - Direct path to target room (GOOD):
+"reasoning": "Map shows bathroom is WEST from current position. First-person view shows clear path. Red orientation arrow confirms direction needed."
+"movement_decision": "WEST"
+"doorway_visible": "yes"
 
-SCENARIO 4 - Wrong loop behavior (AVOID):
-"reasoning": "Wall ahead, turning right to find another path."
-"movement_decision": "RIGHT" 
-[BAD if you've already turned recently - should try FORWARD first]
+SCENARIO 4 - Wrong - ignoring map orientation (AVOID):
+"reasoning": "Kitchen is straight ahead according to first-person view, moving north to reach it."
+"movement_decision": "NORTH" 
+[BAD - should verify map orientation and doorway access first!]
 
-**KEY PRINCIPLE: When in doubt between FORWARD and TURN, choose FORWARD to make spatial progress**
+SCENARIO 5 - Room transition complete (COMPLETE TASK):
+"reasoning": "Passed through doorway. Map shows KITCHEN label at my position. See stove and counters (matching stove indicator on map). Task: Go to kitchen - COMPLETE."
+"task_complete": true
+
+**KEY PRINCIPLES:**
+1. **Always check map for door locations before moving FORWARD**
+2. **Turn to align with doorway opening if not facing it**
+3. **Move FORWARD only when facing a door or open space**
+4. **Verify room entry by matching map labels with furniture indicators**
 
 The above are EXAMPLES - analyze YOUR actual images and provide YOUR specific observations!
 
@@ -2002,9 +2200,13 @@ def run_frame_based_navigation():
         if result:
             # Execute movement
             action = result.get('movement_decision', '')
-            if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT']:
-                print(f"ðŸŽ¯ Movement: {action}")
-                print(f"ðŸ’­ Reasoning: {result.get('reasoning', 'No reasoning')}")
+            if action in ['NORTH', 'SOUTH', 'EAST', 'WEST']:
+                print(f"🎯 Directional Movement: {action}")
+                print(f"💭 Reasoning: {result.get('reasoning', 'No reasoning')}")
+                execute_directional_movement(action)
+            elif action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT']:
+                print(f"🎯 Movement: {action}")
+                print(f"💭 Reasoning: {result.get('reasoning', 'No reasoning')}")
                 execute_movement(action)
             else:
                 print(f"⚠️ ï¸ Invalid action: {action}")
@@ -2274,8 +2476,8 @@ MANDATORY RESPONSE: You MUST respond with FORWARD movement immediately.
 
 EXACT REQUIRED JSON RESPONSE:
 {{
-    "movement_decision": "FORWARD",
-    "reasoning": "Emergency loop break - forced forward",
+    "movement_decision": "NORTH",
+    "reasoning": "Emergency loop break - moving north to reset position",
     "current_room": "unknown", 
     "confidence": "0.9",
     "task_complete": false
@@ -2284,7 +2486,7 @@ EXACT REQUIRED JSON RESPONSE:
 NO OTHER RESPONSE IS ACCEPTABLE. Respond with the exact JSON above."""
     
     try:
-        print("🚀 Sending emergency FORWARD command...")
+        print("🚀 Sending emergency directional command...")
         emergency_result = llm_complete_func(emergency_prompt, [fp_image_path] if fp_image_path else [])
         
         if emergency_result:
@@ -2297,10 +2499,10 @@ NO OTHER RESPONSE IS ACCEPTABLE. Respond with the exact JSON above."""
         print(f"❌ Emergency command failed: {e}")
     
     # Ultimate fallback - direct movement command
-    print("🔧 Using ultimate fallback: FORWARD")
+    print("🔧 Using ultimate fallback: NORTH")
     return {
-        "movement_decision": "FORWARD",
-        "reasoning": "Ultimate emergency fallback to break navigation loop",
+        "movement_decision": "NORTH",
+        "reasoning": "Ultimate emergency fallback - moving north to reset position",
         "current_room": "unknown",
         "confidence": 0.6,
         "task_complete": False
