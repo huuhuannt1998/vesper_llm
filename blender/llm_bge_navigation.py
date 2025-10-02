@@ -382,14 +382,28 @@ def initialize_llm_client():
                     print(f"📷 Image 1: {os.path.basename(images[0])} (FP view)")
                     print(f"📷 Image 2: {os.path.basename(images[1])} (navigation map)")
                     
-                    # Enhanced prompt for dual-image analysis
-                    enhanced_prompt = f"""You are analyzing TWO images for navigation:
-IMAGE 1: First-person view from the actor's camera showing what they can currently see
-IMAGE 2: Navigation context map showing the house layout with the actor's current position marked
+                    # Enhanced prompt for dual-image analysis with highlighted rooms
+                    enhanced_prompt = f"""You are analyzing TWO images for enhanced room-based navigation:
+
+📷 IMAGE 1: First-person view from the actor's camera showing immediate surroundings, furniture, and obstacles
+📷 IMAGE 2: Enhanced house layout with HIGHLIGHTED ROOM AREAS showing exact room locations and boundaries
+
+🏠 HIGHLIGHTED ROOM NAVIGATION:
+The house layout (Image 2) contains highlighted/marked areas that show:
+- Exact boundaries of each room (Kitchen, Living Room, Bedroom, Bathroom)
+- Clear visual separation between different rooms  
+- Doorways and connections between rooms
+- Your current position marker relative to room boundaries
+
+🎯 DUAL-IMAGE ANALYSIS STRATEGY:
+1. **Use Image 2 (Layout)**: Identify all highlighted room areas and locate your position relative to them
+2. **Use Image 1 (First-Person)**: See immediate obstacles, furniture, and available pathways
+3. **Coordinate Views**: Plan room-to-room movement using layout, execute safely using first-person view
+4. **Room Recognition**: Match furniture in first-person view with appropriate highlighted room areas
 
 {prompt}
 
-Analyze BOTH images together - use the first-person view to see obstacles and the navigation map to understand your position and plan your route."""
+**CRITICAL**: Use the highlighted room areas in the layout map as your primary navigation reference. They show exactly where each room is located and how to move between them efficiently."""
                     
                     result = chat_completion_with_vision(enhanced_prompt, image_paths=images)
                 else:
@@ -615,52 +629,151 @@ def analyze_navigation_step(fp_image_path, house_plan_path, task, current_positi
             print("âŒ LLM client not available for analysis")
             return None
         
-        # Build comprehensive prompt for first-person navigation (adapted from backup)
-        system_prompt = """You are an expert AI navigation assistant analyzing a FIRST-PERSON view from inside a house. 
-You help navigate through the house to complete daily tasks.
+        # Build comprehensive prompt for first-person navigation (enhanced for highlighted room layout)
+        system_prompt = """You are an expert AI navigation assistant with enhanced safety systems and HIGHLIGHTED ROOM LAYOUT analyzing navigation images.
+You help navigate through the house to complete daily tasks safely and efficiently using visual room identification.
+
+🏠 ENHANCED HOUSE LAYOUT AVAILABLE:
+- Updated house_layout_reference2.png with HIGHLIGHTED ROOM AREAS
+- Each room is visually marked/highlighted to show clear boundaries  
+- Room positions are clearly defined with visual indicators
+- Use this enhanced layout to identify exact room locations and boundaries
+
+🔒 SAFETY SYSTEMS ACTIVE:
+- Collision Detection: System will block unsafe movements into walls/obstacles
+- Boundary Checking: System prevents leaving the house area  
+- Room Detection: System tracks your location automatically
+- Enhanced Layout: Visual room highlighting guides navigation decisions
 
 CRITICAL ANALYSIS REQUIREMENTS:
-1. Analyze the FIRST-PERSON view to understand what you can see ahead
-2. Identify rooms, furniture, objects, and pathways visible in the view
-3. Determine safe movement directions (avoid walls, furniture, obstacles)
-4. Consider the current task and navigate toward the appropriate room
-5. Provide step-by-step navigation decisions
+1. Analyze the FIRST-PERSON view to understand immediate surroundings
+2. Use the HIGHLIGHTED LAYOUT MAP to identify all room positions and boundaries
+3. Determine safe pathways between rooms using visual room markers
+4. Navigate efficiently toward the target room using highlighted areas as reference
+5. If OUTSIDE the house, use the layout to find the nearest entrance
 
-FIRST-PERSON VIEW CONTEXT:
-- You are seeing through the actor's eyes inside the house
-- Look for doors, hallways, furniture to identify current location
-- Check for clear paths in all directions
-- Avoid moving into walls or furniture
-- Navigate toward rooms appropriate for the current task
+ENHANCED NAVIGATION CONTEXT:
+- First-person view shows immediate obstacles, furniture, and pathways
+- Highlighted layout map shows exact room locations with visual boundaries
+- Coordinate both views: layout for strategy, first-person for immediate navigation
+- Room boundaries are clearly marked - use them to plan accurate routes
+- Trust the safety systems while focusing on room-to-room navigation
 
 MOVEMENT OPTIONS: NORTH, SOUTH, EAST, WEST (preferred directional) or FORWARD, LEFT, RIGHT, BACKWARD (legacy)
 RESPONSE FORMAT: JSON only with navigation decision"""
 
-        # User prompt for first-person navigation
-        user_prompt = f"""CURRENT TASK: {task}
+        # Get current room for context
+        detected_room = detect_current_room(world_coords[0], world_coords[1])
+        
+        # Enhanced user prompt leveraging highlighted room layout
+        location_status = "🏠 INSIDE HOUSE" if detected_room != "OUTSIDE" else "⚠️ OUTSIDE HOUSE"
+        
+        user_prompt = f"""🎯 CURRENT TASK: {task}
+📍 SYSTEM DETECTED: {detected_room} {location_status}
+📊 COORDINATES: ({world_coords[0]:.1f}, {world_coords[1]:.1f})
 
-Analyze this FIRST-PERSON view and provide navigation guidance:
+🔒 SAFETY STATUS: Collision detection and boundary checking are ACTIVE
+🏠 ENHANCED LAYOUT: Highlighted room areas available for precise navigation
 
-1. CURRENT LOCATION: What room/area are you in based on visible furniture/features?
-2. VISIBLE PATHS: What directions can you move safely (no walls/furniture blocking)?
-3. TASK NAVIGATION: Which direction leads toward the room needed for "{task}"?
-4. MOVEMENT DECISION: Choose the best safe movement direction
+{"🚨 PRIORITY: You are OUTSIDE the house! Use the highlighted layout to find the nearest entrance!" if detected_room == "OUTSIDE" else ""}
+
+Analyze BOTH images using the enhanced highlighted room layout:
+
+🎯 **INCREMENTAL NAVIGATION - ONE STEP AT A TIME**:
+This is a SINGLE MOVE decision. After you move, the map will UPDATE with your new position, then you'll make the NEXT decision.
+
+1. **CURRENT POSITION** (from layout map): 
+   - Where is the red arrow/triangle on the map?
+   - Which highlighted room area are you in RIGHT NOW?
+   - Which direction is the arrow pointing?
+
+2. **TARGET ROOM** (from layout map):
+   - Where is the "{task}" area/room on the highlighted layout?
+   - Which highlighted area contains what you need?
+
+3. **NEXT SINGLE STEP** (choose ONE direction):
+   - What is the NEXT SINGLE MOVE to get closer to the target?
+   - Will this move keep you in a valid pathway (not through walls)?
+   - After this ONE move, will you be closer to the target highlighted area?
+
+4. **FIRST-PERSON VALIDATION**:
+   - Does the first-person view show a clear path in your chosen direction?
+   - Are there immediate obstacles blocking this ONE move?
+
+🔑 **KEY PRINCIPLE**: You are making ONE move, then the system will update the map with your new position. Don't plan the entire route - just the NEXT STEP toward the target room.
+
+**MOVEMENT DISTANCE**: Each move covers approximately 0.8 units, so you may need MULTIPLE moves to:
+- Cross a room
+- Go through a doorway  
+- Reach a distant room
+
+📍 **NAVIGATION STRATEGY**:
+1. Identify target room's highlighted area on layout map
+2. Choose ONE direction that moves you closer to that highlighted area
+3. Verify the path is clear in first-person view
+4. Make that ONE move
+5. Wait for updated map to show new position
+6. Repeat until you reach the target highlighted area
+
+1. LAYOUT ANALYSIS: Identify ALL room locations using the highlighted areas in the house layout
+2. CURRENT POSITION: Where are you on the highlighted layout map? Does it match "{detected_room}"?
+3. TARGET IDENTIFICATION: Locate the target room for "{task}" using the highlighted areas
+4. PATHWAY PLANNING: Plan the route from current highlighted area to target highlighted area
+5. IMMEDIATE NAVIGATION: Which direction moves you toward the target room boundary?
+
+🎯 ROOM IDENTIFICATION GUIDE (use highlighted areas):
+- Kitchen: Highlighted area with cooking appliances (stove, sink, counters)
+- Living Room: Highlighted area with seating furniture (sofa, TV area)
+- Bedroom: Highlighted area with sleeping furniture (bed, dresser)
+- Bathroom: Highlighted area with bathroom fixtures (toilet, sink, shower)
+- Hallways: Connecting areas between highlighted rooms
+
+📍 NAVIGATION STRATEGY:
+1. Identify your current highlighted area on the layout map
+2. Locate the target room's highlighted area  
+3. Plan the most direct path between highlighted areas
+4. Use first-person view to navigate safely toward that path
+5. Move toward room boundaries shown in highlighted areas
 
 RESPOND WITH JSON ONLY:
 {{
-    "current_room": "room_name_or_area",
-    "visible_objects": ["furniture", "items", "doors"],
-    "safe_directions": ["directions_with_clear_paths"],
-    "task_relevant_direction": "direction_toward_task_room",
-    "movement_decision": "NORTH|SOUTH|EAST|WEST",
-    "reasoning": "brief_explanation_of_decision"
+    "arrow_position_on_map": "describe where the red arrow is on the layout map",
+    "current_highlighted_area": "which highlighted room area contains the arrow",
+    "arrow_pointing_direction": "which direction (NORTH/SOUTH/EAST/WEST) is arrow facing",
+    "target_highlighted_area": "which highlighted area contains the target for '{task}'",
+    "distance_to_target": "far|medium|close - how far to target highlighted area",
+    "next_single_move": "NORTH|SOUTH|EAST|WEST - ONE direction to move closer",
+    "reasoning": "why this ONE move gets closer to the target highlighted area",
+    "first_person_clear": "is the path clear in first-person view for this move",
+    "task_complete": false
 }}
 
-Base your analysis entirely on what you see in this first-person view."""
+Remember: This is ONE move only. After this move, the map updates and you decide the NEXT move."""
         
         # Enhanced prompt if house plan is available
         if house_plan_path and os.path.exists(house_plan_path):
-            user_prompt += f"\n\nNOTE: House layout reference is available for spatial context, but prioritize what you see in the first-person view."
+            dual_image_prompt = """
+
+DUAL-IMAGE ANALYSIS WITH HIGHLIGHTED ROOMS:
+IMAGE 1 (First-Person): Shows immediate view - furniture, obstacles, pathways you can see right now
+IMAGE 2 (Highlighted Layout): Shows house overview with HIGHLIGHTED ROOM AREAS for precise navigation
+
+ENHANCED NAVIGATION WORKFLOW:
+1. Layout Strategy: Use highlighted areas to identify where each room is located
+2. Current Position: Find your position marker on the layout relative to highlighted room boundaries  
+3. Target Identification: Locate the target room's highlighted area on the layout map
+4. Route Planning: Plan path from your current highlighted area to target highlighted area
+5. Immediate Execution: Use first-person view to navigate safely in the planned direction
+
+Room Boundary Recognition: The highlighted areas show exact room boundaries - use these to:
+- Identify which highlighted area you're currently in
+- See doorways and connections between highlighted rooms
+- Plan the shortest route between highlighted areas
+- Navigate toward specific room boundaries
+
+Coordinate both images: Layout map for strategic room-to-room planning, first-person view for safe immediate movement execution."""
+            
+            user_prompt += dual_image_prompt
         
         # Call VLM analysis (adapted from backup's working method)
         print(f"Analyzing first-person view for task: '{task}'")
@@ -883,8 +996,8 @@ def execute_movement(action):
         # Log movement step for metrics
         new_position = [final_pos.x, final_pos.y]
         if hasattr(bge.logic, 'metrics_logger') and hasattr(bge.logic, 'navigation_step'):
-            # Try to get current room (this would need to be enhanced with room detection)
-            current_room = "UNKNOWN"  # Could be enhanced with room detection logic
+            # Get current room using position-based detection
+            current_room = detect_current_room(new_position[0], new_position[1])
             bge.logic.metrics_logger.log_step(
                 bge.logic.navigation_step + 1, 
                 action.upper(), 
@@ -914,10 +1027,38 @@ def execute_movement(action):
         return False
 
 
+def detect_current_room(x, y):
+    """Detect current room based on world coordinates matching highlighted room areas
+    
+    Args:
+        x, y: World coordinates
+        
+    Returns:
+        str: Room name (kitchen, living_room, bedroom, bathroom, hallway, or outside)
+    """
+    # Room detection coordinated with highlighted areas in house_layout_reference2.png
+    # These boundaries should match the highlighted room areas in your updated layout
+    
+    # NOTE: Adjust these coordinates to match your specific highlighted room areas
+    if -6.0 <= x <= -2.0 and 2.0 <= y <= 6.0:
+        return "KITCHEN"
+    elif -5.0 <= x <= -2.0 and -3.0 <= y <= 2.0:
+        return "LIVING_ROOM"  
+    elif -2.0 <= x <= 2.0 and -3.0 <= y <= 2.0:
+        return "BEDROOM"
+    elif -2.0 <= x <= 2.0 and 2.0 <= y <= 6.0:
+        return "BATHROOM"
+    elif -3.0 <= x <= 1.0 and -4.0 <= y <= 7.0:
+        return "HALLWAY"
+    else:
+        return "OUTSIDE"
+        
+    # TODO: Fine-tune these coordinates based on the actual highlighted areas
+    # in your updated house_layout_reference2.png for maximum accuracy
 
 
 def execute_directional_movement(direction):
-    """Execute directional movement: turn to face direction, then move forward
+    """Execute directional movement with enhanced collision detection
     
     Args:
         direction: NORTH, SOUTH, EAST, WEST
@@ -928,8 +1069,31 @@ def execute_directional_movement(direction):
     import math
     
     try:
+        print(f"\n🔍 COLLISION SYSTEM: Starting directional movement {direction}")
+        print(f"🔍 COLLISION SYSTEM: Enhanced safety checks enabled")
+        
+        # Get actor first before using it
         scene = bge.logic.getCurrentScene()
         actor = scene.objects.get("Actor")
+        
+        if not actor:
+            print("❌ No actor found")
+            return False
+        
+        # Movement configuration
+        MOVE_SPEED = 0.8      # Movement speed for collision detection
+        MOVE_FRAMES = 15      # Number of frames for smooth movement
+        TURN_SPEED = 1.5      # Turn speed for rotation
+        
+        # Debug: Check actor physics properties
+        if hasattr(actor, 'mass'):
+            print(f"🔍 Actor physics: mass={getattr(actor, 'mass', 'N/A')}")
+        if hasattr(actor, 'physics_type'):
+            print(f"🔍 Actor physics type: {getattr(actor, 'physics_type', 'UNKNOWN')}")
+        
+        # Debug: Check for collision-capable objects in scene
+        collision_objects = [obj for obj in scene.objects if hasattr(obj, 'worldPosition') and 'wall' in obj.name.lower()]
+        print(f"🔍 Found {len(collision_objects)} potential wall objects")
         
         if not actor:
             print("❌ No actor found")
@@ -975,19 +1139,177 @@ def execute_directional_movement(direction):
         
         time.sleep(0.2)
         
-        # Now move forward in that direction
-        print(f"➡️ Moving FORWARD (towards {direction_upper})")
-        MOVE_SPEED = 0.8
-        MOVE_FRAMES = 15
+        # Check for obstacles before moving
+        def check_collision_ahead(distance=2.0):
+            """Check if there's an obstacle ahead using raycasting"""
+            try:
+                # Get forward direction after rotation
+                forward_vec = actor.worldOrientation.col[1]  # Y axis is forward in Blender
+                start_pos = actor.worldPosition
+                end_pos = start_pos + (forward_vec * distance)
+                
+                print(f"🔍 Raycast: from ({start_pos.x:.2f}, {start_pos.y:.2f}) to ({end_pos.x:.2f}, {end_pos.y:.2f})")
+                
+                # Try both raycast parameter orders (BGE can be inconsistent)
+                hit_obj, hit_point, hit_normal = actor.rayCast(end_pos, start_pos, distance)
+                
+                if hit_obj and hit_obj != actor:  # Don't hit self
+                    obstacle_name = hit_obj.name if hasattr(hit_obj, 'name') else str(hit_obj)
+                    distance_to_hit = (hit_point - start_pos).magnitude if hit_point else distance
+                    print(f"ðŸš§ Obstacle detected: {obstacle_name} at distance {distance_to_hit:.2f}")
+                    return True, obstacle_name
+                else:
+                    print(f"✅ Path clear for {distance:.2f} units")
+                    return False, None
+            except Exception as e:
+                print(f"⚠️ Collision check failed: {e}")
+                # Fallback: assume path is blocked if raycast fails
+                return True, "raycast_failed"
         
-        for _ in range(MOVE_FRAMES):
-            actor.applyMovement([0, MOVE_SPEED / MOVE_FRAMES, 0], True)
+        # Check bounds before movement (prevent going too far outside house)
+        current_pos = actor.worldPosition
+        future_pos_x = current_pos.x
+        future_pos_y = current_pos.y
+        
+        # Estimate future position after movement
+        forward_vec = actor.worldOrientation.col[1]
+        future_pos_x += forward_vec.x * MOVE_SPEED
+        future_pos_y += forward_vec.y * MOVE_SPEED
+        
+        # Define conservative house boundaries based on starting position (-1.79, -2.07)
+        HOUSE_BOUNDS = {
+            'min_x': -8.0, 'max_x': 3.0,   # More restrictive X boundaries
+            'min_y': -5.0, 'max_y': 8.0    # More restrictive Y boundaries  
+        }
+        
+        if (future_pos_x < HOUSE_BOUNDS['min_x'] or future_pos_x > HOUSE_BOUNDS['max_x'] or
+            future_pos_y < HOUSE_BOUNDS['min_y'] or future_pos_y > HOUSE_BOUNDS['max_y']):
+            print(f"ðŸš§ Cannot move {direction_upper} - would go outside house boundaries!")
+            print(f"⚠️ Current: ({current_pos.x:.1f}, {current_pos.y:.1f}), Future: ({future_pos_x:.1f}, {future_pos_y:.1f})")
+            return False
+        
+        # Check for obstacles ahead using multiple methods
+        has_obstacle, obstacle = check_collision_ahead(MOVE_SPEED)
+        
+        # Secondary collision check: look for nearby objects
+        def check_nearby_obstacles():
+            """Alternative obstacle detection using object proximity"""
+            try:
+                scene = bge.logic.getCurrentScene()
+                current_pos = actor.worldPosition
+                future_pos = current_pos + (forward_vec * MOVE_SPEED)
+                
+                # Check all objects in scene for proximity to future position
+                for obj in scene.objects:
+                    if obj != actor and hasattr(obj, 'worldPosition'):
+                        obj_pos = obj.worldPosition
+                        distance = (obj_pos - future_pos).magnitude
+                        if distance < 1.5:  # Within 1.5 units - likely an obstacle
+                            print(f"ðŸš§ Proximity obstacle: {obj.name} at distance {distance:.2f}")
+                            return True, obj.name
+                return False, None
+            except Exception as e:
+                print(f"⚠️ Proximity check failed: {e}")
+                return False, None
+        
+        # Use both collision detection methods
+        has_proximity_obstacle, prox_obstacle = check_nearby_obstacles()
+        
+        if has_obstacle or has_proximity_obstacle:
+            obstacle_type = obstacle or prox_obstacle or "unknown"
+            print(f"ðŸš§ Cannot move {direction_upper} - obstacle detected: {obstacle_type}")
+            print("⚠️ Movement blocked by collision detection")
+            return False
+        
+        # ADDITIONAL SAFETY: Check if movement would go through known wall areas
+        # This is a physics-independent backup check
+        def check_wall_coordinates():
+            """Check if target position intersects known wall areas"""
+            future_x = future_pos_x
+            future_y = future_pos_y
+            
+            # Define known wall/obstacle areas based on house layout
+            # These should be adjusted based on your specific house design
+            wall_areas = [
+                # Example wall areas - adjust these coordinates based on your house layout
+                {'min_x': -6, 'max_x': -4, 'min_y': 3, 'max_y': 5},  # Potential kitchen wall
+                {'min_x': -3, 'max_x': -1, 'min_y': 0, 'max_y': 2},   # Potential interior wall
+                # Add more wall areas as needed
+            ]
+            
+            for wall in wall_areas:
+                if (wall['min_x'] <= future_x <= wall['max_x'] and 
+                    wall['min_y'] <= future_y <= wall['max_y']):
+                    print(f"🚧 Coordinate-based wall detection: would intersect wall area")
+                    print(f"   Target: ({future_x:.1f}, {future_y:.1f})")
+                    print(f"   Wall: X[{wall['min_x']}, {wall['max_x']}], Y[{wall['min_y']}, {wall['max_y']}]")
+                    return True
+            return False
+        
+        # Apply coordinate-based wall checking as final safety measure
+        if check_wall_coordinates():
+            print(f"ðŸš§ Cannot move {direction_upper} - coordinate-based wall detection")
+            print("⚠️ Movement blocked by geometric constraint")
+            return False
+        
+        # Now move forward with collision-aware movement
+        print(f"➡️ Moving FORWARD (towards {direction_upper}) with collision detection")
+        
+        # Store initial position for collision detection
+        initial_position = actor.worldPosition.copy()
+        
+        # Adaptive movement - slower if we were close to obstacles
+        movement_multiplier = 1.0
+        if has_proximity_obstacle:
+            movement_multiplier = 0.5  # Move slower if proximity obstacles detected
+            print("⚠️ Using reduced movement speed due to proximity obstacles")
+        
+        adjusted_move_speed = MOVE_SPEED * movement_multiplier
+        
+        # Move with collision detection enabled (local=False for world coordinates)
+        movement_per_frame = adjusted_move_speed / MOVE_FRAMES
+        successful_frames = 0
+        
+        for frame in range(MOVE_FRAMES):
+            pos_before = actor.worldPosition.copy()
+            
+            # Apply movement with collision detection
+            actor.applyMovement([0, movement_per_frame, 0], False)  # False = world coordinates
+            
+            pos_after = actor.worldPosition.copy()
+            movement_distance = (pos_after - pos_before).magnitude
+            
+            # Check if we actually moved (collision would prevent movement)
+            if movement_distance < movement_per_frame * 0.1:  # Less than 10% expected movement
+                print(f"🚧 Collision detected at frame {frame} - movement blocked")
+                print(f"   Expected: {movement_per_frame:.3f}, Actual: {movement_distance:.3f}")
+                break
+            else:
+                successful_frames += 1
         
         time.sleep(0.3)
+        
+        # Check if movement was successful
+        total_movement = (actor.worldPosition - initial_position).magnitude
+        expected_movement = adjusted_move_speed
+        
+        if total_movement < expected_movement * 0.3:  # Less than 30% of expected movement
+            print(f"⚠️ Movement mostly blocked by collision")
+            print(f"   Expected: {expected_movement:.2f}, Actual: {total_movement:.2f}")
+        else:
+            print(f"✅ Movement completed: {total_movement:.2f} units ({successful_frames}/{MOVE_FRAMES} frames)")
         
         # Verify final position
         final_pos = actor.worldPosition
         final_orientation = actor.worldOrientation.to_euler().z
+        
+        # Validate the movement was successful and within bounds
+        if (final_pos.x < HOUSE_BOUNDS['min_x'] or final_pos.x > HOUSE_BOUNDS['max_x'] or
+            final_pos.y < HOUSE_BOUNDS['min_y'] or final_pos.y > HOUSE_BOUNDS['max_y']):
+            print(f"⚠️ Movement resulted in out-of-bounds position!")
+            print(f"   Position: ({final_pos.x:.2f}, {final_pos.y:.2f})")
+            print(f"   Bounds: X[{HOUSE_BOUNDS['min_x']}, {HOUSE_BOUNDS['max_x']}], Y[{HOUSE_BOUNDS['min_y']}, {HOUSE_BOUNDS['max_y']}]")
+            # Don't return False here, just log the warning
         
         print(f"✅ Moved to {direction_upper}")
         print(f"   Final position: ({final_pos.x:.2f}, {final_pos.y:.2f})")
@@ -2432,17 +2754,8 @@ def analyze_position_only_navigation(world_coords, task, step_number):
     # Simple position-based logic
     x, y = world_coords[0], world_coords[1]
     
-    # Basic room detection based on coordinates
-    if -0.5 <= x <= 0.5 and -0.5 <= y <= 0.5:
-        current_room = "kitchen"
-    elif x > 0.5:
-        current_room = "living_room"  
-    elif x < -0.5:
-        current_room = "bedroom"
-    elif y > 0.5:
-        current_room = "bathroom"
-    else:
-        current_room = "hallway"
+    # Use consistent room detection logic
+    current_room = detect_current_room(x, y).lower()
     
     # Simple movement decision - try to move toward task goal
     if "kitchen" in task.lower() and current_room != "kitchen":

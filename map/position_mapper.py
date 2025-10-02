@@ -16,6 +16,7 @@ import os
 import sys
 import json
 import time
+import math
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
@@ -380,6 +381,29 @@ class VESPERPositionMapper:
         # Draw arrow as polygon
         draw.polygon(points, fill=arrow_color, outline=(0, 0, 0), width=1)
     
+    def _convert_bge_to_screen_coordinates(self, orientation_radians):
+        """Convert BGE orientation to screen coordinates
+        
+        BGE uses a different coordinate system than our map display:
+        - BGE: 0 radians = East (+X), π/2 = North (+Y)
+        - Screen: 0 radians = Right (+X), π/2 = Down (+Y), but we want North to be up
+        
+        For screen display where North is up:
+        - We need to rotate BGE angle by -π/2 to align coordinate systems
+        - This converts BGE North (π/2) to screen North (0, pointing up)
+        """
+        # Convert BGE coordinates to screen coordinates
+        # BGE North (π/2) should become screen North (up on screen)
+        screen_angle = orientation_radians - math.pi/2
+        
+        # Normalize angle to [0, 2π] range
+        while screen_angle < 0:
+            screen_angle += 2 * math.pi
+        while screen_angle >= 2 * math.pi:
+            screen_angle -= 2 * math.pi
+            
+        return screen_angle
+    
     def _draw_orientation_arrow(self, draw, x, y, size, orientation_radians):
         """Draw a large orientation arrow/triangle showing actor's facing direction
         
@@ -395,26 +419,20 @@ class VESPERPositionMapper:
         arrow_length = size * 1.3  # Reduced from 2.0
         arrow_width = size * 0.8   # Reduced from 1.2
         
-        # BGE coordinate system to screen coordinate system conversion  
-        # CALIBRATED FORMULA: Y-flipped version works for 4/5 test cases
-        #
-        # Test results with angle = orientation_radians - π/2:
-        # ✅ BGE 0° (North) → UP ✅
-        # ✅ BGE 90° (East) → RIGHT ✅
-        # ✅ BGE 180° (South) → DOWN ✅
-        # ✅ BGE 1.4° (North logs) → UP ✅
-        # ❌ BGE -21.5° (Northeast logs) → NORTHWEST (should be NORTHEAST)
-        #
-        # SPECIAL CASE: Negative angles need adjustment
-        # For negative BGE angles, we need to flip the result
-        if orientation_radians < 0:
-            # For negative angles, mirror the result 
-            angle = -orientation_radians - math.pi/2
-        else:
-            angle = orientation_radians - math.pi/2
+        # COORDINATE SYSTEM SYNCHRONIZATION:
+        # CRITICAL ISSUE: Blender Editor vs Game Engine coordinate systems differ!
+        # 
+        # Editor Mode: Standard Blender coords
+        # Game Engine Mode: Different coordinate system (gizmo shows different orientation)
+        # 
+        # Need to detect and convert between coordinate systems
+        angle = self._convert_bge_to_screen_coordinates(orientation_radians)
         
-        # DEBUG: Show conversion
-        print(f"🎨 Map angle: {angle:.4f}rad ({math.degrees(angle):.1f}°)")
+        # DEBUG: Show conversion with both coordinate systems
+        orientation_deg = math.degrees(orientation_radians)
+        screen_deg = math.degrees(angle)
+        print(f"🧭 DEBUG Orientation: {orientation_radians:.4f} rad = {orientation_deg:.1f}°")
+        print(f"🎨 Map angle: {angle:.4f}rad ({screen_deg:.1f}°)")
         
         # Calculate arrow points (triangle)
         # Tip of arrow
@@ -492,13 +510,34 @@ class VESPERPositionMapper:
             except:
                 font = ImageFont.load_default()
             
-            # Prepare info text
+            # Prepare info text with orientation
+            orientation_deg = self.current_orientation * (180 / 3.14159) if self.current_orientation is not None else 0
+            
+            # Determine cardinal direction from orientation
+            if orientation_deg >= -22.5 and orientation_deg < 22.5:
+                cardinal = "EAST →"
+            elif orientation_deg >= 22.5 and orientation_deg < 67.5:
+                cardinal = "NORTHEAST ↗"
+            elif orientation_deg >= 67.5 and orientation_deg < 112.5:
+                cardinal = "NORTH ↑"
+            elif orientation_deg >= 112.5 and orientation_deg < 157.5:
+                cardinal = "NORTHWEST ↖"
+            elif orientation_deg >= 157.5 or orientation_deg < -157.5:
+                cardinal = "WEST ←"
+            elif orientation_deg >= -157.5 and orientation_deg < -112.5:
+                cardinal = "SOUTHWEST ↙"
+            elif orientation_deg >= -112.5 and orientation_deg < -67.5:
+                cardinal = "SOUTH ↓"
+            else:
+                cardinal = "SOUTHEAST ↘"
+            
             info_lines = [
-                f"Current Room: {self.current_room}",
-                f"Target Room: {self.target_room}",
-                f"Task: {self.current_task[:30]}..." if len(self.current_task) > 30 else f"Task: {self.current_task}",
-                f"Position: ({self.current_position[0]}, {self.current_position[1]})",
-                f"History: {len(self.position_history)} positions"
+                f"🎯 TASK: {self.current_task[:35]}..." if len(self.current_task) > 35 else f"🎯 TASK: {self.current_task}",
+                f"📍 Current: {self.current_room}",
+                f"🎪 Target: {self.target_room}",
+                f"🧭 Facing: {cardinal} ({orientation_deg:.1f}°)",
+                f"📊 Position: ({self.current_position[0]}, {self.current_position[1]})",
+                f"📈 Moves: {len(self.position_history)}"
             ]
             
             # Draw info box background

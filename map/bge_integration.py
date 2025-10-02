@@ -29,7 +29,7 @@ class BGENavigationMapper:
     def __init__(self):
         self.mapper = None
         self.last_map_path = None
-        self.map_update_interval = 2  # Generate new map every 2 steps
+        self.map_update_interval = 1  # Generate new map every step for synchronization
         self.step_counter = 0
         
         if MAPPING_AVAILABLE:
@@ -57,18 +57,14 @@ class BGENavigationMapper:
     
     def _find_house_layout(self):
         """Find the house layout reference image"""
-        possible_paths = [
-            os.path.join(os.path.dirname(__file__), "house_layout_reference2.png"),
-            os.path.join(os.path.dirname(os.path.dirname(__file__)), "blender", "house_layout_reference2.png"),
-            os.path.join(os.path.dirname(os.path.dirname(__file__)), "house_layout_reference2.png"),
-        ]
+        # Use only the highlighted room layout
+        house_layout_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "blender", "house_layout_reference2.png")
         
-        for path in possible_paths:
-            if os.path.exists(path):
-                print(f"🏠 Found house layout: {path}")
-                return path
+        if os.path.exists(house_layout_path):
+            print(f"🏠 Found house layout: {house_layout_path}")
+            return house_layout_path
         
-        print("⚠️ House layout reference not found in expected locations")
+        print("⚠️ House layout reference2.png not found in blender directory")
         return None
     
     def update_position(self, world_x, world_y, room=None, task=None, target_room=None, orientation=None):
