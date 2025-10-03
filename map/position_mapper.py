@@ -382,19 +382,41 @@ class VESPERPositionMapper:
         draw.polygon(points, fill=arrow_color, outline=(0, 0, 0), width=1)
     
     def _convert_bge_to_screen_coordinates(self, orientation_radians):
-        """Convert BGE orientation to screen coordinates
+        """Convert BGE Game Engine orientation to map screen coordinates
         
-        BGE uses a different coordinate system than our map display:
-        - BGE: 0 radians = East (+X), π/2 = North (+Y)
-        - Screen: 0 radians = Right (+X), π/2 = Down (+Y), but we want North to be up
+        CRITICAL: Two different coordinate systems need to be synchronized:
         
-        For screen display where North is up:
-        - We need to rotate BGE angle by -π/2 to align coordinate systems
-        - This converts BGE North (π/2) to screen North (0, pointing up)
+        1. BGE GAME ENGINE SYSTEM (First-person navigation):
+           - Actor turns LEFT/RIGHT and moves FORWARD (like real person)
+           - Z-axis rotation: 0 = facing +Y direction (Blender forward)
+           - This is how the actor actually moves in the game
+        
+        2. MAP COORDINATE SYSTEM (VLM spatial understanding):
+           - Uses NORTH/SOUTH/EAST/WEST for clear spatial reference
+           - Screen coordinates: 0° = North (up), 90° = East (right)
+           - This helps VLM understand layout and directions
+        
+        CONVERSION STRATEGY:
+        - BGE forward (+Y) should map to NORTH (up on screen) 
+        - Need to account for coordinate system differences between Game Engine and Editor
+        - Based on the images: actor faces sofa (should be WEST) but shows as EAST
+        - This indicates we need to flip the direction by π (180°)
         """
-        # Convert BGE coordinates to screen coordinates
-        # BGE North (π/2) should become screen North (up on screen)
-        screen_angle = orientation_radians - math.pi/2
+        
+        # COORDINATE SYSTEM ANALYSIS from the provided images:
+        # - First-person view: Actor faces sofa (this should be WEST on map)
+        # - Current map: Shows arrow pointing EAST (wrong direction)
+        # - Test results show we need different conversion logic
+        
+        # FINAL SOLUTION based on coordinate system analysis:
+        # BGE coordinate system needs to be mapped to screen coordinates as follows:
+        # BGE 0° (forward) → WEST (270° on screen)
+        # BGE 90° (left) → NORTH (0° on screen) 
+        # BGE 180° (back) → EAST (90° on screen)
+        # BGE 270° (right) → SOUTH (180° on screen)
+        
+        # Mathematical conversion: rotate by 3π/2 and negate angle
+        screen_angle = (3 * math.pi / 2) - orientation_radians
         
         # Normalize angle to [0, 2π] range
         while screen_angle < 0:
@@ -419,20 +441,28 @@ class VESPERPositionMapper:
         arrow_length = size * 1.3  # Reduced from 2.0
         arrow_width = size * 0.8   # Reduced from 1.2
         
-        # COORDINATE SYSTEM SYNCHRONIZATION:
-        # CRITICAL ISSUE: Blender Editor vs Game Engine coordinate systems differ!
-        # 
-        # Editor Mode: Standard Blender coords
-        # Game Engine Mode: Different coordinate system (gizmo shows different orientation)
-        # 
-        # Need to detect and convert between coordinate systems
+        # COORDINATE SYSTEM SYNCHRONIZATION FIX:
+        # Convert Game Engine orientation to Map coordinates
         angle = self._convert_bge_to_screen_coordinates(orientation_radians)
         
-        # DEBUG: Show conversion with both coordinate systems
+        # ENHANCED DEBUG: Show detailed coordinate conversion
         orientation_deg = math.degrees(orientation_radians)
         screen_deg = math.degrees(angle)
-        print(f"🧭 DEBUG Orientation: {orientation_radians:.4f} rad = {orientation_deg:.1f}°")
-        print(f"🎨 Map angle: {angle:.4f}rad ({screen_deg:.1f}°)")
+        
+        # Determine facing direction for verification
+        direction_name = "UNKNOWN"
+        if 315 <= screen_deg or screen_deg < 45:
+            direction_name = "NORTH (↑)"
+        elif 45 <= screen_deg < 135:
+            direction_name = "EAST (→)"
+        elif 135 <= screen_deg < 225:
+            direction_name = "SOUTH (↓)"
+        elif 225 <= screen_deg < 315:
+            direction_name = "WEST (←)"
+        
+        print(f"🧭 BGE Raw Orientation: {orientation_radians:.4f} rad = {orientation_deg:.1f}°")
+        print(f"🎨 Map Display Angle: {angle:.4f} rad = {screen_deg:.1f}° → {direction_name}")
+        print(f"🔄 Coordinate System: Game Engine → Map Conversion Applied")
         
         # Calculate arrow points (triangle)
         # Tip of arrow
