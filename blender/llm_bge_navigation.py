@@ -1199,9 +1199,35 @@ def execute_directional_movement(direction):
                 current_pos = actor.worldPosition
                 future_pos = current_pos + (forward_vec * MOVE_SPEED)
                 
+                # Objects to exclude from collision detection
+                excluded_objects = [
+                    "Actor_FPCamera",     # First-person camera
+                    "BirdEyeCamera",      # Bird's eye view camera
+                    "Camera",             # Generic cameras
+                    "FPCamera",           # First-person camera variants
+                    "MainCamera",         # Main camera
+                    "Light",              # Lighting objects
+                    "Node_",              # Node objects (by prefix)
+                    "Mesh_",              # Mesh objects (by prefix) 
+                    "Empty",              # Empty objects
+                    "motion",             # Motion sensor objects (motion1, motion2, etc.)
+                    "DetectionArea_",     # Motion detection areas
+                ]
+                
                 # Check all objects in scene for proximity to future position
                 for obj in scene.objects:
                     if obj != actor and hasattr(obj, 'worldPosition'):
+                        # Skip excluded objects (cameras, lights, etc.)
+                        should_exclude = False
+                        for excluded in excluded_objects:
+                            if obj.name == excluded or obj.name.startswith(excluded):
+                                should_exclude = True
+                                print(f"🚫 Excluding {obj.name} from collision detection ({excluded})")
+                                break
+                        
+                        if should_exclude:
+                            continue
+                            
                         obj_pos = obj.worldPosition
                         distance = (obj_pos - future_pos).magnitude
                         if distance < 1.5:  # Within 1.5 units - likely an obstacle
@@ -1480,7 +1506,7 @@ def main():
             
             bge.logic.current_task_index = 0
             bge.logic.navigation_step = 0
-            bge.logic.max_steps_per_task = 20
+            bge.logic.max_steps_per_task = 50
             bge.logic.llm_initialized = False
             bge.logic.startup_complete = False
             
