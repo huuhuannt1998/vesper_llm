@@ -51,11 +51,20 @@ class CASASMotionSensorLogger:
             scene = bge.logic.getCurrentScene()
             currently_active = set()
             
+            # Debug: Show actor position and check each sensor
+            print(f"🔍 Actor at: [{actor_position[0]:.2f}, {actor_position[1]:.2f}]")
+            
             # Check each motion sensor detection area
             for sensor_name in self.sensor_mapping.keys():
                 detection_area = scene.objects.get(f'DetectionArea_{sensor_name}')
                 if detection_area:
-                    if self.is_actor_in_detection_area(actor_position, detection_area):
+                    in_area = self.is_actor_in_detection_area(actor_position, detection_area)
+                    area_pos = detection_area.worldPosition
+                    area_scale = detection_area.worldScale
+                    dx = abs(actor_position[0] - area_pos[0])
+                    dy = abs(actor_position[1] - area_pos[1])
+                    print(f"  {sensor_name}: pos=[{area_pos[0]:.1f},{area_pos[1]:.1f}] scale=[{area_scale[0]:.1f},{area_scale[1]:.1f}] dist=[{dx:.1f},{dy:.1f}] → {'IN' if in_area else 'out'}")
+                    if in_area:
                         currently_active.add(sensor_name)
             
             # Log activations (ON events)

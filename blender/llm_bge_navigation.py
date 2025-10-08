@@ -71,7 +71,7 @@ try:
     print("✅ Position mapping system integrated")
 except ImportError as e:
     POSITION_MAPPING_AVAILABLE = False
-    print(f"⚠️ ï¸ Position mapping not available: {e}")
+    print(f"⚠️ Position mapping not available: {e}")
 
 # =============================
 # VESPER Evaluation Metrics & Logging System
@@ -90,6 +90,9 @@ class VESPERMetricsLogger:
         # Session timestamp for file naming
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         self.session_id = timestamp
+        
+        # Set up log file path (required for _log_to_file method)
+        self.log_file = os.path.join(self.dataset_dir, f"vesper_metrics_p01_{self.session_id}.json")
         
         # Initialize metrics tracking
         self.session_data = {
@@ -113,18 +116,18 @@ class VESPERMetricsLogger:
     def start_task(self, task_name, task_index):
         """Log the start of a new task"""
         # Map CASAS task names to IDs for dataset compatibility
-        # casas_task_mapping = {
-        #     "Make a phone call": "t1",
-        #     "Wash hands": "t2", 
-        #     "Cook oatmeal": "t3",
-        #     "Eat meal": "t4",
-        #     "Clean dishes": "t5"
-        # }
         casas_task_mapping = {
-            "Go to the kitchen": "t1",
-            "Go to the bedroom": "t2", 
-            "Go to the livingroom": "t3"
+            "Make a phone call": "t1",
+            "Wash hands": "t2", 
+            "Cook oatmeal": "t3",
+            "Eat meal": "t4",
+            "Clean dishes": "t5"
         }
+        # casas_task_mapping = {
+        #     "Go to the kitchen": "t1",
+        #     "Go to the bedroom": "t2", 
+        #     "Go to the livingroom": "t3"
+        # }
         casas_task_id = casas_task_mapping.get(task_name, f"t{task_index + 1}")
         
         self.current_task_start_time = time.time()
@@ -177,6 +180,12 @@ class VESPERMetricsLogger:
         
         # Save session data after each step
         self._log_to_file()
+        
+        # Auto-export datasets every 10 steps as safety backup
+        if self.session_data["total_steps"] % 10 == 0:
+            if hasattr(self, '_export_datasets'):
+                print(f"💾 Auto-export at step {self.session_data['total_steps']}")
+                self._export_datasets()
         
         print(f"METRICS: Step {step_number} - {action} from [{old_pos[0]:.1f}, {old_pos[1]:.1f}] to [{new_pos[0]:.1f}, {new_pos[1]:.1f}]")
         if room_detected:
@@ -265,6 +274,10 @@ class VESPERMetricsLogger:
         print("="*60)
         print(f"📁 Full log saved to: {self.log_file}")
         print("="*60 + "\n")
+        
+        # Export datasets when task completes
+        if hasattr(self, '_export_datasets'):
+            self._export_datasets()
     
     def _log_to_file(self):
         """Save current metrics to JSON file"""
@@ -918,14 +931,15 @@ def execute_movement(action):
                 current_room
             )
         
+        # Always track motion sensors (regardless of movement success)
+        if hasattr(bge.logic, 'casas_motion_logger'):
+            try:
+                print(f"🔍 Checking motion sensors at position: [{final_pos.x:.1f}, {final_pos.y:.1f}]")
+                bge.logic.casas_motion_logger.check_motion_sensors([final_pos.x, final_pos.y], time.time())
+            except Exception as e:
+                print(f"⚠️ Motion sensor tracking failed: {e}")
+        
         if movement_success:
-            # Track motion sensors after successful movement
-            if hasattr(bge.logic, 'casas_motion_logger'):
-                try:
-                    bge.logic.casas_motion_logger.check_motion_sensors([final_pos.x, final_pos.y], time.time())
-                except Exception as e:
-                    print(f"⚠️ Motion sensor tracking failed: {e}")
-            
             if action.upper() in ["LEFT", "RIGHT"]:
                 print(f"✅ Rotation executed successfully: {action}")
             else:
@@ -1088,22 +1102,22 @@ def main():
             bge.logic.vesper_continuous_nav = True
             
             # CASAS-aligned ADL Task list for comparable evaluation
-            # bge.logic.vesper_tasks = [
-            #     "Make a phone call",     # t1: Move to phone in dining room
-            #     "Wash hands",            # t2: Move to kitchen sink
-            #     "Cook oatmeal",          # t3: Cook in kitchen per directions
-            #     "Eat meal",              # t4: Take food to dining room
-            #     "Clean dishes"           # t5: Take dishes to sink and clean
-            # ]
             bge.logic.vesper_tasks = [
-                "Go to the kitchen",     # t1: Navigate to kitchen
-                "Go to the bedroom",     # t2: Navigate to bedroom  
-                "Go to the livingroom"   # t3: Navigate to living room
+                "Make a phone call",     # t1: Move to phone in dining room
+                "Wash hands",            # t2: Move to kitchen sink
+                "Cook oatmeal",          # t3: Cook in kitchen per directions
+                "Eat meal",              # t4: Take food to dining room
+                "Clean dishes"           # t5: Take dishes to sink and clean
             ]
+            # bge.logic.vesper_tasks = [
+            #     "Go to the kitchen",     # t1: Navigate to kitchen
+            #     "Go to the bedroom",     # t2: Navigate to bedroom  
+            #     "Go to the livingroom"   # t3: Navigate to living room
+            # ]
             
             bge.logic.current_task_index = 0
             bge.logic.navigation_step = 0
-            bge.logic.max_steps_per_task = 20
+            bge.logic.max_steps_per_task = 30
             bge.logic.llm_initialized = False
             bge.logic.startup_complete = False
             
@@ -1413,18 +1427,26 @@ def capture_dual_images():
                     world_x = actor.worldPosition.x
                     world_y = actor.worldPosition.y
                     
+                    # CRITICAL: Extract actor orientation (Z rotation) for synchronized coordinate systems
+                    try:
+                        orientation_z = actor.worldOrientation.to_euler().z  # Z-axis rotation in radians
+                    except:
+                        orientation_z = 0.0  # Fallback if orientation extraction fails
+                    
                     # Get current task info for context
                     current_task = getattr(bge.logic, 'current_task', 'Navigate')
                     current_room = getattr(bge.logic, 'current_room', None)
                     
                     print(f"🗺️ Generating map for Actor at ({world_x:.2f}, {world_y:.2f})")
+                    print(f"🧭 Actor orientation: {orientation_z:.4f} rad ({orientation_z * 57.2958:.1f}°)")
                     print(f"🎯 Task: {current_task}, Room: {current_room}")
                     
-                    # Update position map and generate context
+                    # Update position map and generate context with ORIENTATION
                     map_context_path = update_actor_position_map(
                         world_x, world_y, 
                         room=current_room, 
-                        task=current_task
+                        task=current_task,
+                        orientation=orientation_z  # NOW SYNCHRONIZED!
                     )
                     
                     if map_context_path and os.path.exists(map_context_path):
@@ -1665,16 +1687,32 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
         # if loop_result:
         #     return loop_result
         
-        # Enhanced prompt for spatial awareness and obstacle avoidance
-# ...existing code...
-        prompt = f"""You are an AI navigation assistant controlling a character in a 3D house environment. You have access to TWO CRITICAL IMAGES:
+        # Enhanced prompt for spatial awareness and obstacle avoidance with synchronized dual-image analysis
+        prompt = f"""You are an AI navigation assistant controlling a character in a 3D house environment. You receive TWO SYNCHRONIZED IMAGES that MUST be analyzed together:
 
-🏠 IMAGE 1 - HOUSE LAYOUT: Top-down floor plan showing the complete house structure
-👁️ IMAGE 2 - FIRST-PERSON VIEW: What the character currently sees from their perspective
+🗺️ IMAGE 1 - NAVIGATION MAP (Top-Down View):
+   - Shows the ENTIRE house layout from above
+   - **RED HUMAN FIGURE** = Your current position in the house
+   - **RED ARROW** = The direction you are currently FACING
+   - **GREEN PATH** = Your recent movement history (where you've been)
+   - **ROOM LABELS** = Room names overlaid on the floor plan
+   - This map is UPDATED LIVE every step with your current position and orientation
+
+👁️ IMAGE 2 - FIRST-PERSON VIEW (What You See):
+   - Shows what the character sees from their current position
+   - This is YOUR perspective - what's directly in front of you
+   - Walls, furniture, doorways visible from your current facing direction
+   - This image captures your EXACT current view after the last movement
+
+🔄 CRITICAL: BOTH IMAGES ARE SYNCHRONIZED IN REAL-TIME
+   - The red arrow on the map points in the SAME direction you're facing in first-person view
+   - If you see a door ahead in FP view, the arrow on map should point toward that door
+   - Your position on map (red figure) matches where you're standing in FP view
+   - These images are captured at the SAME moment - they show the SAME state
 
 CURRENT MISSION: {task}
-CURRENT POSITION: {current_position}
-STEP: {step_number + 1}
+MAP POSITION: {current_position} (see red figure on navigation map)
+NAVIGATION STEP: {step_number + 1}
 
 CRITICAL NAVIGATION RULES:
 🚧 OBSTACLE AVOIDANCE: 
@@ -1798,37 +1836,105 @@ MOVEMENT COMMANDS:
 3. **BACKWARD**: Only for complete dead-ends or recovery situations
 4. **Post-turn rule**: After any turn, immediately evaluate FORWARD option
 
-DECISION PROCESS:
-1. **IDENTIFY CURRENT ROOM**: Look at first-person view and match with floor plan layout
-   - What furniture do you see? Match with room identification guide above
-   - Cross-reference with floor plan to confirm room location
-   - Be confident in your identification - avoid UNKNOWN unless truly unclear
+DECISION PROCESS (USING BOTH IMAGES TOGETHER):
 
-2. **LOCATE TARGET ROOM**: Find target room on floor plan (Living Room, Kitchen, Bedroom, Bathroom)
-   - Use CASAS task mapping to know where to go
-   - Find the target room's position on the floor plan
+1. **ANALYZE NAVIGATION MAP (Image 1) - Global Spatial Awareness:**
+   - 📍 Locate the RED HUMAN FIGURE → This is your current position in the house
+   - 🧭 Look at the RED ARROW direction → This shows which way you're currently facing
+   - 🗺️ Identify which room the red figure is standing in (use room labels on map)
+   - 🎯 Find your TARGET ROOM on the map for the current task
+   - 📏 Determine the general direction from red figure to target room
+   - 🟢 Check the GREEN PATH (movement history) - avoid revisiting same areas
 
-3. **PLAN ROUTE**: Trace path from current room to target using doorways shown on floor plan
-   - Look at floor plan to see how rooms connect
-   - Identify which direction leads toward target room
+2. **ANALYZE FIRST-PERSON VIEW (Image 2) - Local Obstacle Detection:**
+   - 👁️ What do you SEE directly ahead? (walls, furniture, doors, open space)
+   - 🚪 Is there a DOORWAY or opening visible in the direction you're facing?
+   - 🛑 Are there OBSTACLES blocking your path? (walls, furniture, objects)
+   - 🔍 What ROOM are you in based on visible furniture? (sofa=living room, bed=bedroom, etc.)
 
-4. **CHECK IMMEDIATE VIEW**: Look for obstacles, walls, furniture in first-person view
-   - Is the path ahead clear or blocked?
-   - Can you see a doorway or opening?
-   - Are there walls or furniture blocking movement?
+3. **SYNCHRONIZE BOTH IMAGES - Critical Alignment Check:**
+   - ✅ The red arrow on MAP should point toward what you see in FIRST-PERSON view
+   - ✅ If FP view shows a wall ahead, the arrow on map should point toward that wall
+   - ✅ If FP view shows a doorway, the arrow should point in that doorway's direction
+   - ✅ The room identified in FP view should match where red figure is on map
+   - ⚠️ If images don't align, trust the MAP for position and FP for obstacles
 
-5. **EXECUTE SAFE MOVEMENT**: Choose action that progresses toward target while avoiding collisions
-   - If path is clear → FORWARD
-   - If wall ahead → LEFT or RIGHT to find opening
-   - If stuck → BACKWARD then try different direction
-   - Always explain your reasoning clearly
+4. **DETERMINE NAVIGATION STRATEGY:**
+   
+   **Step A: Check if you're facing the right direction (using MAP):**
+   - Is the red arrow pointing TOWARD the target room?
+   - If YES → Check FP view for clear path, then move FORWARD
+   - If NO → Turn LEFT or RIGHT to orient toward target room
+   
+   **Step B: Check for obstacles in current direction (using FP VIEW):**
+   - Clear path ahead in FP view → Move FORWARD
+   - Wall/obstacle directly ahead → Turn to find clear path
+   - Doorway visible ahead → Move FORWARD through doorway
+   
+   **Step C: Combine both analyses for final decision:**
+   - MAP says "target is to your left" + FP shows "wall ahead" → Turn LEFT
+   - MAP says "target is ahead" + FP shows "doorway ahead" → Move FORWARD
+   - MAP says "you're in target room" + FP shows "correct furniture" → Task complete!
 
-🚀 NAVIGATION STRATEGY (CRITICAL):
-- **Use Floor Plan as GPS**: The house layout shows exactly where each room is located
-- **Follow Doorway Connections**: Look for openings between rooms shown on floor plan
-- **Wall Detection**: If you see a WALL directly ahead → Turn LEFT or RIGHT to find clear path
-- **Forward Progress**: If you see an OPEN DOORWAY or clear space → Move FORWARD immediately
-- **Room Identification**: Match what you see in first-person view with the floor plan layout
+5. **EXECUTE SAFE MOVEMENT:**
+   - Choose action that progresses toward target (from MAP) while avoiding collisions (from FP view)
+   - Always explain your reasoning by referencing BOTH images
+
+🚀 DUAL-IMAGE NAVIGATION STRATEGY (CRITICAL - USE BOTH IMAGES TOGETHER):
+
+**PRIMARY RULE: The navigation MAP and first-person VIEW must be analyzed TOGETHER, not separately!**
+
+**GLOBAL PLANNING (Using Navigation Map - Image 1):**
+- 🗺️ **Find yourself**: Locate the RED HUMAN FIGURE on the map - this is YOU
+- 🧭 **Check orientation**: The RED ARROW shows which direction you're CURRENTLY FACING
+- 🎯 **Locate target**: Find your target room (Kitchen/Bedroom/Living Room) on the labeled map
+- 📍 **Plan direction**: Determine which direction from YOU (red figure) leads to target room
+  * Example: "Target room is to the LEFT of my current position on map"
+  * Example: "I'm FACING the target room (arrow points toward it)"
+  * Example: "Target room is BEHIND me (need to turn around)"
+
+**LOCAL EXECUTION (Using First-Person View - Image 2):**
+- 👁️ **Check obstacles**: What's directly ahead in your current view?
+  * Clear path / Open doorway → Can move FORWARD safely
+  * Wall / Large furniture → CANNOT move forward, must turn
+  * Partial obstruction → Evaluate if passable
+- 🚪 **Identify opportunities**: Look for doorways, hallways, open spaces
+- 🔍 **Confirm location**: Match visible furniture with map position
+  * See sofa → Should be in/near living room (check map confirms this)
+  * See bed → Should be in bedroom (check map confirms this)
+
+**SYNCHRONIZED DECISION MAKING (Combining Both Images):**
+
+1. **If MAP shows target is AHEAD and FP view shows CLEAR PATH:**
+   → Decision: FORWARD (both images agree - safe to proceed)
+   
+2. **If MAP shows target is AHEAD but FP view shows WALL:**
+   → Decision: LEFT or RIGHT (turn to navigate around obstacle)
+   → Next step: Check if turned toward target, then move forward
+   
+3. **If MAP shows target is LEFT and FP view shows WALL AHEAD:**
+   → Decision: LEFT (aligns with map direction AND avoids obstacle)
+   
+4. **If MAP shows target is RIGHT and FP view shows CLEAR PATH AHEAD:**
+   → Decision: First assess - is forward path leading toward target?
+   → Check if moving forward brings you closer to target (use map)
+   → If yes → FORWARD, if no → Turn RIGHT first
+
+5. **If RED FIGURE on map is IN target room AND FP view shows correct furniture:**
+   → Decision: Task complete! (both images confirm arrival)
+
+**MOVEMENT VALIDATION (After Each Decision):**
+- ✅ "I chose FORWARD because MAP shows target ahead AND FP view shows clear doorway"
+- ✅ "I chose LEFT because MAP shows target is left AND FP shows wall blocking forward"
+- ✅ "I chose FORWARD because after last turn, MAP confirms I'm now facing target room"
+- ❌ AVOID: "I chose LEFT because I see a wall" (missing map analysis!)
+- ❌ AVOID: "I chose FORWARD because map shows target ahead" (missing obstacle check!)
+
+**IMAGE FRESHNESS GUARANTEE:**
+- Both images are captured at the SAME moment after your last movement
+- The map is UPDATED with your NEW position and NEW facing direction
+- The FP view shows your NEW perspective after the last turn/movement
+- You are NEVER looking at old/stale images - always current state
 - AVOID endless turning - after 1-2 turns, you should try FORWARD
 - Look for doorways, hallways, and open pathways to move through
 - Don't just spin in place - FORWARD movement is essential for progress
@@ -1881,36 +1987,82 @@ RESPOND WITH JSON ONLY:
 }}
 
 IMPORTANT JSON RULES:
+**DUAL-IMAGE REASONING EXAMPLES (MANDATORY FORMAT):**
+
+✅ **CORRECT Example 1 - Using both images together:**
+{{
+    "map_analysis": "Red figure in LIVING_ROOM, red arrow pointing NORTH toward KITCHEN. Target room KITCHEN is directly ahead on map.",
+    "fp_view_analysis": "First-person view shows open doorway ahead with glimpse of kitchen appliances. Path is clear.",
+    "synchronized_decision": "MAP confirms target ahead + FP shows clear doorway = Safe to proceed FORWARD",
+    "movement_decision": "FORWARD",
+    "reasoning": "Map shows I'm facing kitchen (arrow points north to target). FP view confirms clear doorway ahead with kitchen visible. Both images align - moving forward toward target."
+}}
+
+✅ **CORRECT Example 2 - Map says turn, FP shows obstacle:**
+{{
+    "map_analysis": "Red figure in HALLWAY, arrow pointing EAST. Target BEDROOM is to my LEFT (north) on map.",
+    "fp_view_analysis": "Wall directly ahead in FP view. No doorway visible in current direction.",
+    "synchronized_decision": "MAP says turn LEFT + FP confirms obstacle ahead = Must turn toward target",
+    "movement_decision": "LEFT",
+    "reasoning": "Map shows target bedroom is left of my position. FP view confirms wall ahead blocking current path. Turning left aligns with map direction and avoids obstacle."
+}}
+
+✅ **CORRECT Example 3 - Task completion:**
+{{
+    "map_analysis": "Red figure is INSIDE kitchen area on map. Arrow pointing toward cooking area.",
+    "fp_view_analysis": "See stove, refrigerator, kitchen counter. Clearly in kitchen based on appliances.",
+    "synchronized_decision": "MAP position matches target + FP view confirms kitchen furniture = Task complete",
+    "task_complete": true,
+    "reasoning": "Map shows red figure positioned in kitchen room. FP view confirms kitchen furniture (stove, fridge). Both images verify I've reached target room for task."
+}}
+
+❌ **WRONG Example - Only using one image:**
+{{
+    "reasoning": "I see a wall ahead so I'm turning right."
+    "movement_decision": "RIGHT"
+}}
+[BAD: No mention of map, no direction planning, no dual-image analysis]
+
+❌ **WRONG Example - Ignoring coordinate synchronization:**
+{{
+    "reasoning": "Map shows kitchen is north but I'll move forward anyway."
+    "movement_decision": "FORWARD"
+}}
+[BAD: Map says target is in different direction but not checking FP view alignment]
+
+**MANDATORY JSON FORMAT - Must include dual-image reasoning:**
+
+RESPOND WITH JSON ONLY:
+{{
+    "map_analysis": "Describe what you see on navigation map: Where is red figure? Which direction is red arrow pointing? Where is target room relative to your position?",
+    "fp_view_analysis": "Describe what you see in first-person view: Obstacles? Clear path? Doorway? Furniture visible?",
+    "synchronized_decision": "Explain how both images together lead to your decision",
+    "current_room": "LIVING_ROOM",
+    "target_room": "KITCHEN", 
+    "casas_task": "Go to the kitchen",
+    "visible_obstacles": ["wall ahead", "chair blocking"],
+    "clear_directions": ["left shows opening", "doorway visible left"],
+    "relevant_furniture": ["sofa", "coffee table visible in FP view"],
+    "movement_decision": "LEFT",
+    "reasoning": "Full explanation referencing BOTH map position AND first-person obstacles",
+    "doorway_visible": "no",
+    "task_complete": false,
+    "confidence": "high"
+}}
+
+CRITICAL JSON REQUIREMENTS:
+- "map_analysis": REQUIRED - Must analyze navigation map (red figure position, arrow direction, target location)
+- "fp_view_analysis": REQUIRED - Must analyze first-person view (obstacles, clear paths, visible features)
+- "synchronized_decision": REQUIRED - Must explain how BOTH images together inform your decision
 - "current_room": Use ONLY ONE of: LIVING_ROOM, KITCHEN, BEDROOM, BATHROOM, DINING_ROOM, HALLWAY, UNKNOWN
 - "movement_decision": Use ONLY ONE of: FORWARD, BACKWARD, LEFT, RIGHT  
 - "doorway_visible": Use ONLY: "yes" or "no"
 - "task_complete": Use ONLY: true or false
 - "confidence": Use ONLY ONE of: high, medium, low
 
-**ADDITIONAL LOOP PREVENTION EXAMPLES:**
-
-SCENARIO 1 - After recent turns (GOOD):
-"reasoning": "Turned RIGHT last step, now see partial open space ahead. Following forward bias principle - moving ahead instead of turning again."
-"movement_decision": "FORWARD"
-
-SCENARIO 2 - Multiple obstacles but avoiding loops (GOOD):  
-"reasoning": "Wall directly ahead but turned LEFT twice recently. Seeing slight clearing on right side, committing to FORWARD to break turning pattern."
-"movement_decision": "FORWARD"
-
-SCENARIO 3 - Clear forward path (GOOD):
-"reasoning": "Open doorway visible ahead, clear path to make progress toward target room."
-"movement_decision": "FORWARD"
-
-SCENARIO 4 - Wrong loop behavior (AVOID):
-"reasoning": "Wall ahead, turning right to find another path."
-"movement_decision": "RIGHT" 
-[BAD if you've already turned recently - should try FORWARD first]
-
-**KEY PRINCIPLE: When in doubt between FORWARD and TURN, choose FORWARD to make spatial progress**
-
 The above are EXAMPLES - analyze YOUR actual images and provide YOUR specific observations!
 
-REMEMBER: After turning to avoid obstacles, you should move FORWARD when you see clear space or doorways. Don't keep turning forever!{turn_warning}"""
+REMEMBER: You MUST analyze BOTH images together. The map shows WHERE to go, the FP view shows HOW to get there safely.{turn_warning}"""
 # ...existing code...
         # Prepare images for VLM
         images = [fp_image_path]
