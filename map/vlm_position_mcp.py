@@ -32,7 +32,8 @@ class VLMPositionMCP:
         
         print("🚀 VLM Position MCP Service initialized")
     
-    def estimate_and_generate_map(self, fp_view_path, task, vlm_func):
+    def estimate_and_generate_map(self, fp_view_path, task, vlm_func, 
+                                 actor_coordinates=None, actor_orientation=None):
         """
         Main MCP service function: estimate position and generate map
         
@@ -40,6 +41,8 @@ class VLMPositionMCP:
             fp_view_path: Path to first-person screenshot
             task: Current navigation task
             vlm_func: VLM completion function
+            actor_coordinates: BGE coordinates dict (optional hint)
+            actor_orientation: BGE orientation dict (optional hint)
             
         Returns:
             dict: {
@@ -51,12 +54,14 @@ class VLMPositionMCP:
         """
         
         try:
-            # Estimate position using VLM
+            # Estimate position using VLM (with coordinate hints if available)
             position_data = self.estimator.estimate_position(
                 fp_view_path,
                 task,
                 vlm_func,
-                previous_position=self.last_position
+                previous_position=self.last_position,
+                actor_coordinates=actor_coordinates,
+                actor_orientation=actor_orientation
             )
             
             if not position_data:
@@ -168,7 +173,8 @@ def get_mcp_instance(house_layout_path=None):
     return _mcp_instance
 
 
-def get_vlm_position_map(fp_view_path, task, vlm_func, house_layout_path=None):
+def get_vlm_position_map(fp_view_path, task, vlm_func, house_layout_path=None, 
+                        actor_coordinates=None, actor_orientation=None):
     """
     Convenience function for Blender integration
     
@@ -180,6 +186,8 @@ def get_vlm_position_map(fp_view_path, task, vlm_func, house_layout_path=None):
         task: Current navigation task
         vlm_func: VLM completion function
         house_layout_path: Path to house layout (optional, uses default)
+        actor_coordinates: BGE coordinates dict {'x': float, 'y': float, 'z': float} (optional hint)
+        actor_orientation: BGE orientation dict {'x': float, 'y': float, 'z': float} (optional hint)
         
     Returns:
         str or None: Path to generated map with VLM-estimated position
@@ -188,8 +196,14 @@ def get_vlm_position_map(fp_view_path, task, vlm_func, house_layout_path=None):
     # Get MCP instance (creates if doesn't exist)
     mcp = get_mcp_instance(house_layout_path)
     
-    # Estimate position and generate map
-    result = mcp.estimate_and_generate_map(fp_view_path, task, vlm_func)
+    # Estimate position and generate map with coordinate hints
+    result = mcp.estimate_and_generate_map(
+        fp_view_path, 
+        task, 
+        vlm_func,
+        actor_coordinates=actor_coordinates,
+        actor_orientation=actor_orientation
+    )
     
     if result['success']:
         print(f"✅ VLM position map generated: {Path(result['map_path']).name}")

@@ -70,7 +70,8 @@ class VLMPositionEstimator:
         print(f"🗺️ House layout: {self.house_layout_path.name} ({self.map_width}x{self.map_height})")
         print(f"📍 Session ID: {self.session_id}")
     
-    def estimate_position(self, fp_view_path, task, vlm_func, previous_position=None):
+    def estimate_position(self, fp_view_path, task, vlm_func, previous_position=None,
+                         actor_coordinates=None, actor_orientation=None):
         """
         Estimate actor position using VLM analysis
         
@@ -79,6 +80,8 @@ class VLMPositionEstimator:
             task: Current navigation task
             vlm_func: VLM function to call (from llm_client)
             previous_position: Previous estimated position dict or None
+            actor_coordinates: BGE coordinates dict {'x': float, 'y': float, 'z': float} (optional hint)
+            actor_orientation: BGE orientation dict {'x': float, 'y': float, 'z': float} (optional hint)
             
         Returns:
             dict: {
@@ -99,8 +102,9 @@ class VLMPositionEstimator:
         print(f"📸 Analyzing: {Path(fp_view_path).name}")
         print(f"🎯 Task: {task}")
         
-        # Create position estimation prompt
-        prompt = self._create_position_prompt(task, previous_position)
+        # Create position estimation prompt (with coordinate hints if available)
+        prompt = self._create_position_prompt(task, previous_position, 
+                                              actor_coordinates, actor_orientation)
         
         # Call VLM with both images
         images = [str(fp_view_path), str(self.house_layout_path)]
@@ -145,8 +149,9 @@ class VLMPositionEstimator:
         
         return None
     
-    def _create_position_prompt(self, task, previous_position):
-        """Create detailed VLM prompt for position estimation"""
+    def _create_position_prompt(self, task, previous_position, 
+                               actor_coordinates=None, actor_orientation=None):
+        """Create detailed VLM prompt for position estimation with coordinate hints"""
         
         prompt = f"""You are a visual localization AI. Analyze the first-person view and house layout to determine the actor's exact position.
 
@@ -165,6 +170,29 @@ Determine WHERE the actor is located in the house based on what they see in IMAG
 - Shows room boundaries and layout
 - Use this as reference for coordinate estimation
 
+**COORDINATE HINTS FROM BLENDER GAME ENGINE:**"""
+        
+        # Add BGE coordinate hints if available
+        if actor_coordinates and actor_orientation:
+            prompt += f"""
+✅ **Actor BGE Coordinates:** X={actor_coordinates['x']:.2f}, Y={actor_coordinates['y']:.2f}, Z={actor_coordinates['z']:.2f}
+✅ **Actor Orientation (Z-axis):** {actor_orientation['z']:.1f}°
+
+**IMPORTANT:** These are Blender 3D coordinates (NOT map coordinates). Use them as hints:
+- X/Y values help you understand which general area of the house the actor is in
+- Z-axis rotation (orientation['z']) indicates which direction the actor is facing:
+  * ~0° = Facing along positive X axis
+  * ~90° = Facing along positive Y axis  
+  * ~180° = Facing along negative X axis
+  * ~-90°/270° = Facing along negative Y axis
+- Combine these coordinate hints with visual landmarks to accurately place the actor on the house layout map
+"""
+        else:
+            prompt += """
+⚠️ **No BGE coordinates available** - Use visual analysis only
+"""
+        
+        prompt += """
 **ROOM LANDMARKS GUIDE:**
 """
         
@@ -319,8 +347,10 @@ Provide ONLY valid JSON, no additional text before or after.
         if output_path is None:
             output_dir = Path(__file__).parent / 'generated_maps'
             output_dir.mkdir(exist_ok=True)
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            output_path = output_dir / f'vlm_position_{timestamp}.png'
+            
+            # Use sequential numbering like position_mapper: navigation_context_###.png
+            map_number = self._get_next_map_number(output_dir)
+            output_path = output_dir / f'navigation_context_{map_number:03d}.png'
         else:
             output_path = Path(output_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -417,6 +447,33 @@ Provide ONLY valid JSON, no additional text before or after.
                          fill='rgb(255,255,255)')
             draw.text((10, text_y), line, fill='rgb(0,0,0)', font=font)
             text_y += 15
+    
+    def _get_next_map_number(self, output_dir):
+        """Get the next sequential map number based on existing files"""
+        try:
+            if not output_dir.exists():
+                return 1
+            
+            # Find all navigation context maps with numbers
+            existing_numbers = []
+            for filepath in output_dir.glob("navigation_context_*.png"):
+                try:
+                    # Extract number from filename like navigation_context_001.png
+                    number_part = filepath.stem.replace("navigation_context_", "")
+                    if number_part.isdigit():
+                        existing_numbers.append(int(number_part))
+                except:
+                    continue
+            
+            # Return next number in sequence
+            if existing_numbers:
+                return max(existing_numbers) + 1
+            else:
+                return 1
+                
+        except Exception as e:
+            print(f"⚠️ Error getting map number, using 1: {e}")
+            return 1
 
 
 # Standalone test function

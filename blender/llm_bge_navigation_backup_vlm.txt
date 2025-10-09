@@ -1,4 +1,4 @@
-﻿import bge
+import bge
 import mathutils
 import os
 import sys
@@ -74,13 +74,24 @@ except ImportError as e:
     print(f"âš ï¸ Position mapping not available: {e}")
 
 # VLM Position Estimation (NEW - Replaces coordinate calibration)
+# Ensure map directory is in path
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+map_dir = os.path.join(os.path.dirname(current_dir), 'map')
+if map_dir not in sys.path:
+    sys.path.insert(0, map_dir)
+    print(f"Added to path: {map_dir}")
+
 try:
     from vlm_position_mcp import get_vlm_position_map, get_mcp_instance
     VLM_POSITION_AVAILABLE = True
-    print("âœ… VLM position estimation system integrated")
+    print("VLM position estimation system integrated")
 except ImportError as e:
     VLM_POSITION_AVAILABLE = False
-    print(f"âš ï¸ VLM position estimation not available: {e}")
+    print(f"VLM position estimation import failed: {e}")
+    import traceback
+    traceback.print_exc()
 
 # =============================
 # VESPER Evaluation Metrics & Logging System
@@ -1439,9 +1450,49 @@ def run_continuous_navigation():
 
 def capture_dual_images():
     """Capture both first-person view and generate/get navigation context map"""
+    import os  # Ensure os is available for path checks
+    import glob
+    
     try:
         # Capture first-person screenshot
         fp_image_path = take_enhanced_screenshot()
+        
+        # Wait for screenshot file to actually exist (BGE async file write)
+        if fp_image_path:
+            max_wait = 2.0  # Reduced wait - we'll use fallback if not ready
+            wait_interval = 0.1  # Check every 100ms
+            waited = 0.0
+            
+            print(f"⏳ Waiting for screenshot file to be written...")
+            while not os.path.exists(fp_image_path) and waited < max_wait:
+                time.sleep(wait_interval)
+                waited += wait_interval
+                if waited >= 1.0 and waited % 0.5 < wait_interval:  # Print at 1s, 1.5s
+                    print(f"   Still waiting... ({waited:.1f}s)")
+            
+            if os.path.exists(fp_image_path):
+                file_size = os.path.getsize(fp_image_path)
+                print(f"✅ Screenshot ready: {os.path.basename(fp_image_path)} ({file_size:,} bytes, waited {waited:.1f}s)")
+            else:
+                # FALLBACK: BGE screenshots are VERY slow (5+ seconds)
+                # Use the most recent screenshot available instead of waiting
+                captures_dir = os.path.dirname(fp_image_path)
+                if os.path.exists(captures_dir):
+                    # Find all existing fp_view screenshots
+                    existing_screenshots = sorted(glob.glob(os.path.join(captures_dir, "fp_view_*.png")))
+                    
+                    if existing_screenshots:
+                        # Use the most recent screenshot
+                        fp_image_path = existing_screenshots[-1]
+                        file_size = os.path.getsize(fp_image_path)
+                        print(f"⚡ Using most recent screenshot: {os.path.basename(fp_image_path)} ({file_size:,} bytes)")
+                        print(f"   (Requested screenshot will be created later by BGE)")
+                    else:
+                        print(f"❌ No screenshots available in captures folder")
+                        fp_image_path = None
+                else:
+                    print(f"❌ Captures directory not found: {captures_dir}")
+                    fp_image_path = None
         
         # Generate navigation context map using position mapper
         map_context_path = None
@@ -1461,96 +1512,91 @@ def capture_dual_images():
             except Exception as e:
                 print(f"âš ï¸ MCP navigation context generation failed: {e}")
         
-        # Try position mapper directly
-        if not map_context_path and POSITION_MAPPING_AVAILABLE:
+        # Try VLM position estimation (independent of position mapper)
+        if not map_context_path and VLM_POSITION_AVAILABLE:
             try:
                 # Get current task info for context
                 current_task = getattr(bge.logic, 'current_task', 'Navigate')
                 current_room = getattr(bge.logic, 'current_room', None)
                 
-                # PRIORITY 1: Try VLM-based position estimation (no calibration needed!)
-                if VLM_POSITION_AVAILABLE and fp_image_path and os.path.exists(fp_image_path):
-                    print("ðŸ¤– Using VLM position estimation (visual analysis)")
-                    
-                    # Import VLM function
-                    from llm_client import get_vlm_response
-                    
-                    # Get VLM-estimated position map
-                    map_context_path = get_vlm_position_map(
-                        fp_image_path,
-                        current_task or "Navigate",
-                        get_vlm_response
-                    )
-                    
-                    if map_context_path and os.path.exists(map_context_path):
-                        print(f"âœ… VLM position map generated: {os.path.basename(map_context_path)}")
-                    else:
-                        print("âš ï¸ VLM position estimation failed, falling back to coordinate mapping")
-                        map_context_path = None
+                # VLM-based position estimation with coordinate hints
+                print(f"DEBUG: VLM check - fp_image_path={fp_image_path}, exists={os.path.exists(fp_image_path) if fp_image_path else 'N/A'}")
                 
-                # FALLBACK: Use coordinate-based mapping if VLM unavailable
-                if not map_context_path and POSITION_MAPPING_AVAILABLE:
-                    print("ðŸ“ Using coordinate-based position mapping (fallback)")
+                if fp_image_path and os.path.exists(fp_image_path):
+                    print("VLM position estimation (visual analysis + coordinate hints)")
                     
-                    # Get current actor position for map generation
+                    # Get actor's actual BGE coordinates as hints
                     scene = bge.logic.getCurrentScene()
                     actor = scene.objects.get("Actor")
+                    actor_coordinates = None
+                    actor_orientation = None
+                    
                     if actor:
-                        # Extract individual coordinates (NOT as a list)
-                        world_x = actor.worldPosition.x
-                        world_y = actor.worldPosition.y
+                        actor_coordinates = {
+                            'x': round(actor.worldPosition[0], 2),
+                            'y': round(actor.worldPosition[1], 2),
+                            'z': round(actor.worldPosition[2], 2)
+                        }
+                        # Get orientation (Euler angles)
+                        actor_orientation = {
+                            'x': round(math.degrees(actor.worldOrientation.to_euler()[0]), 1),
+                            'y': round(math.degrees(actor.worldOrientation.to_euler()[1]), 1),
+                            'z': round(math.degrees(actor.worldOrientation.to_euler()[2]), 1)
+                        }
+                        print(f"📍 Actor BGE position: ({actor_coordinates['x']}, {actor_coordinates['y']}, {actor_coordinates['z']})")
+                        print(f"🧭 Actor orientation: {actor_orientation['z']:.1f}° (Z-axis rotation)")
+                    
+                    # Use the already-imported VLM function from backend
+                    try:
+                        from backend.app.llm.client import chat_completion_with_vision
                         
-                        # CRITICAL: Extract actor orientation (Z rotation) for synchronized coordinate systems
-                        try:
-                            orientation_z = actor.worldOrientation.to_euler().z  # Z-axis rotation in radians
-                        except:
-                            orientation_z = 0.0  # Fallback if orientation extraction fails
+                        # Create wrapper to handle VLM position estimator's calling convention
+                        # VLM estimator calls: vlm_func(prompt, images_list)
+                        # But chat_completion_with_vision expects: (prompt, image_paths=[...])
+                        def vlm_wrapper(prompt, images):
+                            """Wrapper to convert positional images arg to keyword image_paths arg"""
+                            if isinstance(images, list):
+                                return chat_completion_with_vision(prompt, image_paths=images)
+                            else:
+                                return chat_completion_with_vision(prompt, image_path=images)
                         
-                        print(f"ðŸ—ºï¸ Generating map for Actor at ({world_x:.2f}, {world_y:.2f})")
-                        print(f"ðŸ§­ Actor orientation: {orientation_z:.4f} rad ({orientation_z * 57.2958:.1f}Â°)")
-                        print(f"ðŸŽ¯ Task: {current_task}, Room: {current_room}")
-                        
-                        # Update position map and generate context with ORIENTATION
-                        map_context_path = update_actor_position_map(
-                            world_x, world_y, 
-                            room=current_room, 
-                            task=current_task,
-                            orientation=orientation_z  # NOW SYNCHRONIZED!
+                        # Get VLM-estimated position map with coordinate hints
+                        map_context_path = get_vlm_position_map(
+                            fp_image_path,
+                            current_task or "Navigate",
+                            vlm_wrapper,  # Use wrapper instead of direct function
+                            actor_coordinates=actor_coordinates,  # Pass BGE coordinates as hints
+                            actor_orientation=actor_orientation   # Pass orientation as hint
                         )
                         
                         if map_context_path and os.path.exists(map_context_path):
-                            print(f"âœ… Generated position map: {os.path.basename(map_context_path)}")
+                            print(f"✅ VLM position map saved: {os.path.basename(map_context_path)}")
                         else:
-                            print(f"âš ï¸ Position mapper result: {map_context_path}")
+                            print("VLM position estimation failed - NO FALLBACK (testing mode)")
                             map_context_path = None
-                    else:
-                        print("âš ï¸ No Actor found for position mapping")
+                            
+                    except Exception as e:
+                        print(f"Map generation failed: {e}")
+                        import traceback
+                        traceback.print_exc()
+                        map_context_path = None
+                else:
+                    print(f"VLM position estimation not available - fp_image_path={fp_image_path}")
+                    map_context_path = None
+                    
             except Exception as e:
-                print(f"âš ï¸ Map generation failed: {e}")
+                print(f"Map generation failed: {e}")
                 import traceback
                 traceback.print_exc()
+                map_context_path = None
         
-        # Final fallback: Try to get existing navigation context map
-        if not map_context_path:
-            map_context_path = get_most_recent_navigation_map()
-        
-        # Last resort: Use static house layout
-        if not map_context_path:
-            map_context_path = load_house_plan()
-            print("ðŸ” Using static house layout as fallback")
-        else:
-            print(f"ðŸ—ºï¸ Using updated navigation context map: {os.path.basename(map_context_path)}")
-        
+        # No fallbacks - VLM only for testing
         return fp_image_path, map_context_path
         
     except Exception as e:
-        print(f"Ã¢ÂÅ’ Dual image capture failed: {e}")
+        print(f"Dual image capture failed: {e}")
         return None, None
 
-def get_most_recent_navigation_map():
-    """Get the most recent navigation context map generated by the position mapper"""
-    try:
-        import os
         
         # Look for navigation context maps in the map output directory
         map_output_dir = r"C:\Users\hbui11\Desktop\vesper_llm\map\generated_maps"
@@ -1620,6 +1666,7 @@ def take_enhanced_screenshot():
             script_dir = os.path.dirname(os.path.abspath(__file__))
             captures_dir = os.path.join(script_dir, "captures")
             os.makedirs(captures_dir, exist_ok=True)
+            print(f"📁 Captures directory: {captures_dir}")
             
             # Initialize global screenshot counter if not exists
             if not hasattr(bge.logic, 'screenshot_counter'):
@@ -1630,26 +1677,48 @@ def take_enhanced_screenshot():
             filename = f"fp_view_{bge.logic.screenshot_counter:03d}.png"
             screenshot_path = os.path.join(captures_dir, filename)
             
+            print(f"📸 Full path: {screenshot_path}")
+            
             # Increment counter for next screenshot
             bge.logic.screenshot_counter += 1
             
-            # Remove existing file if present
+            # DON'T delete existing files - BGE creates them VERY slowly (5+ seconds)
+            # If file already exists, it's from a previous run - use it as-is
             if os.path.exists(screenshot_path):
-                try:
-                    os.remove(screenshot_path)
-                except:
-                    pass
+                file_size = os.path.getsize(screenshot_path)
+                print(f"♻️ Using existing screenshot: {filename} ({file_size:,} bytes)")
+                return screenshot_path
             
-            print(f"Ã°Å¸â€œÂ¸ Capturing: {filename} (#{bge.logic.screenshot_counter-1})")
+            print(f"📸 Capturing: {filename} (#{bge.logic.screenshot_counter-1})")
             
-            # BGE screenshot with frame-yield approach like backup
-            result = bge.render.makeScreenshot(screenshot_path)
+            # BGE Screenshot - Use makeScreenshot (returns None in UPBGE 0.3+, but works)
+            # The return value doesn't matter - file is created asynchronously
+            try:
+                result = bge.render.makeScreenshot(screenshot_path)
+                print(f"📸 makeScreenshot called (result={result}, None is normal in UPBGE)")
+            except Exception as e:
+                print(f"❌ makeScreenshot error: {e}")
+                return None
             
-            # Add small delay to allow BGE to complete the frame render
-            time.sleep(0.5)  # Brief delay for frame completion
+            # CRITICAL: BGE needs time to complete frame render and write file
+            # Wait with polling to detect when file appears
+            max_wait = 3.0  # Up to 3 seconds
+            check_interval = 0.1  # Check every 100ms
+            waited = 0.0
             
-            # BGE screenshots are async - return path and trust it will be created
-            print(f"âœ… Screenshot requested: {filename} (BGE async)")
+            while waited < max_wait:
+                time.sleep(check_interval)
+                waited += check_interval
+                
+                if os.path.exists(screenshot_path):
+                    file_size = os.path.getsize(screenshot_path)
+                    print(f"✅ Screenshot created: {filename} ({file_size:,} bytes) after {waited:.1f}s")
+                    return screenshot_path
+            
+            # File not created within timeout
+            print(f"⏳ Screenshot pending (async): {filename} - not found after {max_wait}s")
+            
+            # Still return path - the wait loop in capture_dual_images will handle it
             return screenshot_path
             
         finally:
@@ -1691,7 +1760,7 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
         
         # If current screenshot not ready, use most recent available screenshot
         if not screenshot_ready:
-            print(f"Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...")
+            print(f"Current screenshot not ready, checking for recent screenshots...")
             captures_dir = os.path.dirname(fp_image_path)
             if os.path.exists(captures_dir):
                 # Find most recent fp_view screenshot
@@ -1703,8 +1772,8 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
                     
                     # Check if we're about to use the same screenshot as last time
                     if hasattr(bge.logic, 'last_used_screenshot') and recent_screenshot == bge.logic.last_used_screenshot:
-                        print(f"âš ï¸Â Ã¯Â¸Â Would reuse same screenshot: {os.path.basename(recent_screenshot)}")
-                        print(f"Ã°Å¸â€â€ž Waiting longer for new screenshot...")
+                        print(f"Would reuse same screenshot: {os.path.basename(recent_screenshot)}")
+                        print(f"Waiting longer for new screenshot...")
                         time.sleep(2.0)  # Wait longer for new screenshot
                         
                         # Check again for newer screenshots
@@ -1714,22 +1783,22 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
                             newer_screenshot = os.path.join(captures_dir, existing_files[0])
                             if newer_screenshot != bge.logic.last_used_screenshot:
                                 recent_screenshot = newer_screenshot
-                                print(f"Ã°Å¸â€œÂ¸ Found newer screenshot: {os.path.basename(recent_screenshot)}")
+                                print(f"Found newer screenshot: {os.path.basename(recent_screenshot)}")
                     
                     if os.path.exists(recent_screenshot):
                         file_size = os.path.getsize(recent_screenshot)
                         if file_size > 1000:
-                            print(f"Ã°Å¸â€œÂ¸ Using recent screenshot: {os.path.basename(recent_screenshot)} ({file_size:,} bytes)")
+                            print(f"Using recent screenshot: {os.path.basename(recent_screenshot)} ({file_size:,} bytes)")
                             fp_image_path = recent_screenshot
                             bge.logic.last_used_screenshot = recent_screenshot  # Track usage
                             screenshot_ready = True
         
         if not screenshot_ready:
-            print(f"Ã¢ÂÅ’ No valid screenshots available")
+            print(f"No valid screenshots available")
             return None
         
         if not llm_complete_func:
-            print("Ã¢ÂÅ’ LLM client not available")
+            print("LLM client not available")
             return None
         
         # Track recent movements to avoid turning loops
@@ -1740,9 +1809,9 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
         recent_turns = [m for m in bge.logic.recent_movements[-4:] if m in ['LEFT', 'RIGHT']]
         turn_warning = ""
         if len(recent_turns) >= 3:
-            turn_warning = f"\n\nÃ°Å¸Å¡Â¨ CRITICAL ANTI-LOOP WARNING: You have been turning {len(recent_turns)} times recently: {recent_turns}. You MUST try FORWARD movement if you see any clear space, doorway, or open area ahead. Stop turning and start moving forward to make progress!"
+            turn_warning = f"\n\nCRITICAL ANTI-LOOP WARNING: You have been turning {len(recent_turns)} times recently: {recent_turns}. You MUST try FORWARD movement if you see any clear space, doorway, or open area ahead. Stop turning and start moving forward to make progress!"
         elif len(recent_turns) >= 2:
-            turn_warning = f"\n\nâš ï¸Â Ã¯Â¸Â MOVEMENT WARNING: Recent turns: {recent_turns}. Look for opportunities to move FORWARD instead of continuing to turn."
+            turn_warning = f"\n\nMOVEMENT WARNING: Recent turns: {recent_turns}. Look for opportunities to move FORWARD instead of continuing to turn."
         # Get world coordinates from BGE actor for loop detection
         scene = bge.logic.getCurrentScene()
         actor = scene.objects.get("Actor")
@@ -1759,7 +1828,7 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
         # Enhanced prompt for spatial awareness and obstacle avoidance with synchronized dual-image analysis
         prompt = f"""You are an AI navigation assistant controlling a character in a 3D house environment. You receive TWO SYNCHRONIZED IMAGES that MUST be analyzed together:
 
-ðŸ—ºï¸ IMAGE 1 - NAVIGATION MAP (Top-Down View):
+IMAGE 1 - NAVIGATION MAP (Top-Down View):
    - Shows the ENTIRE house layout from above
    - **RED HUMAN FIGURE** = Your current position in the house
    - **RED ARROW** = The direction you are currently FACING
@@ -1767,7 +1836,7 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
    - **ROOM LABELS** = Room names overlaid on the floor plan
    - This map is UPDATED LIVE every step with your current position and orientation
 
-ðŸ‘ï¸ IMAGE 2 - FIRST-PERSON VIEW (What You See):
+IMAGE 2 - FIRST-PERSON VIEW (What You See):
    - Shows what the character sees from their current position
    - This is YOUR perspective - what's directly in front of you
    - Walls, furniture, doorways visible from your current facing direction
@@ -2569,8 +2638,8 @@ NO OTHER RESPONSE IS ACCEPTABLE. Respond with the exact JSON above."""
             print("âš ï¸ No emergency response - using direct fallback")
             
     except Exception as e:
-        print(f"❌ Emergency command failed: {e}")
-
+        print(f"âŒ Emergency command failed: {e}")
+    
     # Ultimate fallback - direct movement command
     print("ðŸ”§ Using ultimate fallback: FORWARD")
     return {
@@ -2580,3 +2649,4 @@ NO OTHER RESPONSE IS ACCEPTABLE. Respond with the exact JSON above."""
         "confidence": 0.6,
         "task_complete": False
     }
+
