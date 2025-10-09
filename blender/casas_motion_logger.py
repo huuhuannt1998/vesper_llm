@@ -43,10 +43,15 @@ class CASASMotionSensorLogger:
         print("📡 CASAS motion sensor logger initialized")
         
     def check_motion_sensors(self, actor_position, timestamp):
-        """Check which motion sensors should be activated based on actor position"""
+        """
+        Check which motion sensors should be activated based on actor position
+        Returns list of sensor events for VESPER JSON logging
+        """
+        events = []
+        
         try:
             if not bge:
-                return
+                return events
                 
             scene = bge.logic.getCurrentScene()
             currently_active = set()
@@ -67,18 +72,36 @@ class CASASMotionSensorLogger:
                     if in_area:
                         currently_active.add(sensor_name)
             
-            # Log activations (ON events)
+            # Detect activations (ON events)
             for sensor in currently_active - self.active_sensors:
                 self.log_sensor_activation(sensor, timestamp, 'ON')
+                # Add event for VESPER JSON logging
+                events.append({
+                    'sensor_name': sensor,
+                    'sensor_id': self.sensor_mapping[sensor],
+                    'room': self.location_mapping[sensor],
+                    'event': 'ON',
+                    'timestamp': timestamp
+                })
                 
-            # Log deactivations (OFF events) 
+            # Detect deactivations (OFF events) 
             for sensor in self.active_sensors - currently_active:
                 self.log_sensor_activation(sensor, timestamp, 'OFF')
+                # Add event for VESPER JSON logging
+                events.append({
+                    'sensor_name': sensor,
+                    'sensor_id': self.sensor_mapping[sensor],
+                    'room': self.location_mapping[sensor],
+                    'event': 'OFF',
+                    'timestamp': timestamp
+                })
                 
             self.active_sensors = currently_active
             
         except Exception as e:
             print(f"⚠️ Motion sensor check failed: {e}")
+        
+        return events  # Return events for VESPER JSON logging
             
     def is_actor_in_detection_area(self, actor_pos, detection_area):
         """Check if actor is within detection area bounds"""
@@ -91,8 +114,8 @@ class CASASMotionSensorLogger:
             dx = abs(actor_pos[0] - area_pos[0])
             dy = abs(actor_pos[1] - area_pos[1])
             
-            # Check if within scaled bounds (1.5x scale for coverage)
-            return dx <= area_scale[0] * 1.5 and dy <= area_scale[1] * 1.5
+            # Check if within scaled bounds (5.0x scale for better coverage)
+            return dx <= area_scale[0] * 5.0 and dy <= area_scale[1] * 5.0
             
         except Exception as e:
             print(f"⚠️ Detection area check failed: {e}")

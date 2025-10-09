@@ -1,4 +1,4 @@
-import bge
+﻿import bge
 import mathutils
 import os
 import sys
@@ -17,7 +17,7 @@ try:
     CASAS_LOGGER_AVAILABLE = True
 except ImportError:
     CASAS_LOGGER_AVAILABLE = False
-    print("⚠️ CASAS motion logger not available")
+    print("âš ï¸ CASAS motion logger not available")
 
 try:
     from enhanced_vlm_extensions import (
@@ -68,10 +68,19 @@ try:
         enhanced_analyze_dual_image_navigation
     )
     POSITION_MAPPING_AVAILABLE = True
-    print("✅ Position mapping system integrated")
+    print("âœ… Position mapping system integrated")
 except ImportError as e:
     POSITION_MAPPING_AVAILABLE = False
-    print(f"⚠️ Position mapping not available: {e}")
+    print(f"âš ï¸ Position mapping not available: {e}")
+
+# VLM Position Estimation (NEW - Replaces coordinate calibration)
+try:
+    from vlm_position_mcp import get_vlm_position_map, get_mcp_instance
+    VLM_POSITION_AVAILABLE = True
+    print("âœ… VLM position estimation system integrated")
+except ImportError as e:
+    VLM_POSITION_AVAILABLE = False
+    print(f"âš ï¸ VLM position estimation not available: {e}")
 
 # =============================
 # VESPER Evaluation Metrics & Logging System
@@ -105,13 +114,14 @@ class VESPERMetricsLogger:
             "total_llm_calls": 0,
             "total_device_interactions": 0,
             "total_subtasks_completed": 0,
+            "virtual_sensor_events": [],  # Track virtual motion sensor activations
             "task_details": []
         }
         
         # Current task tracking
         self.current_task_data = None
         
-        print(f"✅ VESPER Metrics initialized - Session: {self.session_id}")
+        print(f"âœ… VESPER Metrics initialized - Session: {self.session_id}")
 
     def start_task(self, task_name, task_index):
         """Log the start of a new task"""
@@ -184,7 +194,7 @@ class VESPERMetricsLogger:
         # Auto-export datasets every 10 steps as safety backup
         if self.session_data["total_steps"] % 10 == 0:
             if hasattr(self, '_export_datasets'):
-                print(f"💾 Auto-export at step {self.session_data['total_steps']}")
+                print(f"ðŸ’¾ Auto-export at step {self.session_data['total_steps']}")
                 self._export_datasets()
         
         print(f"METRICS: Step {step_number} - {action} from [{old_pos[0]:.1f}, {old_pos[1]:.1f}] to [{new_pos[0]:.1f}, {new_pos[1]:.1f}]")
@@ -225,8 +235,33 @@ class VESPERMetricsLogger:
         
         timeout_msg = " (TIMEOUT)" if timeout else ""
         time_msg = f" ({response_time:.1f}s)" if response_time else ""
-        print(f"ðŸ§  METRICS: LLM Call {self.session_data['total_llm_calls']}{timeout_msg}{time_msg} - Room: {room_detected}, Task Complete: {task_complete}")
+        print(f"Ã°Å¸Â§Â  METRICS: LLM Call {self.session_data['total_llm_calls']}{timeout_msg}{time_msg} - Room: {room_detected}, Task Complete: {task_complete}")
     
+
+    def log_sensor_event(self, sensor_name, sensor_id, room, event_type, position, timestamp):
+        """Log virtual motion sensor activation/deactivation for VESPER dataset"""
+        event = {
+            "timestamp": timestamp,
+            "sensor_name": sensor_name,
+            "sensor_id": sensor_id,
+            "room": room,
+            "event": event_type,  # "ON" or "OFF"
+            "position": [round(position[0], 2), round(position[1], 2)]
+        }
+        
+        self.session_data["virtual_sensor_events"].append(event)
+        
+        # Also add to current task if active
+        if self.current_task_data:
+            if "sensor_events" not in self.current_task_data:
+                self.current_task_data["sensor_events"] = []
+            self.current_task_data["sensor_events"].append(event)
+        
+        print(f" VESPER Sensor: {sensor_name} ({sensor_id}) {room} {event_type} at [{position[0]:.2f}, {position[1]:.2f}]")
+        
+        # Save to file immediately
+        self._log_to_file()
+
     def complete_task(self, success=True, failure_reason=None, final_position=None):
         """Mark current task as completed"""
         if self.current_task_data:
@@ -239,10 +274,10 @@ class VESPERMetricsLogger:
             # Update session totals
             if success:
                 self.session_data["tasks_completed"] += 1
-                print(f"✅ METRICS: Task COMPLETED in {completion_time:.1f}s with {self.current_task_data['steps_taken']} steps")
+                print(f"âœ… METRICS: Task COMPLETED in {completion_time:.1f}s with {self.current_task_data['steps_taken']} steps")
             else:
                 self.session_data["tasks_failed"] += 1
-                print(f"âŒ METRICS: Task FAILED after {completion_time:.1f}s - {failure_reason}")
+                print(f"Ã¢ÂÅ’ METRICS: Task FAILED after {completion_time:.1f}s - {failure_reason}")
             
             # Task is already in session_data["task_details"], just reset current_task_data
             self.current_task_data = None
@@ -259,20 +294,20 @@ class VESPERMetricsLogger:
         print("\n" + "="*60)
         print("VESPER NAVIGATION METRICS SUMMARY")
         print("="*60)
-        print(f"📅  Session Duration: {session_time:.1f}s")
-        print(f"🎯 Tasks Completed: {self.session_data['tasks_completed']}/{total_tasks} ({success_rate:.1f}%)")
-        print(f"📊 Total Steps: {self.session_data['total_steps']}")
-        print(f"📸 Screenshots Taken: {self.session_data['total_screenshots']}")
-        print(f"📅 LLM Calls Made: {self.session_data['total_llm_calls']}")
+        print(f"ðŸ“…  Session Duration: {session_time:.1f}s")
+        print(f"ðŸŽ¯ Tasks Completed: {self.session_data['tasks_completed']}/{total_tasks} ({success_rate:.1f}%)")
+        print(f"ðŸ“Š Total Steps: {self.session_data['total_steps']}")
+        print(f"ðŸ“¸ Screenshots Taken: {self.session_data['total_screenshots']}")
+        print(f"ðŸ“… LLM Calls Made: {self.session_data['total_llm_calls']}")
 
         if self.session_data["task_details"]:
             avg_steps = sum(task["steps_taken"] for task in self.session_data["task_details"]) / len(self.session_data["task_details"])
             avg_time = sum(task["completion_time"] for task in self.session_data["task_details"] if task["completion_time"]) / len([t for t in self.session_data["task_details"] if t["completion_time"]])
-            print(f"🧠 Average Steps per Task: {avg_steps:.1f}")
-            print(f"🧠 Average Time per Task: {avg_time:.1f}s")
+            print(f"ðŸ§  Average Steps per Task: {avg_steps:.1f}")
+            print(f"ðŸ§  Average Time per Task: {avg_time:.1f}s")
         
         print("="*60)
-        print(f"📁 Full log saved to: {self.log_file}")
+        print(f"ðŸ“ Full log saved to: {self.log_file}")
         print("="*60 + "\n")
         
         # Export datasets when task completes
@@ -285,7 +320,7 @@ class VESPERMetricsLogger:
             with open(self.log_file, 'w', encoding='utf-8') as f:
                 json.dump(self.session_data, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            print(f"⚠️ ï¸ METRICS: Failed to save log file - {e}")
+            print(f"âš ï¸Â Ã¯Â¸Â METRICS: Failed to save log file - {e}")
 
 # Initialize global metrics logger
 metrics_logger = None
@@ -300,20 +335,14 @@ def get_metrics_logger():
             def _export_datasets(self):
                 """Export all VESPER datasets to production folder"""
                 try:
-                    # 1. Export CASAS motion sensor data
-                    if hasattr(bge.logic, 'casas_motion_logger'):
-                        casas_file = bge.logic.casas_motion_logger.export_casas_sensor_data(self.session_id)
-                        if casas_file:
-                            print(f"✅ CASAS: {os.path.basename(casas_file)}")
-                    
-                    # 2. Export VLM metrics JSON
+                    # Export VESPER metrics JSON (CASAS .txt removed - that's ground truth)
                     metrics_file = os.path.join(self.dataset_dir, f"vesper_metrics_p01_{self.session_id}.json")
                     with open(metrics_file, 'w', encoding='utf-8') as f:
                         json.dump(self.session_data, f, indent=2, ensure_ascii=False)
-                    print(f"✅ Metrics: {os.path.basename(metrics_file)}")
-                    print(f"📁 Location: {self.dataset_dir}")
+                    print(f"âœ… Metrics: {os.path.basename(metrics_file)}")
+                    print(f"ðŸ“ Location: {self.dataset_dir}")
                 except Exception as e:
-                    print(f"❌ Export error: {e}")
+                    print(f"âŒ Export error: {e}")
             
             import types
             metrics_logger._export_datasets = types.MethodType(_export_datasets, metrics_logger)
@@ -324,12 +353,12 @@ def debug_scene_objects():
     """Debug function to list all objects in the scene"""
     try:
         scene = bge.logic.getCurrentScene()
-        print("\n🔍 DEBUG: Scene Objects Analysis")
+        print("\nðŸ” DEBUG: Scene Objects Analysis")
         print("=" * 40)
         
         # BGE objects is an EXP_ListValue, not a dict
         all_objects = [obj.name for obj in scene.objects]
-        print(f"🧠 Total objects in scene: {len(all_objects)}")
+        print(f"ðŸ§  Total objects in scene: {len(all_objects)}")
         
         # Look for potential actors
         actor_candidates = []
@@ -341,11 +370,11 @@ def debug_scene_objects():
             if any(keyword in obj_name.lower() for keyword in ['camera', 'cam', 'fp']):
                 camera_candidates.append(obj_name)
 
-        print(f"🎭 Potential actors: {actor_candidates}")
-        print(f"📷 Potential cameras: {camera_candidates}")
+        print(f"ðŸŽ­ Potential actors: {actor_candidates}")
+        print(f"ðŸ“· Potential cameras: {camera_candidates}")
 
         # Show first 20 objects with their positions
-        print(f"🔍 First 20 objects:")
+        print(f"ðŸ” First 20 objects:")
         for i, obj_name in enumerate(all_objects[:20]):
             try:
                 obj = scene.objects[obj_name]
@@ -360,14 +389,14 @@ def debug_scene_objects():
         print("=" * 40)
         
     except Exception as e:
-        print(f"🔍 Debug error: {e}")
+        print(f"ðŸ” Debug error: {e}")
         import traceback
         traceback.print_exc()
 
 def reset_screenshot_counter():
     """Reset the screenshot counter to start from 001 again"""
     bge.logic.screenshot_counter = 1
-    print("📸 Screenshot counter reset to 001")
+    print("ðŸ“¸ Screenshot counter reset to 001")
 
 # Global variables
 llm_complete_func = None
@@ -386,11 +415,11 @@ def setup_python_path():
         if parent_dir not in sys.path:
             sys.path.insert(0, parent_dir)
         
-        print(f"✅ Python path configured: {current_dir}")
+        print(f"âœ… Python path configured: {current_dir}")
         return True
         
     except Exception as e:
-        print(f"🔍 Python path setup failed: {e}")
+        print(f"ðŸ” Python path setup failed: {e}")
         return False
 
 def initialize_llm_client():
@@ -406,12 +435,12 @@ def initialize_llm_client():
         openwebui_model = os.getenv("OPENWEBUI_MODEL", "OpenGVLab/InternVL3_5-30B-A3B")
         openwebui_url = os.getenv("OPENWEBUI_URL", "http://cci-siscluster1.charlotte.edu:8080/api/chat/completions")
         
-        print(f"🔧 BGE Navigation LLM Configuration:")
+        print(f"ðŸ”§ BGE Navigation LLM Configuration:")
         if use_openwebui:
-            print(f"  🚀 Using Open WebUI Server: {openwebui_url}")
-            print(f"  🤖 Model: {openwebui_model}")
+            print(f"  ðŸš€ Using Open WebUI Server: {openwebui_url}")
+            print(f"  ðŸ¤– Model: {openwebui_model}")
         else:
-            print(f"  📝 Using Ollama (fallback mode)")
+            print(f"  ðŸ“ Using Ollama (fallback mode)")
         
         # Import VLM client from backend
         from backend.app.llm.client import chat_completion_with_vision
@@ -421,14 +450,14 @@ def initialize_llm_client():
             """Wrapper to handle BGE navigation's image list format with true dual-image support"""
             try:
                 if not images or len(images) == 0:
-                    print("⚠️ No images provided to VLM")
+                    print("âš ï¸ No images provided to VLM")
                     return None
                 
                 if len(images) > 1:
                     # Send both FP view and navigation map to VLM
-                    print(f"🔍 Using dual-image VLM navigation (total images: {len(images)})")
-                    print(f"📷 Image 1: {os.path.basename(images[0])} (FP view)")
-                    print(f"📷 Image 2: {os.path.basename(images[1])} (navigation map)")
+                    print(f"ðŸ” Using dual-image VLM navigation (total images: {len(images)})")
+                    print(f"ðŸ“· Image 1: {os.path.basename(images[0])} (FP view)")
+                    print(f"ðŸ“· Image 2: {os.path.basename(images[1])} (navigation map)")
                     
                     # Enhanced prompt for dual-image analysis
                     enhanced_prompt = f"""You are analyzing TWO images for navigation:
@@ -442,23 +471,23 @@ Analyze BOTH images together - use the first-person view to see obstacles and th
                     result = chat_completion_with_vision(enhanced_prompt, image_paths=images)
                 else:
                     # Single image (FP view only)
-                    print(f"🔍 Using first-person image only")
+                    print(f"ðŸ” Using first-person image only")
                     result = chat_completion_with_vision(prompt, image_path=images[0])
                 
                 return result
                 
             except Exception as e:
-                print(f"🔍 VLM wrapper error: {e}")
+                print(f"ðŸ” VLM wrapper error: {e}")
                 return None
         
         llm_complete_func = vlm_wrapper
-        print("✅ LLM client initialized successfully with VLM wrapper")
+        print("âœ… LLM client initialized successfully with VLM wrapper")
         if use_openwebui:
-            print(f"🎭 BGE Navigation connected to Open WebUI model: {openwebui_model}")
+            print(f"ðŸŽ­ BGE Navigation connected to Open WebUI model: {openwebui_model}")
         return True
         
     except Exception as e:
-        print(f"🔍 LLM client initialization failed: {e}")
+        print(f"ðŸ” LLM client initialization failed: {e}")
         # Try fallback import
         try:
             from backend.app.llm.client import chat_completion
@@ -466,15 +495,15 @@ Analyze BOTH images together - use the first-person view to see obstacles and th
             # Create text-only wrapper
             def text_wrapper(prompt, images=None):
                 if images and len(images) > 0:
-                    print(f"⚠️Using text-only completion (images provided: {len(images)})")
+                    print(f"âš ï¸Using text-only completion (images provided: {len(images)})")
                 return chat_completion("You are a helpful assistant.", prompt)
             
             llm_complete_func = text_wrapper
-            print("✅ LLM client initialized with text-only fallback")
+            print("âœ… LLM client initialized with text-only fallback")
             return True
             
         except Exception as fallback_e:
-            print(f"🔍 Fallback LLM initialization failed: {fallback_e}")
+            print(f"ðŸ” Fallback LLM initialization failed: {fallback_e}")
             return False
 
 def diagnose_camera_view():
@@ -485,7 +514,7 @@ def diagnose_camera_view():
         fp_camera = scene.objects.get("Actor_FPCamera")
         
         if not actor or not fp_camera:
-            print("🔍 Missing actor or camera for diagnosis")
+            print("ðŸ” Missing actor or camera for diagnosis")
             return
         
         # Check camera position relative to actor
@@ -495,12 +524,12 @@ def diagnose_camera_view():
                    (cam_pos[1] - actor_pos[1])**2 + 
                    (cam_pos[2] - actor_pos[2])**2)**0.5
 
-        print(f"🔍 Camera Diagnosis:")
-        print(f"  🔍 Actor position: [{actor_pos[0]:.2f}, {actor_pos[1]:.2f}, {actor_pos[2]:.2f}]")
-        print(f"  🔍 Camera position: [{cam_pos[0]:.2f}, {cam_pos[1]:.2f}, {cam_pos[2]:.2f}]")
-        print(f"  🔍 Distance from actor: {distance:.2f}")
-        print(f"  🔍 Near clipping: {getattr(fp_camera, 'near', 'unknown')}")
-        print(f"  🔍 Far clipping: {getattr(fp_camera, 'far', 'unknown')}")
+        print(f"ðŸ” Camera Diagnosis:")
+        print(f"  ðŸ” Actor position: [{actor_pos[0]:.2f}, {actor_pos[1]:.2f}, {actor_pos[2]:.2f}]")
+        print(f"  ðŸ” Camera position: [{cam_pos[0]:.2f}, {cam_pos[1]:.2f}, {cam_pos[2]:.2f}]")
+        print(f"  ðŸ” Distance from actor: {distance:.2f}")
+        print(f"  ðŸ” Near clipping: {getattr(fp_camera, 'near', 'unknown')}")
+        print(f"  ðŸ” Far clipping: {getattr(fp_camera, 'far', 'unknown')}")
 
         # Check for objects very close to camera that might cause pink overlay
         nearby_objects = []
@@ -513,12 +542,12 @@ def diagnose_camera_view():
                     nearby_objects.append((obj.name, obj_distance))
         
         if nearby_objects:
-            print(f"  ⚠️ ï¸ Nearby objects that might cause rendering issues:")
+            print(f"  âš ï¸Â Ã¯Â¸Â Nearby objects that might cause rendering issues:")
             for obj_name, dist in nearby_objects[:5]:  # Show top 5
                 print(f"    - {obj_name}: {dist:.3f} units away")
         
     except Exception as e:
-        print(f"🔍 Camera diagnosis failed: {e}")
+        print(f"ðŸ” Camera diagnosis failed: {e}")
 
 def capture_first_person_view():
     """Capture current first-person view using async approach (adapted from working backup protocol)"""
@@ -533,14 +562,14 @@ def capture_first_person_view():
                     scene.objects.get("MainCamera"))
         
         if not actor:
-            print("âŒ Actor not found for FP capture")
+            print("Ã¢ÂÅ’ Actor not found for FP capture")
             return None
             
         if not fp_camera:
-            print("âŒ No camera found for FP capture (tried: Actor_FPCamera, Camera, FPCamera, MainCamera)")
+            print("Ã¢ÂÅ’ No camera found for FP capture (tried: Actor_FPCamera, Camera, FPCamera, MainCamera)")
             return None
         
-        print(f"ðŸ“¸ Using camera: {fp_camera.name}")
+        print(f"Ã°Å¸â€œÂ¸ Using camera: {fp_camera.name}")
         
         # Store original camera
         original_camera = scene.active_camera
@@ -550,7 +579,7 @@ def capture_first_person_view():
             scene.active_camera = fp_camera
             
             # Use the pre-configured camera as-is - don't modify position
-            print(f"✅ Using pre-configured camera '{fp_camera.name}' as-is")
+            print(f"âœ… Using pre-configured camera '{fp_camera.name}' as-is")
             
             # Create capture directory
             captures_dir = os.path.join(os.path.dirname(__file__), "captures")
@@ -558,11 +587,11 @@ def capture_first_person_view():
             
             # Ensure the directory is writable
             if not os.access(captures_dir, os.W_OK):
-                print(f"⚠️ ï¸ Capture directory not writable: {captures_dir}")
+                print(f"âš ï¸Â Ã¯Â¸Â Capture directory not writable: {captures_dir}")
                 # Try using a temp directory instead
                 import tempfile
                 captures_dir = tempfile.gettempdir()
-                print(f"🔍 Using temp directory: {captures_dir}")
+                print(f"ðŸ” Using temp directory: {captures_dir}")
             
             # Generate sequential filename (like working backup)
             existing_files = [f for f in os.listdir(captures_dir) if f.startswith("first_person_") and f.endswith(".png")]
@@ -581,10 +610,10 @@ def capture_first_person_view():
             
             fp_path = os.path.join(captures_dir, f"first_person_{n:03d}.png")
 
-            print(f"🔍 Capture directory: {captures_dir}")
-            print(f"🔍 Full capture path: {fp_path}")
-            print(f"🔍 Directory exists: {os.path.exists(captures_dir)}")
-            print(f"🔍 Capturing FP view from {fp_camera.name}...")
+            print(f"ðŸ” Capture directory: {captures_dir}")
+            print(f"ðŸ” Full capture path: {fp_path}")
+            print(f"ðŸ” Directory exists: {os.path.exists(captures_dir)}")
+            print(f"ðŸ” Capturing FP view from {fp_camera.name}...")
 
             # Use working screenshot method from backup
             # Screenshot capture ready
@@ -593,12 +622,12 @@ def capture_first_person_view():
             scene.active_camera = fp_camera
             
             # ASYNC APPROACH: Request screenshot and wait for completion (like backup)
-            print("🔍 Requesting screenshot...")
+            print("ðŸ” Requesting screenshot...")
             result = bge.render.makeScreenshot(fp_path)
-            print(f"🔍 makeScreenshot returned: {result}")
+            print(f"ðŸ” makeScreenshot returned: {result}")
 
             # Wait for screenshot to complete (like backup polling)
-            print("🔍 Waiting for screenshot to complete...")
+            print("ðŸ” Waiting for screenshot to complete...")
             timeout_seconds = 5.0
             min_file_size = 1000
             start_time = time.time()
@@ -607,11 +636,11 @@ def capture_first_person_view():
                 if os.path.exists(fp_path):
                     file_size = os.path.getsize(fp_path)
                     if file_size >= min_file_size:
-                        print(f"✅ FP capture successful: {os.path.basename(fp_path)} ({file_size:,} bytes)")
-                        print(f"🔍 Saved to: {fp_path}")
+                        print(f"âœ… FP capture successful: {os.path.basename(fp_path)} ({file_size:,} bytes)")
+                        print(f"ðŸ” Saved to: {fp_path}")
                         return fp_path
                     else:
-                        print(f"🔍 Screenshot still rendering... ({file_size}/{min_file_size} bytes)")
+                        print(f"ðŸ” Screenshot still rendering... ({file_size}/{min_file_size} bytes)")
 
                 time.sleep(0.2)  # Check every 200ms
             
@@ -619,15 +648,15 @@ def capture_first_person_view():
             if os.path.exists(fp_path):
                 file_size = os.path.getsize(fp_path)
                 if file_size > 0:
-                    print(f"⚠️ ï¸ Screenshot completed but small: {file_size} bytes")
+                    print(f"âš ï¸Â Ã¯Â¸Â Screenshot completed but small: {file_size} bytes")
                     return fp_path
                 else:
-                    print(f"âŒ Screenshot file empty: {file_size} bytes")
+                    print(f"Ã¢ÂÅ’ Screenshot file empty: {file_size} bytes")
                     return None
             else:
-                print("🔍 FP capture failed - no file created after timeout")
-                print(f"🔍 Expected path: {fp_path}")
-                print(f"🔍 Directory contents: {os.listdir(os.path.dirname(fp_path)) if os.path.exists(os.path.dirname(fp_path)) else 'Directory does not exist'}")
+                print("ðŸ” FP capture failed - no file created after timeout")
+                print(f"ðŸ” Expected path: {fp_path}")
+                print(f"ðŸ” Directory contents: {os.listdir(os.path.dirname(fp_path)) if os.path.exists(os.path.dirname(fp_path)) else 'Directory does not exist'}")
                 return None
                 
         finally:
@@ -636,7 +665,7 @@ def capture_first_person_view():
                 scene.active_camera = original_camera
                 
     except Exception as e:
-        print(f"âŒ FP capture error: {e}")
+        print(f"Ã¢ÂÅ’ FP capture error: {e}")
         return None
 
 def load_house_plan():
@@ -644,10 +673,10 @@ def load_house_plan():
     house_plan_path = os.path.join(os.path.dirname(__file__), "house_layout_reference2.png")
     
     if os.path.exists(house_plan_path):
-        print(f"🔍 House plan loaded: {os.path.basename(house_plan_path)}")
+        print(f"ðŸ” House plan loaded: {os.path.basename(house_plan_path)}")
         return house_plan_path
     
-    print("⚠️ house_layout_reference2.png not found - navigation will use FP view only")
+    print("âš ï¸Â house_layout_reference2.png not found - navigation will use FP view only")
     return None
 
 def analyze_navigation_step(fp_image_path, house_plan_path, task, current_position):
@@ -656,11 +685,11 @@ def analyze_navigation_step(fp_image_path, house_plan_path, task, current_positi
         global llm_complete_func
         
         if not fp_image_path or not os.path.exists(fp_image_path):
-            print("âŒ No first-person image available for analysis")
+            print("Ã¢ÂÅ’ No first-person image available for analysis")
             return None
         
         if not llm_complete_func:
-            print("âŒ LLM client not available for analysis")
+            print("Ã¢ÂÅ’ LLM client not available for analysis")
             return None
         
         # Build comprehensive prompt for first-person navigation (adapted from backup)
@@ -727,14 +756,14 @@ Base your analysis entirely on what you see in this first-person view."""
                 print("VLM analysis returned no response")
                 return None
             
-            print(f"✅ VLM analysis completed")
+            print(f"âœ… VLM analysis completed")
             # debug removed
             
             # Parse JSON response (adapted from backup)
             return parse_navigation_response(response)
             
         except Exception as e:
-            print(f"âŒ VLM analysis failed: {e}")
+            print(f"Ã¢ÂÅ’ VLM analysis failed: {e}")
             return None
         
     except Exception as e:
@@ -757,7 +786,7 @@ def parse_navigation_response(response):
             if json_match:
                 json_str = json_match.group(0)
             else:
-                print("⚠️ ï¸ No JSON found in VLM response")
+                print("âš ï¸Â Ã¯Â¸Â No JSON found in VLM response")
                 return None
         
         # Parse JSON
@@ -768,19 +797,19 @@ def parse_navigation_response(response):
             required_fields = ['movement_decision', 'reasoning']
             for field in required_fields:
                 if field not in result:
-                    print(f"⚠️ ï¸ Missing required field '{field}' in VLM response")
+                    print(f"âš ï¸Â Ã¯Â¸Â Missing required field '{field}' in VLM response")
                     return None
             
             # Validate movement decision
             valid_movements = ['FORWARD', 'LEFT', 'RIGHT', 'BACKWARD']
             if result['movement_decision'] not in valid_movements:
-                print(f"⚠️ ï¸ Invalid movement decision: {result['movement_decision']}")
+                print(f"âš ï¸Â Ã¯Â¸Â Invalid movement decision: {result['movement_decision']}")
                 return None
             
             return result
             
         except json.JSONDecodeError as e:
-            print(f"âŒ JSON parsing failed: {e}")
+            print(f"Ã¢ÂÅ’ JSON parsing failed: {e}")
             print(f"Raw response: {response[:300]}...")
             return None
         
@@ -804,12 +833,12 @@ def execute_movement(action):
         for name in actor_names:
             if name in scene.objects:
                 actor = scene.objects[name]
-                print(f"✅ Found actor: {name}")
+                print(f"âœ… Found actor: {name}")
                 break
         
         if not actor:
-            print("âŒ No actor found in scene")
-            print(f"ðŸ” Available objects: {[obj.name for obj in scene.objects]}")
+            print("Ã¢ÂÅ’ No actor found in scene")
+            print(f"Ã°Å¸â€Â Available objects: {[obj.name for obj in scene.objects]}")
             return False
         
         # Store position before movement for logging
@@ -842,11 +871,11 @@ def execute_movement(action):
                 
                 if hit_obj:
                     obstacle_name = hit_obj.name if hasattr(hit_obj, 'name') else str(hit_obj)
-                    print(f"ðŸš§ Obstacle detected: {obstacle_name} at distance {(hit_point - start_pos).magnitude:.2f}")
+                    print(f"Ã°Å¸Å¡Â§ Obstacle detected: {obstacle_name} at distance {(hit_point - start_pos).magnitude:.2f}")
                     return True, hit_obj
                 return False, None
             except Exception as e:
-                print(f"⚠️ Collision check failed: {e}")
+                print(f"âš ï¸ Collision check failed: {e}")
                 return False, None
         
         # Execute movement based on action
@@ -859,8 +888,8 @@ def execute_movement(action):
             has_obstacle, obstacle = check_collision_ahead(MOVE_SPEED)
             
             if has_obstacle:
-                print("ðŸš§ Cannot move forward - obstacle detected!")
-                print("ðŸ”„ Trying to turn to avoid obstacle...")
+                print("Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!")
+                print("Ã°Å¸â€â€ž Trying to turn to avoid obstacle...")
                 # Try turning right to avoid obstacle
                 for _ in range(MOVE_FRAMES // 2):
                     actor.applyRotation([0, 0, -TURN_SPEED/MOVE_FRAMES], True)
@@ -913,10 +942,10 @@ def execute_movement(action):
         except:
             orientation_changed = 0.0
         
-        print(f"ðŸ“ Actor position after: {final_pos}")
-        print(f"ðŸ§­ Actor orientation after: {final_orient.to_euler()}")
-        print(f"ðŸ“ Distance moved: {distance_moved:.3f} units")
-        print(f"ðŸ”„ Orientation change: {orientation_changed:.3f} radians")
+        print(f"Ã°Å¸â€œÂ Actor position after: {final_pos}")
+        print(f"Ã°Å¸Â§Â­ Actor orientation after: {final_orient.to_euler()}")
+        print(f"Ã°Å¸â€œÂ Distance moved: {distance_moved:.3f} units")
+        print(f"Ã°Å¸â€â€ž Orientation change: {orientation_changed:.3f} radians")
         
         # Log movement step for metrics
         new_position = [final_pos.x, final_pos.y]
@@ -931,32 +960,48 @@ def execute_movement(action):
                 current_room
             )
         
-        # Always track motion sensors (regardless of movement success)
-        if hasattr(bge.logic, 'casas_motion_logger'):
+        # Track virtual motion sensors for VESPER dataset (NOT generating CASAS ground truth)
+        if hasattr(bge.logic, 'casas_motion_logger') and hasattr(bge.logic, 'metrics_logger'):
             try:
-                print(f"🔍 Checking motion sensors at position: [{final_pos.x:.1f}, {final_pos.y:.1f}]")
-                bge.logic.casas_motion_logger.check_motion_sensors([final_pos.x, final_pos.y], time.time())
+                print(f"ðŸ” Checking motion sensors at position: [{final_pos.x:.1f}, {final_pos.y:.1f}]")
+                # Check sensors and get events
+                events = bge.logic.casas_motion_logger.check_motion_sensors(
+                    [final_pos.x, final_pos.y], 
+                    time.time()
+                )
+                
+                # Log events to VESPER metrics JSON (not CASAS .txt file)
+                if events:
+                    for event in events:
+                        bge.logic.metrics_logger.log_sensor_event(
+                            sensor_name=event['sensor_name'],
+                            sensor_id=event['sensor_id'],
+                            room=event['room'],
+                            event_type=event['event'],  # ON or OFF
+                            position=[final_pos.x, final_pos.y],
+                            timestamp=time.time()
+                        )
             except Exception as e:
-                print(f"⚠️ Motion sensor tracking failed: {e}")
+                print(f"âš ï¸ Motion sensor tracking failed: {e}")
         
         if movement_success:
             if action.upper() in ["LEFT", "RIGHT"]:
-                print(f"✅ Rotation executed successfully: {action}")
+                print(f"âœ… Rotation executed successfully: {action}")
             else:
-                print(f"✅ Movement executed successfully: {action}")
+                print(f"âœ… Movement executed successfully: {action}")
             return True
         else:
-            print(f"⚠️ ï¸ Movement execution may have failed")
+            print(f"âš ï¸Â Ã¯Â¸Â Movement execution may have failed")
             return False
             
     except Exception as e:
-        print(f"âŒ Movement execution error: {e}")
+        print(f"Ã¢ÂÅ’ Movement execution error: {e}")
         import traceback
         traceback.print_exc()
         return False
         
     except Exception as e:
-        print(f"âŒ Movement execution failed: {e}")
+        print(f"Ã¢ÂÅ’ Movement execution failed: {e}")
         return False
 
 
@@ -964,11 +1009,11 @@ def execute_movement(action):
 def run_navigation_task(task_name, max_steps=10):
     """Run a navigation task with simplified first-person capture"""
     try:
-        print(f"ðŸŽ¯ Starting navigation task: '{task_name}'")
+        print(f"Ã°Å¸Å½Â¯ Starting navigation task: '{task_name}'")
         
         # Initialize system
         if not initialize_llm_client():
-            print("âŒ Failed to initialize LLM client")
+            print("Ã¢ÂÅ’ Failed to initialize LLM client")
             return False
         
         # Verify existing camera is available
@@ -978,25 +1023,25 @@ def run_navigation_task(task_name, max_steps=10):
             # Try alternative camera names
             fp_camera = scene.objects.get("Camera") or scene.objects.get("FPCamera")
             if not fp_camera:
-                print("âŒ Camera not found - please ensure a camera exists in the scene")
+                print("Ã¢ÂÅ’ Camera not found - please ensure a camera exists in the scene")
                 return False
             else:
-                print(f"✅ Using existing camera: {fp_camera.name}")
+                print(f"âœ… Using existing camera: {fp_camera.name}")
         else:
-            print("✅ Using existing Actor_FPCamera")
+            print("âœ… Using existing Actor_FPCamera")
         
         # Load house plan
         house_plan_path = load_house_plan()
         
         # Navigation loop
         for step in range(max_steps):
-            print(f"\nðŸ”„ Navigation Step {step + 1}/{max_steps}")
+            print(f"\nÃ°Å¸â€â€ž Navigation Step {step + 1}/{max_steps}")
             
             
             # Capture first-person view
             fp_image_path = capture_first_person_view()
             if not fp_image_path:
-                print("âŒ Failed to capture first-person view")
+                print("Ã¢ÂÅ’ Failed to capture first-person view")
                 continue
             
             # Get current position
@@ -1007,7 +1052,7 @@ def run_navigation_task(task_name, max_steps=10):
             # Analyze navigation step
             result = analyze_navigation_step(fp_image_path, house_plan_path, task_name, current_position)
             if not result:
-                print("âŒ Failed to analyze navigation step")
+                print("Ã¢ÂÅ’ Failed to analyze navigation step")
                 continue
             
             # Execute movement based on new response format
@@ -1017,14 +1062,14 @@ def run_navigation_task(task_name, max_steps=10):
                 action = result.get('next_action', '')
             
             if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT', 'UP', 'DOWN']:
-                print(f"ðŸŽ¯ Navigation decision: {action}")
-                print(f"ðŸ’­ Reasoning: {result.get('reasoning', 'No reasoning provided')}")
+                print(f"Ã°Å¸Å½Â¯ Navigation decision: {action}")
+                print(f"Ã°Å¸â€™Â­ Reasoning: {result.get('reasoning', 'No reasoning provided')}")
                 
                 execute_movement(action)
                 time.sleep(1)  # Allow movement to complete
             else:
-                print(f"⚠️ ï¸ Invalid action: {action}")
-                print(f"ðŸ“ Full result: {result}")
+                print(f"âš ï¸Â Ã¯Â¸Â Invalid action: {action}")
+                print(f"Ã°Å¸â€œÂ Full result: {result}")
                 continue
             
             # Check if task is complete (basic heuristic)
@@ -1033,14 +1078,14 @@ def run_navigation_task(task_name, max_steps=10):
             target_room = result.get('task_location_needed', '')
             
             if confidence == 'high' and current_room.lower() == target_room.lower():
-                print(f"ðŸŽ‰ Task completed! Reached {current_room}")
+                print(f"Ã°Å¸Å½â€° Task completed! Reached {current_room}")
                 return True
         
-        print("â° Maximum steps reached")
+        print("Ã¢ÂÂ° Maximum steps reached")
         return False
         
     except Exception as e:
-        print(f"âŒ Navigation task failed: {e}")
+        print(f"Ã¢ÂÅ’ Navigation task failed: {e}")
         return False
 
 def check_bge_readiness():
@@ -1059,16 +1104,16 @@ def check_bge_readiness():
         return True
         
     except Exception as e:
-        print(f"ðŸ” BGE readiness check failed: {e}")
+        print(f"Ã°Å¸â€Â BGE readiness check failed: {e}")
         return False
 
 def wait_for_bge_initialization(max_wait_seconds=5):
     """Wait for BGE to be fully initialized - simplified approach"""
-    print("â³ Waiting for BGE to fully initialize...")
+    print("Ã¢ÂÂ³ Waiting for BGE to fully initialize...")
     
     # Simple fixed delay approach since BGE is actually running
     initial_delay = 3.0  # Give BGE 3 seconds to fully start up
-    print(f"â³ Initial BGE startup delay: {initial_delay} seconds...")
+    print(f"Ã¢ÂÂ³ Initial BGE startup delay: {initial_delay} seconds...")
     time.sleep(initial_delay)
     
     # Now check if scene is available
@@ -1078,14 +1123,14 @@ def wait_for_bge_initialization(max_wait_seconds=5):
     while (time.time() - start_time) < max_wait_seconds:
         if check_bge_readiness():
             elapsed = time.time() - start_time + initial_delay
-            print(f"✅ BGE ready after {elapsed:.1f} seconds")
+            print(f"âœ… BGE ready after {elapsed:.1f} seconds")
             return True
         
-        print(f"â³ Waiting for BGE scene... ({time.time() - start_time:.1f}s)")
+        print(f"Ã¢ÂÂ³ Waiting for BGE scene... ({time.time() - start_time:.1f}s)")
         time.sleep(check_interval)
     
     # Even if check fails, try to proceed anyway since BGE is running
-    print(f"⚠️ ï¸ BGE readiness check unclear, but proceeding since BGE is running...")
+    print(f"âš ï¸Â Ã¯Â¸Â BGE readiness check unclear, but proceeding since BGE is running...")
     return True
 
 def main():
@@ -1095,7 +1140,7 @@ def main():
     # Initialize once
     if not scene_running:
         scene_running = True
-        print("ðŸš€ BGE Continuous Navigation System Starting...")
+        print("Ã°Å¸Å¡â‚¬ BGE Continuous Navigation System Starting...")
         
         # Initialize BGE state for continuous operation
         if not hasattr(bge.logic, "vesper_continuous_nav"):
@@ -1121,38 +1166,38 @@ def main():
             bge.logic.llm_initialized = False
             bge.logic.startup_complete = False
             
-            print(f"ðŸ“‹ Task List: {bge.logic.vesper_tasks}")
-            print("ðŸ”§ Continuous navigation initialized")
+            print(f"Ã°Å¸â€œâ€¹ Task List: {bge.logic.vesper_tasks}")
+            print("Ã°Å¸â€Â§ Continuous navigation initialized")
         
         # BGE startup delay
-        print("â³ Waiting 3 seconds for BGE to stabilize...")
+        print("Ã¢ÂÂ³ Waiting 3 seconds for BGE to stabilize...")
         time.sleep(3.0)
         
         # Initialize LLM
         if not bge.logic.llm_initialized:
-            print("ðŸ”§ Initializing LLM client...")
+            print("Ã°Å¸â€Â§ Initializing LLM client...")
             if initialize_llm_client():
                 bge.logic.llm_initialized = True
-                print("✅ LLM client ready")
+                print("âœ… LLM client ready")
             else:
-                print("âŒ LLM initialization failed")
+                print("Ã¢ÂÅ’ LLM initialization failed")
                 return False
         
         # Initialize metrics logging
         if not hasattr(bge.logic, 'metrics_logger'):
             bge.logic.metrics_logger = get_metrics_logger()
-            print("ðŸ“Š Metrics logging system initialized")
+            print("Ã°Å¸â€œÅ  Metrics logging system initialized")
         
         bge.logic.startup_complete = True
-        print("ðŸŽ® Starting continuous task execution...")
+        print("Ã°Å¸Å½Â® Starting continuous task execution...")
 
         # Initialize CASAS motion sensor logging
         if not hasattr(bge.logic, 'casas_motion_logger'):
             try:
                 bge.logic.casas_motion_logger = CASASMotionSensorLogger()
-                print("🎯 CASAS motion sensor logger initialized")
+                print("ðŸŽ¯ CASAS motion sensor logger initialized")
             except Exception as e:
-                print(f"⚠️ Failed to initialize CASAS logger: {e}")
+                print(f"âš ï¸ Failed to initialize CASAS logger: {e}")
 
     # Run continuous navigation if startup is complete
     if hasattr(bge.logic, "startup_complete") and bge.logic.startup_complete:
@@ -1170,7 +1215,7 @@ def run_continuous_navigation():
         
         # Check if all tasks are completed
         if bge.logic.current_task_index >= len(bge.logic.vesper_tasks):
-            print("🎉 ALL TASKS COMPLETED! Navigation system finished.")
+            print("ðŸŽ‰ ALL TASKS COMPLETED! Navigation system finished.")
             
             # Print final metrics summary and export datasets
             if hasattr(bge.logic, 'metrics_logger'):
@@ -1192,8 +1237,8 @@ def run_continuous_navigation():
         
         # Check if current task has exceeded max steps
         if bge.logic.navigation_step >= bge.logic.max_steps_per_task:
-            print(f"â° Task '{current_task}' exceeded max steps ({bge.logic.max_steps_per_task})")
-            print("âž¡ï¸ Moving to next task...")
+            print(f"Ã¢ÂÂ° Task '{current_task}' exceeded max steps ({bge.logic.max_steps_per_task})")
+            print("Ã¢Å¾Â¡Ã¯Â¸Â Moving to next task...")
             
             # Log task completion/failure
             if hasattr(bge.logic, 'metrics_logger'):
@@ -1212,8 +1257,8 @@ def run_continuous_navigation():
             return
         
         # Execute navigation step for current task
-        print(f"\nðŸŽ¯ Task {bge.logic.current_task_index + 1}/{len(bge.logic.vesper_tasks)}: '{current_task}'")
-        print(f"ðŸ”„ Step {bge.logic.navigation_step + 1}/{bge.logic.max_steps_per_task}")
+        print(f"\nÃ°Å¸Å½Â¯ Task {bge.logic.current_task_index + 1}/{len(bge.logic.vesper_tasks)}: '{current_task}'")
+        print(f"Ã°Å¸â€â€ž Step {bge.logic.navigation_step + 1}/{bge.logic.max_steps_per_task}")
         
         # Capture dual images (FP view + most recent navigation context map)
         fp_image_path, house_layout_path = capture_dual_images()
@@ -1224,11 +1269,11 @@ def run_continuous_navigation():
         
         # Always try VLM analysis first, even with dummy screenshot
         if fp_image_path == "dummy_screenshot.png":
-            print("âŒ Dummy screenshot detected - stopping navigation (no fallback)")
+            print("Ã¢ÂÅ’ Dummy screenshot detected - stopping navigation (no fallback)")
             # No position-based navigation - stop if screenshots fail
             navigation_result = None
         elif fp_image_path:
-            print("🖼️ Using image-based VLM navigation")
+            print("ðŸ–¼ï¸ Using image-based VLM navigation")
             # Get actor position for context
             scene = bge.logic.getCurrentScene()
             actor = scene.objects.get("Actor")
@@ -1239,9 +1284,9 @@ def run_continuous_navigation():
             # Use standard dual-image analysis (enhanced analysis temporarily disabled)
             navigation_result = None
             if False and POSITION_MAPPING_AVAILABLE and actor:  # Temporarily disabled
-                print("ðŸ—ºï¸ Using enhanced position-aware navigation analysis")
-                print(f"📍 FP Image: {os.path.basename(fp_image_path) if fp_image_path else 'None'}")
-                print(f"🗺️ Map Image: {os.path.basename(house_layout_path) if house_layout_path else 'None'}")
+                print("Ã°Å¸â€”ÂºÃ¯Â¸Â Using enhanced position-aware navigation analysis")
+                print(f"ðŸ“ FP Image: {os.path.basename(fp_image_path) if fp_image_path else 'None'}")
+                print(f"ðŸ—ºï¸ Map Image: {os.path.basename(house_layout_path) if house_layout_path else 'None'}")
                 
                 # Extract previously detected room for mapping
                 previous_room = None
@@ -1265,9 +1310,9 @@ def run_continuous_navigation():
             
             # Use standard dual-image analysis 
             if not navigation_result:
-                print("🖼️ Using standard dual-image navigation analysis")
-                print(f"📍 FP Image: {os.path.basename(fp_image_path) if fp_image_path else 'None'}")
-                print(f"🗺️ Map Image: {os.path.basename(house_layout_path) if house_layout_path else 'None'}")
+                print("ðŸ–¼ï¸ Using standard dual-image navigation analysis")
+                print(f"ðŸ“ FP Image: {os.path.basename(fp_image_path) if fp_image_path else 'None'}")
+                print(f"ðŸ—ºï¸ Map Image: {os.path.basename(house_layout_path) if house_layout_path else 'None'}")
                 navigation_result = analyze_dual_image_navigation(
                     fp_image_path, 
                     house_layout_path, 
@@ -1276,7 +1321,7 @@ def run_continuous_navigation():
                     bge.logic.navigation_step
                 )
         else:
-            print("âŒ Complete image capture failure - stopping navigation (no fallback)")
+            print("Ã¢ÂÅ’ Complete image capture failure - stopping navigation (no fallback)")
             navigation_result = None
         
         # Execute navigation decision
@@ -1285,8 +1330,8 @@ def run_continuous_navigation():
             reasoning = navigation_result.get('reasoning', 'No reasoning provided')
             task_complete = navigation_result.get('task_complete', False)
             
-            print(f"ðŸ¤– VLM Decision: {action}")
-            print(f"ðŸ’­ VLM Reasoning: {reasoning}")
+            print(f"Ã°Å¸Â¤â€“ VLM Decision: {action}")
+            print(f"Ã°Å¸â€™Â­ VLM Reasoning: {reasoning}")
             
             # Log VLM response for metrics
             if hasattr(bge.logic, 'metrics_logger'):
@@ -1306,7 +1351,7 @@ def run_continuous_navigation():
             
             # Check if VLM thinks task is complete
             if task_complete:
-                print(f"✅ VLM reports task '{current_task}' is COMPLETE!")
+                print(f"âœ… VLM reports task '{current_task}' is COMPLETE!")
                 
                 # Log successful task completion
                 if hasattr(bge.logic, 'metrics_logger'):
@@ -1328,7 +1373,7 @@ def run_continuous_navigation():
             if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT', 'UP', 'DOWN']:
                 success = execute_movement(action)
                 if success:
-                    print(f"✅ Movement executed: {action}")
+                    print(f"âœ… Movement executed: {action}")
                     
                     # Track movements to prevent turning loops
                     if not hasattr(bge.logic, 'recent_movements'):
@@ -1339,15 +1384,15 @@ def run_continuous_navigation():
                     if len(bge.logic.recent_movements) > 6:
                         bge.logic.recent_movements.pop(0)
                         
-                    print(f"ðŸ“ Movement history: {bge.logic.recent_movements}")
+                    print(f"Ã°Å¸â€œÂ Movement history: {bge.logic.recent_movements}")
                 else:
-                    print(f"âŒ Movement failed: {action}")
+                    print(f"Ã¢ÂÅ’ Movement failed: {action}")
             else:
-                print(f"⚠️ ï¸ Invalid VLM action: {action}")
+                print(f"âš ï¸Â Ã¯Â¸Â Invalid VLM action: {action}")
                 
         else:
-            print("âŒ No valid navigation result - stopping navigation (no fallback)")
-            print("ðŸ›‘ Navigation halted due to VLM failure")
+            print("Ã¢ÂÅ’ No valid navigation result - stopping navigation (no fallback)")
+            print("Ã°Å¸â€ºâ€˜ Navigation halted due to VLM failure")
             return
         
         # Navigation result already obtained from VLM analysis above
@@ -1357,12 +1402,12 @@ def run_continuous_navigation():
         reasoning = navigation_result.get('reasoning', 'No reasoning provided')
         task_complete = navigation_result.get('task_complete', False)
         
-        print(f"ðŸ¤– VLM Decision: {action}")
-        print(f"ðŸ’­ VLM Reasoning: {reasoning}")
+        print(f"Ã°Å¸Â¤â€“ VLM Decision: {action}")
+        print(f"Ã°Å¸â€™Â­ VLM Reasoning: {reasoning}")
         
         # Check if VLM thinks task is complete
         if task_complete:
-            print(f"✅ VLM reports task '{current_task}' is COMPLETE!")
+            print(f"âœ… VLM reports task '{current_task}' is COMPLETE!")
             bge.logic.current_task_index += 1
             bge.logic.navigation_step = 0
             time.sleep(3.0)  # Pause to appreciate completion
@@ -1372,22 +1417,22 @@ def run_continuous_navigation():
         if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT', 'UP', 'DOWN']:
             success = execute_movement(action)
             if success:
-                print(f"✅ Movement executed: {action}")
+                print(f"âœ… Movement executed: {action}")
             else:
-                print(f"âŒ Movement failed: {action}")
+                print(f"Ã¢ÂÅ’ Movement failed: {action}")
         else:
-            print(f"⚠️ ï¸ Invalid VLM action: {action}")
+            print(f"âš ï¸Â Ã¯Â¸Â Invalid VLM action: {action}")
         
         # Increment step and continue
         bge.logic.navigation_step += 1
         
         # BGE-STYLE TIMING: Return control to BGE render loop
         # No recursive calls - let BGE timer system handle next iteration
-        print("ðŸ”„ Movement completed, yielding to BGE render cycle")
+        print("Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle")
         return  # CRITICAL: Let BGE render the next frame before continuing
         
     except Exception as e:
-        print(f"âŒ Continuous navigation error: {e}")
+        print(f"Ã¢ÂÅ’ Continuous navigation error: {e}")
         import traceback
         traceback.print_exc()
         time.sleep(2.0)
@@ -1408,56 +1453,80 @@ def capture_dual_images():
                 # Check if MCP returns a valid file path (string)
                 if isinstance(mcp_result, str) and os.path.exists(mcp_result):
                     map_context_path = mcp_result
-                    print(f"🗺️ Generated MCP navigation context: {os.path.basename(map_context_path)}")
+                    print(f"ðŸ—ºï¸ Generated MCP navigation context: {os.path.basename(map_context_path)}")
                 elif isinstance(mcp_result, dict):
-                    print("⚠️ MCP returned dict instead of file path - skipping MCP")
+                    print("âš ï¸ MCP returned dict instead of file path - skipping MCP")
                 else:
-                    print(f"⚠️ MCP returned invalid result: {type(mcp_result)}")
+                    print(f"âš ï¸ MCP returned invalid result: {type(mcp_result)}")
             except Exception as e:
-                print(f"⚠️ MCP navigation context generation failed: {e}")
+                print(f"âš ï¸ MCP navigation context generation failed: {e}")
         
         # Try position mapper directly
         if not map_context_path and POSITION_MAPPING_AVAILABLE:
             try:
-                # Get current actor position for map generation
-                scene = bge.logic.getCurrentScene()
-                actor = scene.objects.get("Actor")
-                if actor:
-                    # Extract individual coordinates (NOT as a list)
-                    world_x = actor.worldPosition.x
-                    world_y = actor.worldPosition.y
+                # Get current task info for context
+                current_task = getattr(bge.logic, 'current_task', 'Navigate')
+                current_room = getattr(bge.logic, 'current_room', None)
+                
+                # PRIORITY 1: Try VLM-based position estimation (no calibration needed!)
+                if VLM_POSITION_AVAILABLE and fp_image_path and os.path.exists(fp_image_path):
+                    print("ðŸ¤– Using VLM position estimation (visual analysis)")
                     
-                    # CRITICAL: Extract actor orientation (Z rotation) for synchronized coordinate systems
-                    try:
-                        orientation_z = actor.worldOrientation.to_euler().z  # Z-axis rotation in radians
-                    except:
-                        orientation_z = 0.0  # Fallback if orientation extraction fails
+                    # Import VLM function
+                    from llm_client import get_vlm_response
                     
-                    # Get current task info for context
-                    current_task = getattr(bge.logic, 'current_task', 'Navigate')
-                    current_room = getattr(bge.logic, 'current_room', None)
-                    
-                    print(f"🗺️ Generating map for Actor at ({world_x:.2f}, {world_y:.2f})")
-                    print(f"🧭 Actor orientation: {orientation_z:.4f} rad ({orientation_z * 57.2958:.1f}°)")
-                    print(f"🎯 Task: {current_task}, Room: {current_room}")
-                    
-                    # Update position map and generate context with ORIENTATION
-                    map_context_path = update_actor_position_map(
-                        world_x, world_y, 
-                        room=current_room, 
-                        task=current_task,
-                        orientation=orientation_z  # NOW SYNCHRONIZED!
+                    # Get VLM-estimated position map
+                    map_context_path = get_vlm_position_map(
+                        fp_image_path,
+                        current_task or "Navigate",
+                        get_vlm_response
                     )
                     
                     if map_context_path and os.path.exists(map_context_path):
-                        print(f"✅ Generated position map: {os.path.basename(map_context_path)}")
+                        print(f"âœ… VLM position map generated: {os.path.basename(map_context_path)}")
                     else:
-                        print(f"⚠️ Position mapper result: {map_context_path}")
+                        print("âš ï¸ VLM position estimation failed, falling back to coordinate mapping")
                         map_context_path = None
-                else:
-                    print("⚠️ No Actor found for position mapping")
+                
+                # FALLBACK: Use coordinate-based mapping if VLM unavailable
+                if not map_context_path and POSITION_MAPPING_AVAILABLE:
+                    print("ðŸ“ Using coordinate-based position mapping (fallback)")
+                    
+                    # Get current actor position for map generation
+                    scene = bge.logic.getCurrentScene()
+                    actor = scene.objects.get("Actor")
+                    if actor:
+                        # Extract individual coordinates (NOT as a list)
+                        world_x = actor.worldPosition.x
+                        world_y = actor.worldPosition.y
+                        
+                        # CRITICAL: Extract actor orientation (Z rotation) for synchronized coordinate systems
+                        try:
+                            orientation_z = actor.worldOrientation.to_euler().z  # Z-axis rotation in radians
+                        except:
+                            orientation_z = 0.0  # Fallback if orientation extraction fails
+                        
+                        print(f"ðŸ—ºï¸ Generating map for Actor at ({world_x:.2f}, {world_y:.2f})")
+                        print(f"ðŸ§­ Actor orientation: {orientation_z:.4f} rad ({orientation_z * 57.2958:.1f}Â°)")
+                        print(f"ðŸŽ¯ Task: {current_task}, Room: {current_room}")
+                        
+                        # Update position map and generate context with ORIENTATION
+                        map_context_path = update_actor_position_map(
+                            world_x, world_y, 
+                            room=current_room, 
+                            task=current_task,
+                            orientation=orientation_z  # NOW SYNCHRONIZED!
+                        )
+                        
+                        if map_context_path and os.path.exists(map_context_path):
+                            print(f"âœ… Generated position map: {os.path.basename(map_context_path)}")
+                        else:
+                            print(f"âš ï¸ Position mapper result: {map_context_path}")
+                            map_context_path = None
+                    else:
+                        print("âš ï¸ No Actor found for position mapping")
             except Exception as e:
-                print(f"⚠️ Position mapper generation failed: {e}")
+                print(f"âš ï¸ Map generation failed: {e}")
                 import traceback
                 traceback.print_exc()
         
@@ -1468,14 +1537,14 @@ def capture_dual_images():
         # Last resort: Use static house layout
         if not map_context_path:
             map_context_path = load_house_plan()
-            print("🔍 Using static house layout as fallback")
+            print("ðŸ” Using static house layout as fallback")
         else:
-            print(f"🗺️ Using updated navigation context map: {os.path.basename(map_context_path)}")
+            print(f"ðŸ—ºï¸ Using updated navigation context map: {os.path.basename(map_context_path)}")
         
         return fp_image_path, map_context_path
         
     except Exception as e:
-        print(f"âŒ Dual image capture failed: {e}")
+        print(f"Ã¢ÂÅ’ Dual image capture failed: {e}")
         return None, None
 
 def get_most_recent_navigation_map():
@@ -1487,7 +1556,7 @@ def get_most_recent_navigation_map():
         map_output_dir = r"C:\Users\hbui11\Desktop\vesper_llm\map\generated_maps"
         
         if not os.path.exists(map_output_dir):
-            print(f"⚠️ Map output directory not found: {map_output_dir}")
+            print(f"âš ï¸ Map output directory not found: {map_output_dir}")
             return None
         
         # Find all navigation context maps (both numbered and timestamped)
@@ -1513,18 +1582,18 @@ def get_most_recent_navigation_map():
         # Prefer numbered maps (return highest number), fallback to timestamped maps
         if numbered_maps:
             most_recent_map = max(numbered_maps, key=lambda x: x[1])[0]
-            print(f"🎯 Found most recent numbered navigation map: {os.path.basename(most_recent_map)}")
+            print(f"ðŸŽ¯ Found most recent numbered navigation map: {os.path.basename(most_recent_map)}")
             return most_recent_map
         elif context_maps:
             most_recent_map = max(context_maps, key=lambda x: x[1])[0]
-            print(f"🎯 Found most recent timestamped navigation map: {os.path.basename(most_recent_map)}")
+            print(f"ðŸŽ¯ Found most recent timestamped navigation map: {os.path.basename(most_recent_map)}")
             return most_recent_map
         else:
-            print("📍 No navigation context maps found")
+            print("ðŸ“ No navigation context maps found")
             return None
         
     except Exception as e:
-        print(f"❌ Failed to get navigation map: {e}")
+        print(f"âŒ Failed to get navigation map: {e}")
         return None
 
 def take_enhanced_screenshot():
@@ -1539,7 +1608,7 @@ def take_enhanced_screenshot():
                     scene.objects.get("MainCamera"))
         
         if not fp_camera:
-            print("âŒ No camera found")
+            print("Ã¢ÂÅ’ No camera found")
             return None
         
         # Set active camera
@@ -1571,7 +1640,7 @@ def take_enhanced_screenshot():
                 except:
                     pass
             
-            print(f"ðŸ“¸ Capturing: {filename} (#{bge.logic.screenshot_counter-1})")
+            print(f"Ã°Å¸â€œÂ¸ Capturing: {filename} (#{bge.logic.screenshot_counter-1})")
             
             # BGE screenshot with frame-yield approach like backup
             result = bge.render.makeScreenshot(screenshot_path)
@@ -1580,7 +1649,7 @@ def take_enhanced_screenshot():
             time.sleep(0.5)  # Brief delay for frame completion
             
             # BGE screenshots are async - return path and trust it will be created
-            print(f"✅ Screenshot requested: {filename} (BGE async)")
+            print(f"âœ… Screenshot requested: {filename} (BGE async)")
             return screenshot_path
             
         finally:
@@ -1589,7 +1658,7 @@ def take_enhanced_screenshot():
                 scene.active_camera = original_camera
                 
     except Exception as e:
-        print(f"âŒ Screenshot error: {e}")
+        print(f"Ã¢ÂÅ’ Screenshot error: {e}")
         return None
 
 # Position-based navigation removed - only image-based VLM navigation allowed
@@ -1600,7 +1669,7 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
         global llm_complete_func
         
         if not fp_image_path:
-            print("âŒ No first-person image path provided")
+            print("Ã¢ÂÅ’ No first-person image path provided")
             return None
         
         # Wait briefly for BGE's async screenshot to complete (like backup)
@@ -1613,7 +1682,7 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
                 try:
                     file_size = os.path.getsize(fp_image_path)
                     if file_size > 2500:  # Use backup's min_bytes (2500)
-                        print(f"✅ Screenshot ready: {os.path.basename(fp_image_path)} ({file_size:,} bytes)")
+                        print(f"âœ… Screenshot ready: {os.path.basename(fp_image_path)} ({file_size:,} bytes)")
                         screenshot_ready = True
                         break
                 except:
@@ -1622,7 +1691,7 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
         
         # If current screenshot not ready, use most recent available screenshot
         if not screenshot_ready:
-            print(f"â³ Current screenshot not ready, checking for recent screenshots...")
+            print(f"Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...")
             captures_dir = os.path.dirname(fp_image_path)
             if os.path.exists(captures_dir):
                 # Find most recent fp_view screenshot
@@ -1634,8 +1703,8 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
                     
                     # Check if we're about to use the same screenshot as last time
                     if hasattr(bge.logic, 'last_used_screenshot') and recent_screenshot == bge.logic.last_used_screenshot:
-                        print(f"⚠️ ï¸ Would reuse same screenshot: {os.path.basename(recent_screenshot)}")
-                        print(f"ðŸ”„ Waiting longer for new screenshot...")
+                        print(f"âš ï¸Â Ã¯Â¸Â Would reuse same screenshot: {os.path.basename(recent_screenshot)}")
+                        print(f"Ã°Å¸â€â€ž Waiting longer for new screenshot...")
                         time.sleep(2.0)  # Wait longer for new screenshot
                         
                         # Check again for newer screenshots
@@ -1645,22 +1714,22 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
                             newer_screenshot = os.path.join(captures_dir, existing_files[0])
                             if newer_screenshot != bge.logic.last_used_screenshot:
                                 recent_screenshot = newer_screenshot
-                                print(f"ðŸ“¸ Found newer screenshot: {os.path.basename(recent_screenshot)}")
+                                print(f"Ã°Å¸â€œÂ¸ Found newer screenshot: {os.path.basename(recent_screenshot)}")
                     
                     if os.path.exists(recent_screenshot):
                         file_size = os.path.getsize(recent_screenshot)
                         if file_size > 1000:
-                            print(f"ðŸ“¸ Using recent screenshot: {os.path.basename(recent_screenshot)} ({file_size:,} bytes)")
+                            print(f"Ã°Å¸â€œÂ¸ Using recent screenshot: {os.path.basename(recent_screenshot)} ({file_size:,} bytes)")
                             fp_image_path = recent_screenshot
                             bge.logic.last_used_screenshot = recent_screenshot  # Track usage
                             screenshot_ready = True
         
         if not screenshot_ready:
-            print(f"âŒ No valid screenshots available")
+            print(f"Ã¢ÂÅ’ No valid screenshots available")
             return None
         
         if not llm_complete_func:
-            print("âŒ LLM client not available")
+            print("Ã¢ÂÅ’ LLM client not available")
             return None
         
         # Track recent movements to avoid turning loops
@@ -1671,9 +1740,9 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
         recent_turns = [m for m in bge.logic.recent_movements[-4:] if m in ['LEFT', 'RIGHT']]
         turn_warning = ""
         if len(recent_turns) >= 3:
-            turn_warning = f"\n\nðŸš¨ CRITICAL ANTI-LOOP WARNING: You have been turning {len(recent_turns)} times recently: {recent_turns}. You MUST try FORWARD movement if you see any clear space, doorway, or open area ahead. Stop turning and start moving forward to make progress!"
+            turn_warning = f"\n\nÃ°Å¸Å¡Â¨ CRITICAL ANTI-LOOP WARNING: You have been turning {len(recent_turns)} times recently: {recent_turns}. You MUST try FORWARD movement if you see any clear space, doorway, or open area ahead. Stop turning and start moving forward to make progress!"
         elif len(recent_turns) >= 2:
-            turn_warning = f"\n\n⚠️ ï¸ MOVEMENT WARNING: Recent turns: {recent_turns}. Look for opportunities to move FORWARD instead of continuing to turn."
+            turn_warning = f"\n\nâš ï¸Â Ã¯Â¸Â MOVEMENT WARNING: Recent turns: {recent_turns}. Look for opportunities to move FORWARD instead of continuing to turn."
         # Get world coordinates from BGE actor for loop detection
         scene = bge.logic.getCurrentScene()
         actor = scene.objects.get("Actor")
@@ -1690,7 +1759,7 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
         # Enhanced prompt for spatial awareness and obstacle avoidance with synchronized dual-image analysis
         prompt = f"""You are an AI navigation assistant controlling a character in a 3D house environment. You receive TWO SYNCHRONIZED IMAGES that MUST be analyzed together:
 
-🗺️ IMAGE 1 - NAVIGATION MAP (Top-Down View):
+ðŸ—ºï¸ IMAGE 1 - NAVIGATION MAP (Top-Down View):
    - Shows the ENTIRE house layout from above
    - **RED HUMAN FIGURE** = Your current position in the house
    - **RED ARROW** = The direction you are currently FACING
@@ -1698,13 +1767,13 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
    - **ROOM LABELS** = Room names overlaid on the floor plan
    - This map is UPDATED LIVE every step with your current position and orientation
 
-👁️ IMAGE 2 - FIRST-PERSON VIEW (What You See):
+ðŸ‘ï¸ IMAGE 2 - FIRST-PERSON VIEW (What You See):
    - Shows what the character sees from their current position
    - This is YOUR perspective - what's directly in front of you
    - Walls, furniture, doorways visible from your current facing direction
    - This image captures your EXACT current view after the last movement
 
-🔄 CRITICAL: BOTH IMAGES ARE SYNCHRONIZED IN REAL-TIME
+ðŸ”„ CRITICAL: BOTH IMAGES ARE SYNCHRONIZED IN REAL-TIME
    - The red arrow on the map points in the SAME direction you're facing in first-person view
    - If you see a door ahead in FP view, the arrow on map should point toward that door
    - Your position on map (red figure) matches where you're standing in FP view
@@ -1715,20 +1784,20 @@ MAP POSITION: {current_position} (see red figure on navigation map)
 NAVIGATION STEP: {step_number + 1}
 
 CRITICAL NAVIGATION RULES:
-🚧 OBSTACLE AVOIDANCE: 
+ðŸš§ OBSTACLE AVOIDANCE: 
 - Do NOT walk through walls, furniture, or objects
 - Look for DOORWAYS and open pathways
 - If you see a wall directly ahead, you MUST turn
 - Furniture blocks movement - navigate around it
 
-🗺️ HOUSE LAYOUT KNOWLEDGE (Based on floor plan):
+ðŸ—ºï¸ HOUSE LAYOUT KNOWLEDGE (Based on floor plan):
 - **LIVING ROOM**: Large room on the left with sofas, dining table, and TV area
 - **KITCHEN**: Upper center room with appliances, connected to living room
 - **BEDROOM**: Lower right room with bed, connected to bathroom area  
 - **BATHROOM**: Small room on the right with toilet and bathtub
 - **HALLWAYS**: Connect all rooms - use these for navigation between areas
 
-🔍 SPECIFIC VISUAL CUES FOR THIS HOUSE:
+ðŸ” SPECIFIC VISUAL CUES FOR THIS HOUSE:
 **LIVING ROOM Identification:**
 - Large open space with seating furniture (sofas, chairs)
 - Dining table and chairs (often confused as dining room - this IS the dining area)
@@ -1768,35 +1837,35 @@ CRITICAL NAVIGATION RULES:
 - Minimal or no furniture
 - Transitional space between rooms
 
-🧭 ROOM CONNECTIONS & NAVIGATION PATHS:
-- From LIVING ROOM → KITCHEN: Go through the central doorway/opening  
-- From LIVING ROOM → BEDROOM: Navigate through the hallway system
-- From LIVING ROOM → BATHROOM: Go to bedroom area first, then bathroom
-- From KITCHEN → Other rooms: Return to living room first, then navigate
+ðŸ§­ ROOM CONNECTIONS & NAVIGATION PATHS:
+- From LIVING ROOM â†’ KITCHEN: Go through the central doorway/opening  
+- From LIVING ROOM â†’ BEDROOM: Navigate through the hallway system
+- From LIVING ROOM â†’ BATHROOM: Go to bedroom area first, then bathroom
+- From KITCHEN â†’ Other rooms: Return to living room first, then navigate
 - Use doorways and openings visible in the floor plan to move between rooms
 
-📍 NAVIGATION TIPS:
+ðŸ“ NAVIGATION TIPS:
 - The actor typically starts in or near the LIVING ROOM area
 - Look for furniture patterns to identify rooms (sofa=living room, bed=bedroom, etc.)
 - Use the floor plan as your map - it shows exact room positions and connections
 - Doorways appear as openings/gaps in walls on the floor plan
 - If lost, navigate back to the large LIVING ROOM and reorient using the floor plan
 
-🎯 TASK-SPECIFIC ROOM TARGETS (CASAS ADL Tasks):
+ðŸŽ¯ TASK-SPECIFIC ROOM TARGETS (CASAS ADL Tasks):
 - **"Make a phone call"**: Navigate to DINING ROOM to access phone and phone book
 - **"Wash hands"**: Navigate to KITCHEN (sink area) or BATHROOM for hand washing
 - **"Cook oatmeal"**: Navigate to KITCHEN (stove, pots, ingredients area)
 - **"Eat meal"**: Navigate to DINING ROOM for eating location
 - **"Clean dishes"**: Navigate to KITCHEN (sink area) for dishwashing
 
-📋 CASAS TASK COMPLETION CRITERIA:
+ðŸ“‹ CASAS TASK COMPLETION CRITERIA:
 - **"Make a phone call"**: COMPLETE when you reach DINING ROOM and can see phone/table area
 - **"Wash hands"**: COMPLETE when you reach KITCHEN sink area OR BATHROOM with visible sink
 - **"Cook oatmeal"**: COMPLETE when you reach KITCHEN and can see stove/cooking area
 - **"Eat meal"**: COMPLETE when you reach DINING ROOM and can see dining table/eating area  
 - **"Clean dishes"**: COMPLETE when you reach KITCHEN sink area where dishes can be washed
 
-🚨 TASK COMPLETION RULE: Set "task_complete": true ONLY when you have successfully navigated to the correct room for the current CASAS task and can see the relevant furniture/appliances.
+ðŸš¨ TASK COMPLETION RULE: Set "task_complete": true ONLY when you have successfully navigated to the correct room for the current CASAS task and can see the relevant furniture/appliances.
 
 MOVEMENT COMMANDS:
 - FORWARD: Move straight ahead (only if path is clear!)
@@ -1804,13 +1873,13 @@ MOVEMENT COMMANDS:
 - LEFT: Turn body left (human-like rotation, no forward movement)
 - RIGHT: Turn body right (human-like rotation, no forward movement)
 
-🚨 CRITICAL LOOP PREVENTION TRAINING:
+ðŸš¨ CRITICAL LOOP PREVENTION TRAINING:
 
 **MOVEMENT PATTERN RULES (MANDATORY):**
-✅ CORRECT: TURN → FORWARD (when clear space seen)
-✅ CORRECT: FORWARD → TURN → FORWARD (natural navigation flow)
-❌ FORBIDDEN: LEFT → RIGHT → LEFT → RIGHT (spinning in circles)
-❌ FORBIDDEN: Multiple turns without attempting FORWARD movement
+âœ… CORRECT: TURN â†’ FORWARD (when clear space seen)
+âœ… CORRECT: FORWARD â†’ TURN â†’ FORWARD (natural navigation flow)
+âŒ FORBIDDEN: LEFT â†’ RIGHT â†’ LEFT â†’ RIGHT (spinning in circles)
+âŒ FORBIDDEN: Multiple turns without attempting FORWARD movement
 
 **FORWARD BIAS PRINCIPLE:**
 - When you see ANY open space ahead, choose FORWARD over additional turning
@@ -1839,96 +1908,96 @@ MOVEMENT COMMANDS:
 DECISION PROCESS (USING BOTH IMAGES TOGETHER):
 
 1. **ANALYZE NAVIGATION MAP (Image 1) - Global Spatial Awareness:**
-   - 📍 Locate the RED HUMAN FIGURE → This is your current position in the house
-   - 🧭 Look at the RED ARROW direction → This shows which way you're currently facing
-   - 🗺️ Identify which room the red figure is standing in (use room labels on map)
-   - 🎯 Find your TARGET ROOM on the map for the current task
-   - 📏 Determine the general direction from red figure to target room
-   - 🟢 Check the GREEN PATH (movement history) - avoid revisiting same areas
+   - ðŸ“ Locate the RED HUMAN FIGURE â†’ This is your current position in the house
+   - ðŸ§­ Look at the RED ARROW direction â†’ This shows which way you're currently facing
+   - ðŸ—ºï¸ Identify which room the red figure is standing in (use room labels on map)
+   - ðŸŽ¯ Find your TARGET ROOM on the map for the current task
+   - ðŸ“ Determine the general direction from red figure to target room
+   - ðŸŸ¢ Check the GREEN PATH (movement history) - avoid revisiting same areas
 
 2. **ANALYZE FIRST-PERSON VIEW (Image 2) - Local Obstacle Detection:**
-   - 👁️ What do you SEE directly ahead? (walls, furniture, doors, open space)
-   - 🚪 Is there a DOORWAY or opening visible in the direction you're facing?
-   - 🛑 Are there OBSTACLES blocking your path? (walls, furniture, objects)
-   - 🔍 What ROOM are you in based on visible furniture? (sofa=living room, bed=bedroom, etc.)
+   - ðŸ‘ï¸ What do you SEE directly ahead? (walls, furniture, doors, open space)
+   - ðŸšª Is there a DOORWAY or opening visible in the direction you're facing?
+   - ðŸ›‘ Are there OBSTACLES blocking your path? (walls, furniture, objects)
+   - ðŸ” What ROOM are you in based on visible furniture? (sofa=living room, bed=bedroom, etc.)
 
 3. **SYNCHRONIZE BOTH IMAGES - Critical Alignment Check:**
-   - ✅ The red arrow on MAP should point toward what you see in FIRST-PERSON view
-   - ✅ If FP view shows a wall ahead, the arrow on map should point toward that wall
-   - ✅ If FP view shows a doorway, the arrow should point in that doorway's direction
-   - ✅ The room identified in FP view should match where red figure is on map
-   - ⚠️ If images don't align, trust the MAP for position and FP for obstacles
+   - âœ… The red arrow on MAP should point toward what you see in FIRST-PERSON view
+   - âœ… If FP view shows a wall ahead, the arrow on map should point toward that wall
+   - âœ… If FP view shows a doorway, the arrow should point in that doorway's direction
+   - âœ… The room identified in FP view should match where red figure is on map
+   - âš ï¸ If images don't align, trust the MAP for position and FP for obstacles
 
 4. **DETERMINE NAVIGATION STRATEGY:**
    
    **Step A: Check if you're facing the right direction (using MAP):**
    - Is the red arrow pointing TOWARD the target room?
-   - If YES → Check FP view for clear path, then move FORWARD
-   - If NO → Turn LEFT or RIGHT to orient toward target room
+   - If YES â†’ Check FP view for clear path, then move FORWARD
+   - If NO â†’ Turn LEFT or RIGHT to orient toward target room
    
    **Step B: Check for obstacles in current direction (using FP VIEW):**
-   - Clear path ahead in FP view → Move FORWARD
-   - Wall/obstacle directly ahead → Turn to find clear path
-   - Doorway visible ahead → Move FORWARD through doorway
+   - Clear path ahead in FP view â†’ Move FORWARD
+   - Wall/obstacle directly ahead â†’ Turn to find clear path
+   - Doorway visible ahead â†’ Move FORWARD through doorway
    
    **Step C: Combine both analyses for final decision:**
-   - MAP says "target is to your left" + FP shows "wall ahead" → Turn LEFT
-   - MAP says "target is ahead" + FP shows "doorway ahead" → Move FORWARD
-   - MAP says "you're in target room" + FP shows "correct furniture" → Task complete!
+   - MAP says "target is to your left" + FP shows "wall ahead" â†’ Turn LEFT
+   - MAP says "target is ahead" + FP shows "doorway ahead" â†’ Move FORWARD
+   - MAP says "you're in target room" + FP shows "correct furniture" â†’ Task complete!
 
 5. **EXECUTE SAFE MOVEMENT:**
    - Choose action that progresses toward target (from MAP) while avoiding collisions (from FP view)
    - Always explain your reasoning by referencing BOTH images
 
-🚀 DUAL-IMAGE NAVIGATION STRATEGY (CRITICAL - USE BOTH IMAGES TOGETHER):
+ðŸš€ DUAL-IMAGE NAVIGATION STRATEGY (CRITICAL - USE BOTH IMAGES TOGETHER):
 
 **PRIMARY RULE: The navigation MAP and first-person VIEW must be analyzed TOGETHER, not separately!**
 
 **GLOBAL PLANNING (Using Navigation Map - Image 1):**
-- 🗺️ **Find yourself**: Locate the RED HUMAN FIGURE on the map - this is YOU
-- 🧭 **Check orientation**: The RED ARROW shows which direction you're CURRENTLY FACING
-- 🎯 **Locate target**: Find your target room (Kitchen/Bedroom/Living Room) on the labeled map
-- 📍 **Plan direction**: Determine which direction from YOU (red figure) leads to target room
+- ðŸ—ºï¸ **Find yourself**: Locate the RED HUMAN FIGURE on the map - this is YOU
+- ðŸ§­ **Check orientation**: The RED ARROW shows which direction you're CURRENTLY FACING
+- ðŸŽ¯ **Locate target**: Find your target room (Kitchen/Bedroom/Living Room) on the labeled map
+- ðŸ“ **Plan direction**: Determine which direction from YOU (red figure) leads to target room
   * Example: "Target room is to the LEFT of my current position on map"
   * Example: "I'm FACING the target room (arrow points toward it)"
   * Example: "Target room is BEHIND me (need to turn around)"
 
 **LOCAL EXECUTION (Using First-Person View - Image 2):**
-- 👁️ **Check obstacles**: What's directly ahead in your current view?
-  * Clear path / Open doorway → Can move FORWARD safely
-  * Wall / Large furniture → CANNOT move forward, must turn
-  * Partial obstruction → Evaluate if passable
-- 🚪 **Identify opportunities**: Look for doorways, hallways, open spaces
-- 🔍 **Confirm location**: Match visible furniture with map position
-  * See sofa → Should be in/near living room (check map confirms this)
-  * See bed → Should be in bedroom (check map confirms this)
+- ðŸ‘ï¸ **Check obstacles**: What's directly ahead in your current view?
+  * Clear path / Open doorway â†’ Can move FORWARD safely
+  * Wall / Large furniture â†’ CANNOT move forward, must turn
+  * Partial obstruction â†’ Evaluate if passable
+- ðŸšª **Identify opportunities**: Look for doorways, hallways, open spaces
+- ðŸ” **Confirm location**: Match visible furniture with map position
+  * See sofa â†’ Should be in/near living room (check map confirms this)
+  * See bed â†’ Should be in bedroom (check map confirms this)
 
 **SYNCHRONIZED DECISION MAKING (Combining Both Images):**
 
 1. **If MAP shows target is AHEAD and FP view shows CLEAR PATH:**
-   → Decision: FORWARD (both images agree - safe to proceed)
+   â†’ Decision: FORWARD (both images agree - safe to proceed)
    
 2. **If MAP shows target is AHEAD but FP view shows WALL:**
-   → Decision: LEFT or RIGHT (turn to navigate around obstacle)
-   → Next step: Check if turned toward target, then move forward
+   â†’ Decision: LEFT or RIGHT (turn to navigate around obstacle)
+   â†’ Next step: Check if turned toward target, then move forward
    
 3. **If MAP shows target is LEFT and FP view shows WALL AHEAD:**
-   → Decision: LEFT (aligns with map direction AND avoids obstacle)
+   â†’ Decision: LEFT (aligns with map direction AND avoids obstacle)
    
 4. **If MAP shows target is RIGHT and FP view shows CLEAR PATH AHEAD:**
-   → Decision: First assess - is forward path leading toward target?
-   → Check if moving forward brings you closer to target (use map)
-   → If yes → FORWARD, if no → Turn RIGHT first
+   â†’ Decision: First assess - is forward path leading toward target?
+   â†’ Check if moving forward brings you closer to target (use map)
+   â†’ If yes â†’ FORWARD, if no â†’ Turn RIGHT first
 
 5. **If RED FIGURE on map is IN target room AND FP view shows correct furniture:**
-   → Decision: Task complete! (both images confirm arrival)
+   â†’ Decision: Task complete! (both images confirm arrival)
 
 **MOVEMENT VALIDATION (After Each Decision):**
-- ✅ "I chose FORWARD because MAP shows target ahead AND FP view shows clear doorway"
-- ✅ "I chose LEFT because MAP shows target is left AND FP shows wall blocking forward"
-- ✅ "I chose FORWARD because after last turn, MAP confirms I'm now facing target room"
-- ❌ AVOID: "I chose LEFT because I see a wall" (missing map analysis!)
-- ❌ AVOID: "I chose FORWARD because map shows target ahead" (missing obstacle check!)
+- âœ… "I chose FORWARD because MAP shows target ahead AND FP view shows clear doorway"
+- âœ… "I chose LEFT because MAP shows target is left AND FP shows wall blocking forward"
+- âœ… "I chose FORWARD because after last turn, MAP confirms I'm now facing target room"
+- âŒ AVOID: "I chose LEFT because I see a wall" (missing map analysis!)
+- âŒ AVOID: "I chose FORWARD because map shows target ahead" (missing obstacle check!)
 
 **IMAGE FRESHNESS GUARANTEE:**
 - Both images are captured at the SAME moment after your last movement
@@ -1939,7 +2008,7 @@ DECISION PROCESS (USING BOTH IMAGES TOGETHER):
 - Look for doorways, hallways, and open pathways to move through
 - Don't just spin in place - FORWARD movement is essential for progress
 
-🏠 ENHANCED ROOM IDENTIFICATION GUIDE (CRITICAL):
+ðŸ  ENHANCED ROOM IDENTIFICATION GUIDE (CRITICAL):
 **STEP 1: ANALYZE FIRST-PERSON VIEW**
 Look for these distinctive furniture/features:
 - **LIVING ROOM**: Sofas, couch, TV, coffee table, large open space
@@ -1955,12 +2024,12 @@ Look for these distinctive furniture/features:
 - Look for architectural features (walls, openings, room size) that match the floor plan
 
 **STEP 3: MAKE CONFIDENT ROOM IDENTIFICATION**
-- If you see a sofa/couch → likely LIVING_ROOM
-- If you see stove/refrigerator → likely KITCHEN  
-- If you see bed → likely BEDROOM
-- If you see toilet/bathtub → likely BATHROOM
-- If you see dining table → likely DINING_ROOM
-- If you see narrow corridor → likely HALLWAY
+- If you see a sofa/couch â†’ likely LIVING_ROOM
+- If you see stove/refrigerator â†’ likely KITCHEN  
+- If you see bed â†’ likely BEDROOM
+- If you see toilet/bathtub â†’ likely BATHROOM
+- If you see dining table â†’ likely DINING_ROOM
+- If you see narrow corridor â†’ likely HALLWAY
 - Only use UNKNOWN if absolutely no identifying features visible
 
 **STEP 4: VALIDATE WITH FLOOR PLAN POSITION**
@@ -1989,7 +2058,7 @@ RESPOND WITH JSON ONLY:
 IMPORTANT JSON RULES:
 **DUAL-IMAGE REASONING EXAMPLES (MANDATORY FORMAT):**
 
-✅ **CORRECT Example 1 - Using both images together:**
+âœ… **CORRECT Example 1 - Using both images together:**
 {{
     "map_analysis": "Red figure in LIVING_ROOM, red arrow pointing NORTH toward KITCHEN. Target room KITCHEN is directly ahead on map.",
     "fp_view_analysis": "First-person view shows open doorway ahead with glimpse of kitchen appliances. Path is clear.",
@@ -1998,7 +2067,7 @@ IMPORTANT JSON RULES:
     "reasoning": "Map shows I'm facing kitchen (arrow points north to target). FP view confirms clear doorway ahead with kitchen visible. Both images align - moving forward toward target."
 }}
 
-✅ **CORRECT Example 2 - Map says turn, FP shows obstacle:**
+âœ… **CORRECT Example 2 - Map says turn, FP shows obstacle:**
 {{
     "map_analysis": "Red figure in HALLWAY, arrow pointing EAST. Target BEDROOM is to my LEFT (north) on map.",
     "fp_view_analysis": "Wall directly ahead in FP view. No doorway visible in current direction.",
@@ -2007,7 +2076,7 @@ IMPORTANT JSON RULES:
     "reasoning": "Map shows target bedroom is left of my position. FP view confirms wall ahead blocking current path. Turning left aligns with map direction and avoids obstacle."
 }}
 
-✅ **CORRECT Example 3 - Task completion:**
+âœ… **CORRECT Example 3 - Task completion:**
 {{
     "map_analysis": "Red figure is INSIDE kitchen area on map. Arrow pointing toward cooking area.",
     "fp_view_analysis": "See stove, refrigerator, kitchen counter. Clearly in kitchen based on appliances.",
@@ -2016,14 +2085,14 @@ IMPORTANT JSON RULES:
     "reasoning": "Map shows red figure positioned in kitchen room. FP view confirms kitchen furniture (stove, fridge). Both images verify I've reached target room for task."
 }}
 
-❌ **WRONG Example - Only using one image:**
+âŒ **WRONG Example - Only using one image:**
 {{
     "reasoning": "I see a wall ahead so I'm turning right."
     "movement_decision": "RIGHT"
 }}
 [BAD: No mention of map, no direction planning, no dual-image analysis]
 
-❌ **WRONG Example - Ignoring coordinate synchronization:**
+âŒ **WRONG Example - Ignoring coordinate synchronization:**
 {{
     "reasoning": "Map shows kitchen is north but I'll move forward anyway."
     "movement_decision": "FORWARD"
@@ -2068,24 +2137,24 @@ REMEMBER: You MUST analyze BOTH images together. The map shows WHERE to go, the 
         images = [fp_image_path]
         if house_layout_path and os.path.exists(house_layout_path):
             images.append(house_layout_path)
-            print(f"ðŸ” VLM analyzing: FP view + house layout for '{task}' (obstacle-aware)")
+            print(f"Ã°Å¸â€Â VLM analyzing: FP view + house layout for '{task}' (obstacle-aware)")
         else:
-            print(f"ðŸ” VLM analyzing: FP view only for '{task}' (obstacle-aware)")
+            print(f"Ã°Å¸â€Â VLM analyzing: FP view only for '{task}' (obstacle-aware)")
         
         # Call VLM with dual images
         response = llm_complete_func(prompt, images)
         
         if not response:
-            print("âŒ VLM returned no response")
+            print("Ã¢ÂÅ’ VLM returned no response")
             return None
         
-        print("✅ VLM spatial analysis completed")
+        print("âœ… VLM spatial analysis completed")
         
         # Parse VLM response
         return parse_navigation_response(response)
         
     except Exception as e:
-        print(f"âŒ Dual image navigation analysis failed: {e}")
+        print(f"Ã¢ÂÅ’ Dual image navigation analysis failed: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -2099,10 +2168,10 @@ def take_simple_screenshot(step_number):
         fp_camera = (scene.objects.get("Actor_FPCamera"))
         
         if not fp_camera:
-            print("âŒ No camera found")
+            print("Ã¢ÂÅ’ No camera found")
             return None
         
-        print(f"🖼️ Using camera: {fp_camera.name}")
+        print(f"ðŸ–¼ï¸ Using camera: {fp_camera.name}")
         
         # Set active camera
         original_camera = scene.active_camera
@@ -2116,12 +2185,12 @@ def take_simple_screenshot(step_number):
             # Use step number for filename
             screenshot_path = os.path.join(captures_dir, f"first_person_{step_number:03d}.png")
             
-            print(f"ðŸ“ Screenshot path: {screenshot_path}")
+            print(f"Ã°Å¸â€œÂ Screenshot path: {screenshot_path}")
             
             # Request screenshot
-            print("ðŸ“¸ Taking screenshot...")
+            print("Ã°Å¸â€œÂ¸ Taking screenshot...")
             result = bge.render.makeScreenshot(screenshot_path)
-            print(f"ðŸ” makeScreenshot returned: {result}")
+            print(f"Ã°Å¸â€Â makeScreenshot returned: {result}")
             
             # Wait for file with longer timeout
             timeout = 10.0
@@ -2131,14 +2200,14 @@ def take_simple_screenshot(step_number):
                 if os.path.exists(screenshot_path):
                     file_size = os.path.getsize(screenshot_path)
                     if file_size >= 1000:
-                        print(f"✅ Screenshot ready: {os.path.basename(screenshot_path)} ({file_size:,} bytes)")
+                        print(f"âœ… Screenshot ready: {os.path.basename(screenshot_path)} ({file_size:,} bytes)")
                         return screenshot_path
                     else:
-                        print(f"â³ File growing: {file_size} bytes...")
+                        print(f"Ã¢ÂÂ³ File growing: {file_size} bytes...")
                 
                 time.sleep(0.5)  # Check every 500ms
             
-            print("âŒ Screenshot timeout")
+            print("Ã¢ÂÅ’ Screenshot timeout")
             return None
             
         finally:
@@ -2147,7 +2216,7 @@ def take_simple_screenshot(step_number):
                 scene.active_camera = original_camera
                 
     except Exception as e:
-        print(f"âŒ Screenshot error: {e}")
+        print(f"Ã¢ÂÅ’ Screenshot error: {e}")
         return None
 
 def run_frame_based_navigation():
@@ -2155,13 +2224,13 @@ def run_frame_based_navigation():
     
     # Check if we've reached max steps
     if bge.logic.vesper_step >= bge.logic.vesper_max_steps:
-        print("â° Maximum steps reached")
+        print("Ã¢ÂÂ° Maximum steps reached")
         return
     
     # State: Need screenshot
     if not bge.logic.vesper_screenshot_pending and not bge.logic.vesper_screenshot_path:
-        print(f"\nðŸ”„ Navigation Step {bge.logic.vesper_step + 1}/{bge.logic.vesper_max_steps}")
-        print("ðŸ“¸ Requesting screenshot...")
+        print(f"\nÃ°Å¸â€â€ž Navigation Step {bge.logic.vesper_step + 1}/{bge.logic.vesper_max_steps}")
+        print("Ã°Å¸â€œÂ¸ Requesting screenshot...")
         
         # Request screenshot (non-blocking)
         if request_screenshot_async():
@@ -2174,11 +2243,11 @@ def run_frame_based_navigation():
         screenshot_path = check_screenshot_ready()
         
         if screenshot_path == "TIMEOUT":
-            print("âŒ Screenshot timeout, retrying...")
+            print("Ã¢ÂÅ’ Screenshot timeout, retrying...")
             bge.logic.vesper_screenshot_pending = False
             return  # Retry next frame
         elif screenshot_path:
-            print(f"✅ Screenshot ready: {os.path.basename(screenshot_path)}")
+            print(f"âœ… Screenshot ready: {os.path.basename(screenshot_path)}")
             bge.logic.vesper_screenshot_path = screenshot_path
             bge.logic.vesper_screenshot_pending = False
             return  # Allow frame to render before analysis
@@ -2187,7 +2256,7 @@ def run_frame_based_navigation():
     
     # State: Screenshot ready - analyze and move
     if bge.logic.vesper_screenshot_path:
-        print("ðŸ” Analyzing navigation...")
+        print("Ã°Å¸â€Â Analyzing navigation...")
         
         # Load house plan
         house_plan_path = load_house_plan()
@@ -2209,13 +2278,13 @@ def run_frame_based_navigation():
             # Execute movement
             action = result.get('movement_decision', '')
             if action in ['FORWARD', 'BACKWARD', 'LEFT', 'RIGHT']:
-                print(f"ðŸŽ¯ Movement: {action}")
-                print(f"ðŸ’­ Reasoning: {result.get('reasoning', 'No reasoning')}")
+                print(f"Ã°Å¸Å½Â¯ Movement: {action}")
+                print(f"Ã°Å¸â€™Â­ Reasoning: {result.get('reasoning', 'No reasoning')}")
                 execute_movement(action)
             else:
-                print(f"⚠️ ï¸ Invalid action: {action}")
+                print(f"âš ï¸Â Ã¯Â¸Â Invalid action: {action}")
         else:
-            print("âŒ Navigation analysis failed")
+            print("Ã¢ÂÅ’ Navigation analysis failed")
         
         # Reset for next step
         bge.logic.vesper_screenshot_path = None
@@ -2232,7 +2301,7 @@ def request_screenshot_async():
         fp_camera = (scene.objects.get("Actor_FPCamera"))
         
         if not fp_camera:
-            print("âŒ No camera found")
+            print("Ã¢ÂÅ’ No camera found")
             return False
         
         # Set active camera
@@ -2270,12 +2339,12 @@ def request_screenshot_async():
         
         # Request screenshot (async)
         result = bge.render.makeScreenshot(screenshot_path)
-        print(f"ðŸ“¸ Screenshot requested: {os.path.basename(screenshot_path)} (result: {result})")
+        print(f"Ã°Å¸â€œÂ¸ Screenshot requested: {os.path.basename(screenshot_path)} (result: {result})")
         
         return True
         
     except Exception as e:
-        print(f"âŒ Screenshot request failed: {e}")
+        print(f"Ã¢ÂÅ’ Screenshot request failed: {e}")
         return False
 
 def check_screenshot_ready():
@@ -2329,15 +2398,15 @@ try:
             try:
                 main()
             except Exception as e:
-                print(f"âŒ Navigation update error: {e}")
+                print(f"Ã¢ÂÅ’ Navigation update error: {e}")
         
         # Store the function reference for potential BGE logic brick usage
         bge.logic.vesper_main_function = continuous_navigation
         
-        print("ðŸ”§ Continuous navigation setup complete")
+        print("Ã°Å¸â€Â§ Continuous navigation setup complete")
         
 except Exception as e:
-    print(f"⚠️ ï¸ Continuous setup failed: {e}")
+    print(f"âš ï¸Â Ã¯Â¸Â Continuous setup failed: {e}")
     # Fallback: just run main once
     main()
 
@@ -2390,7 +2459,7 @@ def _parse_navigation_result_with_fallback(llm_result, fallback_action="FORWARD"
             }
         
     except Exception as e:
-        print(f"⚠️ JSON parsing failed: {e}")
+        print(f"âš ï¸ JSON parsing failed: {e}")
         return {
             "movement_decision": fallback_action,
             "reasoning": f"Parse error - using {fallback_action}",
@@ -2417,13 +2486,13 @@ def check_navigation_loops_emergency(world_coords, recent_turns, bge, llm_comple
     if len(bge.logic.position_history) >= 3:
         recent_positions = bge.logic.position_history[-3:]
         if len(set(recent_positions)) == 1:  # All same position
-            print(f"🚨 EMERGENCY: Actor stuck at {current_pos_str} for 3+ steps!")
+            print(f"ðŸš¨ EMERGENCY: Actor stuck at {current_pos_str} for 3+ steps!")
             return force_emergency_forward_movement(llm_complete_func, fp_image_path, current_pos_str)
     
     # Check for excessive turning (4+ turns or 2+ with no forward)
     recent_forwards = [m for m in bge.logic.recent_movements[-8:] if m == 'FORWARD']
     if len(recent_turns) >= 3 or (len(recent_turns) >= 2 and len(recent_forwards) == 0):
-        print(f"🚨 TURNING LOOP DETECTED: {len(recent_turns)} turns, {len(recent_forwards)} forwards")
+        print(f"ðŸš¨ TURNING LOOP DETECTED: {len(recent_turns)} turns, {len(recent_forwards)} forwards")
         return force_emergency_forward_movement(llm_complete_func, fp_image_path, current_pos_str)
     
     return None  # No emergency intervention needed
@@ -2431,7 +2500,7 @@ def check_navigation_loops_emergency(world_coords, recent_turns, bge, llm_comple
 def analyze_position_only_navigation(world_coords, task, step_number):
     """Fallback navigation based on position only when screenshots fail"""
     
-    print("🗺️ Using position-only navigation fallback")
+    print("ðŸ—ºï¸ Using position-only navigation fallback")
     
     # Simple position-based logic
     x, y = world_coords[0], world_coords[1]
@@ -2490,20 +2559,20 @@ EXACT REQUIRED JSON RESPONSE:
 NO OTHER RESPONSE IS ACCEPTABLE. Respond with the exact JSON above."""
     
     try:
-        print("🚀 Sending emergency FORWARD command...")
+        print("ðŸš€ Sending emergency FORWARD command...")
         emergency_result = llm_complete_func(emergency_prompt, [fp_image_path] if fp_image_path else [])
         
         if emergency_result:
-            print(f"📥 Emergency response: {emergency_result[:100]}...")
+            print(f"ðŸ“¥ Emergency response: {emergency_result[:100]}...")
             return _parse_navigation_result_with_fallback(emergency_result, "FORWARD")
         else:
-            print("⚠️ No emergency response - using direct fallback")
+            print("âš ï¸ No emergency response - using direct fallback")
             
     except Exception as e:
-        print(f"❌ Emergency command failed: {e}")
+        print(f"âŒ Emergency command failed: {e}")
     
     # Ultimate fallback - direct movement command
-    print("🔧 Using ultimate fallback: FORWARD")
+    print("ðŸ”§ Using ultimate fallback: FORWARD")
     return {
         "movement_decision": "FORWARD",
         "reasoning": "Ultimate emergency fallback to break navigation loop",
@@ -2511,3 +2580,4 @@ NO OTHER RESPONSE IS ACCEPTABLE. Respond with the exact JSON above."""
         "confidence": 0.6,
         "task_complete": False
     }
+

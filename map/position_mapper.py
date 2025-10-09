@@ -489,15 +489,15 @@ class VESPERPositionMapper:
             (int(base_2_x), int(base_2_y))
         ]
         
-        # Red arrow with black outline
-        draw.polygon(points, fill=(255, 50, 50), outline=(0, 0, 0), width=3)
+        # Pure RED arrow with red outline (no black!)
+        draw.polygon(points, fill=(255, 0, 0), outline=(255, 0, 0), width=3)
         
-        # Draw center circle (smaller)
+        # Draw center circle (smaller) - also pure red
         circle_radius = int(size * 0.4)  # Reduced from 0.6
         draw.ellipse([
             x - circle_radius, y - circle_radius,
             x + circle_radius, y + circle_radius
-        ], fill=(255, 100, 100), outline=(0, 0, 0), width=2)
+        ], fill=(255, 0, 0), outline=(255, 0, 0), width=2)
     
     def _draw_position_label(self, draw, x, y):
         """Draw position label next to the human indicator"""

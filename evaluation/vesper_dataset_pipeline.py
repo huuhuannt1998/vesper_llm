@@ -51,23 +51,30 @@ class VESPERDatasetPipeline:
         print("DETECTING VESPER DATASETS")
         print("="*80)
         
-        # Find CASAS motion sensor files
-        casas_files = list(self.vesper_datasets_dir.glob("vesper_casas_*.txt"))
-        
-        # Find VLM metrics files
+        # Find VLM metrics files (sensor events are now embedded in JSON)
         metrics_files = list(self.vesper_datasets_dir.glob("vesper_metrics_*.json"))
         
-        print(f"\n📊 Found {len(casas_files)} CASAS sensor files")
-        for f in casas_files:
-            print(f"   - {f.name}")
-        
-        print(f"\n📊 Found {len(metrics_files)} VLM metrics files")
+        print(f"\n📊 Found {len(metrics_files)} VESPER metrics files")
         for f in metrics_files:
             print(f"   - {f.name}")
         
+        # Check if metrics files contain virtual sensor events
+        datasets_with_sensors = []
+        for metrics_file in metrics_files:
+            try:
+                with open(metrics_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    if 'virtual_sensor_events' in data and len(data['virtual_sensor_events']) > 0:
+                        datasets_with_sensors.append(metrics_file)
+                        print(f"   ✅ {metrics_file.name}: {len(data['virtual_sensor_events'])} sensor events")
+                    else:
+                        print(f"   ⚠️ {metrics_file.name}: No sensor events found")
+            except Exception as e:
+                print(f"   ❌ {metrics_file.name}: Error reading file - {e}")
+        
         return {
-            'casas_files': casas_files,
-            'metrics_files': metrics_files
+            'metrics_files': metrics_files,
+            'datasets_with_sensors': datasets_with_sensors
         }
     
     def validate_casas_format(self, casas_file: Path):
@@ -104,6 +111,76 @@ class VESPERDatasetPipeline:
             
         except Exception as e:
             return {'valid': False, 'error': str(e)}
+    
+    def analyze_vesper_metrics(self, metrics_file: Path):
+        """Analyze VESPER metrics JSON file"""
+        try:
+            with open(metrics_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            # Extract key metrics
+            analysis = {
+                'file': metrics_file.name,
+                'session_id': data.get('session_id', 'unknown'),
+                'total_tasks': len(data.get('task_details', [])),
+                'tasks_completed': data.get('tasks_completed', 0),
+                'tasks_failed': data.get('tasks_failed', 0),
+                'total_steps': data.get('total_steps', 0),
+                'total_screenshots': data.get('total_screenshots', 0),
+                'total_llm_calls': data.get('total_llm_calls', 0),
+                'sensor_events': len(data.get('virtual_sensor_events', [])),
+                'virtual_sensor_events': data.get('virtual_sensor_events', [])
+            }
+            
+            # Extract sensor statistics
+            if analysis['sensor_events'] > 0:
+                sensor_types = {}
+                for event in analysis['virtual_sensor_events']:
+                    sensor_id = event.get('sensor_id', 'unknown')
+                    if sensor_id not in sensor_types:
+                        sensor_types[sensor_id] = {'ON': 0, 'OFF': 0}
+                    sensor_types[sensor_id][event.get('event', 'ON')] += 1
+                
+                analysis['sensor_types'] = sensor_types
+            
+            return analysis
+            
+        except Exception as e:
+            print(f"❌ Error analyzing {metrics_file.name}: {e}")
+            return None
+    
+    def generate_vesper_summary_report(self, analysis_results):
+        """Generate summary report for VESPER datasets"""
+        report_file = self.comparison_results_dir / f"vesper_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        
+        with open(report_file, 'w', encoding='utf-8') as f:
+            f.write("="*80 + "\n")
+            f.write("VESPER DATASET ANALYSIS SUMMARY\n")
+            f.write("="*80 + "\n\n")
+            f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Total datasets analyzed: {len(analysis_results)}\n\n")
+            
+            for result in analysis_results:
+                if result:
+                    f.write(f"\n{'='*80}\n")
+                    f.write(f"Dataset: {result['file']}\n")
+                    f.write(f"{'='*80}\n")
+                    f.write(f"Session ID: {result['session_id']}\n")
+                    f.write(f"Total Tasks: {result['total_tasks']}\n")
+                    f.write(f"Tasks Completed: {result['tasks_completed']}\n")
+                    f.write(f"Tasks Failed: {result['tasks_failed']}\n")
+                    f.write(f"Total Steps: {result['total_steps']}\n")
+                    f.write(f"Screenshots: {result['total_screenshots']}\n")
+                    f.write(f"LLM Calls: {result['total_llm_calls']}\n")
+                    f.write(f"Virtual Sensor Events: {result['sensor_events']}\n\n")
+                    
+                    if 'sensor_types' in result:
+                        f.write("Sensor Activity:\n")
+                        for sensor_id, events in result['sensor_types'].items():
+                            f.write(f"  {sensor_id}: ON={events['ON']}, OFF={events['OFF']}\n")
+                    f.write("\n")
+        
+        return report_file
     
     def compare_with_ground_truth(self, vesper_casas_file: Path):
         """Compare VESPER CASAS data with ground truth datasets"""
@@ -263,6 +340,173 @@ class VESPERDatasetPipeline:
         
         return str(report_file)
     
+    def create_vesper_visualizations(self, analysis_results: list) -> list:
+        """Create visualization plots for VESPER dataset analysis"""
+        print("\n" + "="*80)
+        print("GENERATING VISUALIZATION GRAPHS")
+        print("="*80)
+        
+        plot_files = []
+        
+        if not analysis_results or len(analysis_results) == 0:
+            print("⚠️  No results to visualize")
+            return plot_files
+        
+        try:
+            # Prepare data
+            datasets = []
+            for result in analysis_results:
+                if result:
+                    datasets.append({
+                        'name': result.get('session_id', 'Unknown'),
+                        'tasks': result.get('total_tasks', 0),
+                        'completed': result.get('tasks_completed', 0),
+                        'failed': result.get('tasks_failed', 0),
+                        'sensor_events': result.get('sensor_events', 0),
+                        'steps': result.get('total_steps', 0),
+                        'llm_calls': result.get('total_llm_calls', 0),
+                        'screenshots': result.get('total_screenshots', 0)
+                    })
+            
+            if not datasets:
+                print("⚠️  No valid data for visualization")
+                return plot_files
+            
+            df = pd.DataFrame(datasets)
+            
+            # 1. Task Completion Overview
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+            
+            # Pie chart of overall completion
+            total_completed = df['completed'].sum()
+            total_failed = df['failed'].sum()
+            
+            # Only create pie chart if there's data
+            if total_completed > 0 or total_failed > 0:
+                ax1.pie([total_completed, total_failed], labels=['Completed', 'Failed'], 
+                       autopct='%1.1f%%', colors=['#4CAF50', '#F44336'], startangle=90)
+                ax1.set_title('Overall Task Completion', fontsize=12, fontweight='bold')
+            else:
+                ax1.text(0.5, 0.5, 'No task data', ha='center', va='center', fontsize=14)
+                ax1.set_title('Overall Task Completion', fontsize=12, fontweight='bold')
+            
+            # Bar chart per dataset
+            x = np.arange(len(df))
+            width = 0.35
+            ax2.bar(x - width/2, df['completed'], width, label='Completed', color='#4CAF50')
+            ax2.bar(x + width/2, df['failed'], width, label='Failed', color='#F44336')
+            ax2.set_xlabel('Dataset')
+            ax2.set_ylabel('Task Count')
+            ax2.set_title('Task Completion by Dataset', fontsize=12, fontweight='bold')
+            ax2.set_xticks(x)
+            ax2.set_xticklabels([d[:10] + '...' if len(d) > 10 else d for d in df['name']], rotation=45, ha='right')
+            ax2.legend()
+            ax2.grid(True, alpha=0.3, axis='y')
+            
+            plt.tight_layout()
+            plot_file_1 = self.comparison_results_dir / "task_completion.png"
+            plt.savefig(plot_file_1, dpi=300, bbox_inches='tight')
+            plt.close()
+            plot_files.append(str(plot_file_1))
+            print(f"✅ Created: {plot_file_1.name}")
+            
+            # 2. Sensor Activity Distribution
+            plt.figure(figsize=(12, 6))
+            x = np.arange(len(df))
+            plt.bar(x, df['sensor_events'], color='#2196F3', alpha=0.7, edgecolor='black')
+            plt.xlabel('Dataset', fontsize=11)
+            plt.ylabel('Sensor Event Count', fontsize=11)
+            plt.title('Virtual Sensor Activity by Dataset', fontsize=14, fontweight='bold')
+            plt.xticks(x, [d[:10] + '...' if len(d) > 10 else d for d in df['name']], rotation=45, ha='right')
+            plt.grid(True, alpha=0.3, axis='y', linestyle='--')
+            
+            # Add value labels on bars
+            for i, v in enumerate(df['sensor_events']):
+                plt.text(i, v + 0.5, str(v), ha='center', va='bottom', fontweight='bold')
+            
+            plt.tight_layout()
+            plot_file_2 = self.comparison_results_dir / "sensor_activity.png"
+            plt.savefig(plot_file_2, dpi=300, bbox_inches='tight')
+            plt.close()
+            plot_files.append(str(plot_file_2))
+            print(f"✅ Created: {plot_file_2.name}")
+            
+            # 3. Navigation Metrics Comparison
+            fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+            
+            # Steps taken
+            axes[0, 0].bar(df['name'], df['steps'], color='#9C27B0', alpha=0.7, edgecolor='black')
+            axes[0, 0].set_title('Steps Taken per Dataset', fontweight='bold')
+            axes[0, 0].set_ylabel('Steps')
+            axes[0, 0].tick_params(axis='x', rotation=45)
+            axes[0, 0].grid(True, alpha=0.3, axis='y')
+            
+            # LLM calls
+            axes[0, 1].bar(df['name'], df['llm_calls'], color='#FF9800', alpha=0.7, edgecolor='black')
+            axes[0, 1].set_title('LLM Calls per Dataset', fontweight='bold')
+            axes[0, 1].set_ylabel('LLM Calls')
+            axes[0, 1].tick_params(axis='x', rotation=45)
+            axes[0, 1].grid(True, alpha=0.3, axis='y')
+            
+            # Screenshots
+            axes[1, 0].bar(df['name'], df['screenshots'], color='#00BCD4', alpha=0.7, edgecolor='black')
+            axes[1, 0].set_title('Screenshots Taken per Dataset', fontweight='bold')
+            axes[1, 0].set_ylabel('Screenshots')
+            axes[1, 0].tick_params(axis='x', rotation=45)
+            axes[1, 0].grid(True, alpha=0.3, axis='y')
+            
+            # Efficiency: Steps per Task
+            df['efficiency'] = df['steps'] / df['tasks']
+            axes[1, 1].bar(df['name'], df['efficiency'], color='#4CAF50', alpha=0.7, edgecolor='black')
+            axes[1, 1].set_title('Efficiency (Steps per Task)', fontweight='bold')
+            axes[1, 1].set_ylabel('Steps/Task')
+            axes[1, 1].tick_params(axis='x', rotation=45)
+            axes[1, 1].grid(True, alpha=0.3, axis='y')
+            
+            plt.tight_layout()
+            plot_file_3 = self.comparison_results_dir / "navigation_metrics.png"
+            plt.savefig(plot_file_3, dpi=300, bbox_inches='tight')
+            plt.close()
+            plot_files.append(str(plot_file_3))
+            print(f"✅ Created: {plot_file_3.name}")
+            
+            # 4. Sensor Activity Heatmap (if sensor distribution available)
+            sensor_data = []
+            for result in analysis_results:
+                if result and 'sensor_types' in result:
+                    for sensor_id, counts in result['sensor_types'].items():
+                        total_count = counts.get('ON', 0) + counts.get('OFF', 0)
+                        sensor_data.append({
+                            'Dataset': result.get('session_id', 'Unknown')[:15],
+                            'Sensor': sensor_id,
+                            'Count': total_count
+                        })
+            
+            if sensor_data:
+                sensor_df = pd.DataFrame(sensor_data)
+                pivot_table = sensor_df.pivot_table(values='Count', index='Sensor', columns='Dataset', fill_value=0)
+                
+                plt.figure(figsize=(12, 8))
+                sns.heatmap(pivot_table, annot=True, fmt='g', cmap='YlOrRd', 
+                           linewidths=0.5, cbar_kws={'label': 'Activation Count'})
+                plt.title('Sensor Activation Heatmap', fontsize=14, fontweight='bold')
+                plt.xlabel('Dataset', fontsize=11)
+                plt.ylabel('Sensor ID', fontsize=11)
+                plt.tight_layout()
+                plot_file_4 = self.comparison_results_dir / "sensor_heatmap.png"
+                plt.savefig(plot_file_4, dpi=300, bbox_inches='tight')
+                plt.close()
+                plot_files.append(str(plot_file_4))
+                print(f"✅ Created: {plot_file_4.name}")
+            
+        except Exception as e:
+            print(f"⚠️  Error creating visualizations: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        print(f"\n📊 Total graphs created: {len(plot_files)}")
+        return plot_files
+    
     def create_visualizations(self, all_results: list) -> list:
         """Create visualization plots for VESPER dataset comparison results"""
         print("\n" + "="*80)
@@ -418,60 +662,62 @@ class VESPERDatasetPipeline:
         # Step 1: Detect VESPER datasets
         datasets = self.detect_vesper_datasets()
         
-        if not datasets['casas_files']:
+        if not datasets['metrics_files']:
             print("\n⚠️ No VESPER datasets found!")
             print(f"   Expected location: {self.vesper_datasets_dir}")
             print("   Run BGE navigation first to generate datasets.")
             return {'status': 'no_data'}
         
-        # Step 2: Validate CASAS files
+        if not datasets['datasets_with_sensors']:
+            print("\n⚠️ VESPER datasets found, but no virtual sensor events!")
+            print("   Make sure virtual sensor logging is enabled in BGE navigation.")
+            print(f"   Files found: {len(datasets['metrics_files'])}")
+            return {'status': 'no_sensor_data'}
+        
+        # Step 2: Analyze VESPER metrics
         print("\n" + "="*80)
-        print("VALIDATING CASAS FORMAT")
+        print("ANALYZING VESPER METRICS")
         print("="*80)
         
-        validation_results = []
-        for casas_file in datasets['casas_files']:
-            result = self.validate_casas_format(casas_file)
-            validation_results.append(result)
-            if result['valid']:
-                print(f"\n✅ {result['file']}")
-                print(f"   Events: {result['events']}")
-                print(f"   Sensors: {', '.join(result['sensors'])}")
+        analysis_results = []
+        for metrics_file in datasets['datasets_with_sensors']:
+            result = self.analyze_vesper_metrics(metrics_file)
+            analysis_results.append(result)
+            if result:
+                print(f"\n✅ {metrics_file.name}")
+                print(f"   Tasks: {result.get('total_tasks', 0)}")
+                print(f"   Sensor events: {result.get('sensor_events', 0)}")
+                print(f"   Steps: {result.get('total_steps', 0)}")
             else:
-                print(f"\n❌ {casas_file.name}: {result.get('error', 'Unknown error')}")
+                print(f"\n❌ {metrics_file.name}: Analysis failed")
         
-        # Step 3: Compare with ground truth
-        comparison_results = []
-        for casas_file in datasets['casas_files']:
-            result = self.compare_with_ground_truth(casas_file)
-            comparison_results.append(result)
-        
-        # Step 4: Generate report
+        # Step 3: Generate summary report
         print("\n" + "="*80)
-        print("GENERATING COMPARISON REPORT")
+        print("GENERATING SUMMARY REPORT")
         print("="*80)
         
-        report_file = self.generate_comparison_report(comparison_results)
+        report_file = self.generate_vesper_summary_report(analysis_results)
         print(f"\n✅ Report saved: {os.path.basename(report_file)}")
         
-        # Step 5: Generate visualizations
-        plot_files = self.create_visualizations(comparison_results)
+        # Step 4: Create visualization graphs
+        plot_files = self.create_vesper_visualizations(analysis_results)
+        
+        # Save pipeline results JSON first
+        results_json = self.comparison_results_dir / f"vesper_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         
         # Compile final results
         pipeline_results = {
-            'vesper_datasets': len(datasets['casas_files']),
+            'vesper_datasets': len(datasets['datasets_with_sensors']),
             'metrics_files': len(datasets['metrics_files']),
-            'validations': validation_results,
-            'comparisons': comparison_results,
+            'analysis_results': analysis_results,
             'report_file': str(report_file),
+            'json_file': str(results_json),
             'plot_files': plot_files,
             'status': 'completed',
             'timestamp': datetime.now().isoformat()
         }
         
-        # Save pipeline results JSON
-        results_json = self.comparison_results_dir / f"pipeline_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(results_json, 'w') as f:
+        with open(results_json, 'w', encoding='utf-8') as f:
             json.dump(pipeline_results, f, indent=2)
         
         print(f"✅ Results JSON: {results_json.name}")
@@ -503,10 +749,11 @@ def main():
         if results['status'] == 'completed':
             print("\n✅ Pipeline completed successfully!")
             print(f"   VESPER datasets analyzed: {results['vesper_datasets']}")
-            print(f"   Comparisons performed: {len(results['comparisons'])}")
+            print(f"   Datasets analyzed: {len(results['analysis_results'])}")
             print(f"   Report: {os.path.basename(results['report_file'])}")
-            print(f"   Graphs generated: {len(results.get('plot_files', []))}")
+            print(f"   JSON results: {os.path.basename(results['json_file'])}")
             if results.get('plot_files'):
+                print(f"   Graphs generated: {len(results['plot_files'])}")
                 for plot in results['plot_files']:
                     print(f"      - {os.path.basename(plot)}")
         elif results['status'] == 'no_data':

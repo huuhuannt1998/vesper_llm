@@ -1,0 +1,2933 @@
+Blender Game Engine Started
+🔧 Enhanced VLM: Initialized 6 virtual devices
+C:\Users\hbui11\Desktop\vesper_llm\map\position_mapper.py:22: UserWarning: The NumPy module was reloaded (imported a second time). This can in some cases result in small but subtle issues and is discouraged.
+  import numpy as np
+Γ£à Position mapping system available
+âœ… Position mapping system integrated
+âœ… VLM position estimation system integrated
+Ã°Å¸â€Â§ Continuous navigation setup complete
+Ã°Å¸Å¡â‚¬ BGE Continuous Navigation System Starting...
+Ã°Å¸â€œâ€¹ Task List: ['Make a phone call', 'Wash hands', 'Cook oatmeal', 'Eat meal', 'Clean dishes']
+Ã°Å¸â€Â§ Continuous navigation initialized
+Ã¢ÂÂ³ Waiting 3 seconds for BGE to stabilize...
+Ã°Å¸â€Â§ Initializing LLM client...
+âœ… Python path configured: C:\Users\hbui11\Desktop\vesper_llm\blender
+ðŸ”§ BGE Navigation LLM Configuration:
+  ðŸš€ Using Open WebUI Server: http://cci-siscluster1.charlotte.edu:8080/api/chat/completions
+  ðŸ¤– Model: OpenGVLab/InternVL3_5-30B-A3B
+🔍 LLM Client Configuration:
+  USE_OPENWEBUI: True
+  OPENWEBUI_URL: http://cci-siscluster1.charlotte.edu:8080/api/chat/completions
+  OPENWEBUI_MODEL: OpenGVLab/InternVL3_5-30B-A3B
+âœ… LLM client initialized successfully with VLM wrapper
+ðŸŽ­ BGE Navigation connected to Open WebUI model: OpenGVLab/InternVL3_5-30B-A3B
+âœ… LLM client ready
+âœ… VESPER Metrics initialized - Session: 20251008_192948
+Ã°Å¸â€œÅ  Metrics logging system initialized
+Ã°Å¸Å½Â® Starting continuous task execution...
+📡 CASAS motion sensor logger initialized
+ðŸŽ¯ CASAS motion sensor logger initialized
+
+ðŸ” DEBUG: Scene Objects Analysis
+========================================
+ðŸ§  Total objects in scene: 285
+ðŸŽ­ Potential actors: ['Actor', 'Actor_FPCamera']
+ðŸ“· Potential cameras: ['BirdEyeCamera', 'Actor_FPCamera']
+ðŸ” First 20 objects:
+   1. Light - Pos: (4.08, 1.01, 5.90)
+   2. BirdEyeCamera - Pos: (0.00, 0.00, 26.00)
+   3. Actor - Pos: (-1.79, -2.07, -1.00)
+   4. DetectionArea_motion1 - Pos: (-4.95, -0.33, -0.01)
+   5. motion1 - Pos: (-4.95, -0.33, -0.01)
+   6. DetectionArea_motion2 - Pos: (-4.57, 4.69, 0.12)
+   7. motion2 - Pos: (-4.50, 4.70, 0.12)
+   8. Actor_FPCamera - Pos: (-1.82, -2.07, -0.20)
+   9. motion3 - Pos: (0.99, -0.77, -0.04)
+  10. DetectionArea_motion3 - Pos: (0.98, -0.76, -0.04)
+  11. motion4 - Pos: (1.05, -5.11, -0.25)
+  12. DetectionArea_motion4 - Pos: (1.05, -5.11, -0.25)
+  13. motion5 - Pos: (2.77, 0.67, 0.05)
+  14. DetectionArea_motion5 - Pos: (2.77, 0.67, 0.05)
+  15. motion6 - Pos: (3.08, -1.27, -0.09)
+  16. DetectionArea_motion6 - Pos: (3.08, -1.27, -0.09)
+  17. Node_268 - Pos: (0.00, 0.00, 0.00)
+  18. Mesh_0 - Pos: (0.00, 0.00, 0.00)
+  19. Mesh_1 - Pos: (0.00, 0.00, 0.00)
+  20. Mesh_2 - Pos: (0.00, 0.00, 0.00)
+  ... and 265 more objects
+========================================
+METRICS: Starting task 1: 'Make a phone call'
+
+Ã°Å¸Å½Â¯ Task 1/5: 'Make a phone call'
+Ã°Å¸â€â€ž Step 1/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_001.png (#1)
+âœ… Screenshot requested: fp_view_001.png (BGE async)
+✅ Loaded MCP config from: C:\Users\hbui11\Desktop\vesper_llm\blender\mcp_services_config.json
+❌ Failed to initialize BGE MCP integration:
+⚠️ MCP services not fully available - using fallback mode
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.79, -2.07)
+ðŸ§­ Actor orientation: 0.0243 rad (1.4Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒÅá Found house layout: C:\Users\hbui11\Desktop\vesper_llm\blender\house_layout_reference2.png
+Γ£à Base map loaded: 993x1008
+≡ƒôì VESPER Position Mapper initialized
+≡ƒù║∩╕Å Base map: house_layout_reference2.png
+≡ƒôü Output directory: C:\Users\hbui11\Desktop\vesper_llm\map\generated_maps
+Γ£à BGE Navigation Mapper initialized
+≡ƒº¡ DEBUG Orientation: 0.0243 rad = 1.4┬░
+≡ƒôì Actor position updated: World(-1.79, -2.07) ΓåÆ Map(407, 634), Facing: 1.4┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: 0.0243 rad = 1.4┬░
+≡ƒÄ¿ Map Display Angle: 4.6881 rad = 268.6┬░ ΓåÆ WEST (ΓåÉ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (405.7, 582.0) relative to center (407, 634)
+≡ƒº¡ Navigation context map generated: navigation_context_001.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_001.png
+âœ… Generated position map: navigation_context_001.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_001.png
+METRICS: Screenshot 1 captured - Analysis #1
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_001.png
+ðŸ—ºï¸ Map Image: navigation_context_001.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã¢ÂÅ’ No valid screenshots available
+Ã¢ÂÅ’ No valid navigation result - stopping navigation (no fallback)
+Ã°Å¸â€ºâ€˜ Navigation halted due to VLM failure
+
+Ã°Å¸Å½Â¯ Task 1/5: 'Make a phone call'
+Ã°Å¸â€â€ž Step 1/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_002.png (#2)
+âœ… Screenshot requested: fp_view_002.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.79, -2.07)
+ðŸ§­ Actor orientation: 0.0243 rad (1.4Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: 0.0243 rad = 1.4┬░
+≡ƒôì Actor position updated: World(-1.79, -2.07) ΓåÆ Map(407, 634), Facing: 1.4┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: 0.0243 rad = 1.4┬░
+≡ƒÄ¿ Map Display Angle: 4.6881 rad = 268.6┬░ ΓåÆ WEST (ΓåÉ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (405.7, 582.0) relative to center (407, 634)
+≡ƒº¡ Navigation context map generated: navigation_context_002.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_002.png
+âœ… Generated position map: navigation_context_002.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_002.png
+METRICS: Screenshot 2 captured - Analysis #1
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_002.png
+ðŸ—ºï¸ Map Image: navigation_context_002.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_001.png (1,575,955 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Make a phone call' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_001.png (FP view)
+ðŸ“· Image 2: navigation_context_002.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_001.png
+📷 Loaded image: navigation_context_002.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Actor is in Living Room (map confirms) with dining table visible (FP view). Task requires reaching Dining Room, which is part of current room. Moving forward toward dining table aligns with both images.
+Ã°Å¸Â§Â  METRICS: LLM Call 1 - Room: LIVING_ROOM, Task Complete: True
+âœ… VLM reports task 'Make a phone call' is COMPLETE!
+âœ… METRICS: Task COMPLETED in 37.5s with 0 steps
+
+============================================================
+VESPER NAVIGATION METRICS SUMMARY
+============================================================
+ðŸ“…  Session Duration: 37.5s
+ðŸŽ¯ Tasks Completed: 1/1 (100.0%)
+ðŸ“Š Total Steps: 0
+ðŸ“¸ Screenshots Taken: 2
+ðŸ“… LLM Calls Made: 1
+ðŸ§  Average Steps per Task: 0.0
+ðŸ§  Average Time per Task: 37.5s
+============================================================
+ðŸ“ Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets\vesper_metrics_p01_20251008_192948.json
+============================================================
+
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+METRICS: Starting task 2: 'Wash hands'
+
+Ã°Å¸Å½Â¯ Task 2/5: 'Wash hands'
+Ã°Å¸â€â€ž Step 1/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_003.png (#3)
+âœ… Screenshot requested: fp_view_003.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.79, -2.07)
+ðŸ§­ Actor orientation: 0.0243 rad (1.4Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: 0.0243 rad = 1.4┬░
+≡ƒôì Actor position updated: World(-1.79, -2.07) ΓåÆ Map(407, 634), Facing: 1.4┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: 0.0243 rad = 1.4┬░
+≡ƒÄ¿ Map Display Angle: 4.6881 rad = 268.6┬░ ΓåÆ WEST (ΓåÉ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (405.7, 582.0) relative to center (407, 634)
+≡ƒº¡ Navigation context map generated: navigation_context_003.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_003.png
+âœ… Generated position map: navigation_context_003.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_003.png
+METRICS: Screenshot 3 captured - Analysis #1
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_003.png
+ðŸ—ºï¸ Map Image: navigation_context_003.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_002.png (1,583,382 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Wash hands' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_002.png (FP view)
+ðŸ“· Image 2: navigation_context_003.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_002.png
+📷 Loaded image: navigation_context_003.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: RIGHT
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows target kitchen is north (ahead) but FP view confirms wall blocks forward path. Turning RIGHT aligns with map direction and accesses visible doorway to kitchen.
+Ã°Å¸Â§Â  METRICS: LLM Call 2 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: RIGHT
+Actor position before: <Vector (-1.7947, -2.0722, -1.0000)>
+Actor orientation before: <Euler (x=-0.0080, y=-0.0301, z=0.0243), order='XYZ'>
+Turning right (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.7947, -2.0722, -1.0000)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=-0.0019, y=-0.0310, z=-0.1758), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 1 - RIGHT from [-1.8, -2.1] to [-1.8, -2.1]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.8, -2.1]
+🔍 Actor at: [-1.79, -2.07]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.2,1.7] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[2.8,6.8] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.8,1.3] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.8,3.0] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.6,2.7] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.9,0.8] → out
+📡 Motion Sensor: motion3 (M003) Kitchen ON
+📡 Motion Sensor: motion4 (M004) Bedroom2 ON
+📡 Motion Sensor: motion1 (M001) Living_Room ON
+📡 Motion Sensor: motion2 (M002) Bedroom1 ON
+ VESPER Sensor: motion3 (M003) Kitchen ON at [-1.79, -2.07]
+ VESPER Sensor: motion4 (M004) Bedroom2 ON at [-1.79, -2.07]
+ VESPER Sensor: motion1 (M001) Living_Room ON at [-1.79, -2.07]
+ VESPER Sensor: motion2 (M002) Bedroom1 ON at [-1.79, -2.07]
+âœ… Rotation executed successfully: RIGHT
+âœ… Movement executed: RIGHT
+Ã°Å¸â€œÂ Movement history: ['RIGHT']
+Ã°Å¸Â¤â€“ VLM Decision: RIGHT
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows target kitchen is north (ahead) but FP view confirms wall blocks forward path. Turning RIGHT aligns with map direction and accesses visible doorway to kitchen.
+âœ… Found actor: Actor
+Executing: RIGHT
+Actor position before: <Vector (-1.7947, -2.0722, -1.0000)>
+Actor orientation before: <Euler (x=-0.0019, y=-0.0310, z=-0.1758), order='XYZ'>
+Turning right (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.7947, -2.0722, -1.0000)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0043, y=-0.0308, z=-0.3759), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 1 - RIGHT from [-1.8, -2.1] to [-1.8, -2.1]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.8, -2.1]
+🔍 Actor at: [-1.79, -2.07]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.2,1.7] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[2.8,6.8] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.8,1.3] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.8,3.0] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.6,2.7] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.9,0.8] → out
+âœ… Rotation executed successfully: RIGHT
+âœ… Movement executed: RIGHT
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 2/5: 'Wash hands'
+Ã°Å¸â€â€ž Step 2/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_004.png (#4)
+âœ… Screenshot requested: fp_view_004.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.79, -2.07)
+ðŸ§­ Actor orientation: -0.3759 rad (-21.5Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -0.3759 rad = -21.5┬░
+≡ƒôì Actor position updated: World(-1.79, -2.07) ΓåÆ Map(407, 634), Facing: -21.5┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -0.3759 rad = -21.5┬░
+≡ƒÄ¿ Map Display Angle: 5.0883 rad = 291.5┬░ ΓåÆ WEST (ΓåÉ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (426.1, 585.6) relative to center (407, 634)
+≡ƒº¡ Navigation context map generated: navigation_context_004.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_004.png
+âœ… Generated position map: navigation_context_004.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_004.png
+METRICS: Screenshot 4 captured - Analysis #2
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_004.png
+ðŸ—ºï¸ Map Image: navigation_context_004.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_003.png (1,671,248 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Wash hands' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_003.png (FP view)
+ðŸ“· Image 2: navigation_context_004.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_003.png
+📷 Loaded image: navigation_context_004.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+âš ï¸Â Ã¯Â¸Â No JSON found in VLM response
+Ã¢ÂÅ’ No valid navigation result - stopping navigation (no fallback)
+Ã°Å¸â€ºâ€˜ Navigation halted due to VLM failure
+
+Ã°Å¸Å½Â¯ Task 2/5: 'Wash hands'
+Ã°Å¸â€â€ž Step 2/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_005.png (#5)
+âœ… Screenshot requested: fp_view_005.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.79, -2.07)
+ðŸ§­ Actor orientation: -0.3759 rad (-21.5Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -0.3759 rad = -21.5┬░
+≡ƒôì Actor position updated: World(-1.79, -2.07) ΓåÆ Map(407, 634), Facing: -21.5┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -0.3759 rad = -21.5┬░
+≡ƒÄ¿ Map Display Angle: 5.0883 rad = 291.5┬░ ΓåÆ WEST (ΓåÉ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (426.1, 585.6) relative to center (407, 634)
+≡ƒº¡ Navigation context map generated: navigation_context_005.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_005.png
+âœ… Generated position map: navigation_context_005.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_005.png
+METRICS: Screenshot 5 captured - Analysis #2
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_005.png
+ðŸ—ºï¸ Map Image: navigation_context_005.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_004.png (1,674,291 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Wash hands' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_004.png (FP view)
+ðŸ“· Image 2: navigation_context_005.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_004.png
+📷 Loaded image: navigation_context_005.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing kitchen (arrow points north to target). FP view confirms doorway ahead with partial clearing. Both images align - moving forward toward target.
+Ã°Å¸Â§Â  METRICS: LLM Call 3 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.7947, -2.0722, -1.0000)>
+Actor orientation before: <Euler (x=0.0043, y=-0.0308, z=-0.3759), order='XYZ'>
+Moving forward
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.5011, -1.3281, -0.9965)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0043, y=-0.0308, z=-0.3759), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.800 units
+Ã°Å¸â€â€ž Orientation change: 0.000 radians
+METRICS: Step 2 - FORWARD from [-1.8, -2.1] to [-1.5, -1.3]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.5, -1.3]
+🔍 Actor at: [-1.50, -1.33]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.4,1.0] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.1,6.0] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.5,0.6] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.5,3.8] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.3,2.0] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.6,0.1] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['RIGHT', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing kitchen (arrow points north to target). FP view confirms doorway ahead with partial clearing. Both images align - moving forward toward target.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.5011, -1.3281, -0.9965)>
+Actor orientation before: <Euler (x=0.0043, y=-0.0308, z=-0.3759), order='XYZ'>
+Moving forward
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0043, y=-0.0308, z=-0.3759), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.800 units
+Ã°Å¸â€â€ž Orientation change: 0.000 radians
+METRICS: Step 2 - FORWARD from [-1.5, -1.3] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 2/5: 'Wash hands'
+Ã°Å¸â€â€ž Step 3/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_006.png (#6)
+âœ… Screenshot requested: fp_view_006.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -0.3759 rad (-21.5Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -0.3759 rad = -21.5┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -21.5┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -0.3759 rad = -21.5┬░
+≡ƒÄ¿ Map Display Angle: 5.0883 rad = 291.5┬░ ΓåÆ WEST (ΓåÉ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (455.1, 491.6) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_006.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_006.png
+âœ… Generated position map: navigation_context_006.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_006.png
+METRICS: Screenshot 6 captured - Analysis #3
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_006.png
+ðŸ—ºï¸ Map Image: navigation_context_006.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_005.png (1,659,299 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Wash hands' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_005.png (FP view)
+ðŸ“· Image 2: navigation_context_006.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_005.png
+📷 Loaded image: navigation_context_006.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Kitchen directly ahead with red arrow pointing that way. FP view confirms clear doorway and sink. Both images align for safe forward movement to task target.
+Ã°Å¸Â§Â  METRICS: LLM Call 4 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0043, y=-0.0308, z=-0.3759), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.11
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0072, y=-0.0303, z=-0.4693), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 3 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['RIGHT', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Kitchen directly ahead with red arrow pointing that way. FP view confirms clear doorway and sink. Both images align for safe forward movement to task target.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0072, y=-0.0303, z=-0.4693), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.09
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0100, y=-0.0295, z=-0.5626), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 3 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 2/5: 'Wash hands'
+Ã°Å¸â€â€ž Step 4/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_007.png (#7)
+âœ… Screenshot requested: fp_view_007.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -0.5626 rad (-32.2Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -0.5626 rad = -32.2┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -32.2┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -0.5626 rad = -32.2┬░
+≡ƒÄ¿ Map Display Angle: 5.2750 rad = 302.2┬░ ΓåÆ WEST (ΓåÉ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (463.7, 496.0) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_007.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_007.png
+âœ… Generated position map: navigation_context_007.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_007.png
+METRICS: Screenshot 7 captured - Analysis #4
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_007.png
+ðŸ—ºï¸ Map Image: navigation_context_007.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_006.png (1,643,546 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Wash hands' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_006.png (FP view)
+ðŸ“· Image 2: navigation_context_007.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_006.png
+📷 Loaded image: navigation_context_007.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: The navigation map shows the character is in the Kitchen, and the first-person view confirms the sink is visible. Both images align to indicate the task is complete.
+Ã°Å¸Â§Â  METRICS: LLM Call 5 - Room: KITCHEN, Task Complete: True
+âœ… VLM reports task 'Wash hands' is COMPLETE!
+âœ… METRICS: Task COMPLETED in 100.3s with 6 steps
+
+============================================================
+VESPER NAVIGATION METRICS SUMMARY
+============================================================
+ðŸ“…  Session Duration: 141.8s
+ðŸŽ¯ Tasks Completed: 2/2 (100.0%)
+ðŸ“Š Total Steps: 6
+ðŸ“¸ Screenshots Taken: 7
+ðŸ“… LLM Calls Made: 5
+ðŸ§  Average Steps per Task: 3.0
+ðŸ§  Average Time per Task: 68.9s
+============================================================
+ðŸ“ Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets\vesper_metrics_p01_20251008_192948.json
+============================================================
+
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+METRICS: Starting task 3: 'Cook oatmeal'
+
+Ã°Å¸Å½Â¯ Task 3/5: 'Cook oatmeal'
+Ã°Å¸â€â€ž Step 1/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_008.png (#8)
+âœ… Screenshot requested: fp_view_008.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -0.5626 rad (-32.2Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -0.5626 rad = -32.2┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -32.2┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -0.5626 rad = -32.2┬░
+≡ƒÄ¿ Map Display Angle: 5.2750 rad = 302.2┬░ ΓåÆ WEST (ΓåÉ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (463.7, 496.0) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_008.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_008.png
+âœ… Generated position map: navigation_context_008.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_008.png
+METRICS: Screenshot 8 captured - Analysis #1
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_008.png
+ðŸ—ºï¸ Map Image: navigation_context_008.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_007.png (1,652,130 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Cook oatmeal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_007.png (FP view)
+ðŸ“· Image 2: navigation_context_008.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_007.png
+📷 Loaded image: navigation_context_008.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Kitchen directly ahead with arrow pointing that way. FP view confirms clear doorway with kitchen appliances visible. Both images confirm unobstructed path - moving forward to reach target room.
+Ã°Å¸Â§Â  METRICS: LLM Call 6 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0100, y=-0.0295, z=-0.5626), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.08
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0127, y=-0.0284, z=-0.6560), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 1 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['RIGHT', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Kitchen directly ahead with arrow pointing that way. FP view confirms clear doorway with kitchen appliances visible. Both images confirm unobstructed path - moving forward to reach target room.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0127, y=-0.0284, z=-0.6560), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.07
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0153, y=-0.0271, z=-0.7494), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 1 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 3/5: 'Cook oatmeal'
+Ã°Å¸â€â€ž Step 2/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_009.png (#9)
+âœ… Screenshot requested: fp_view_009.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -0.7494 rad (-42.9Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -0.7494 rad = -42.9┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -42.9┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -0.7494 rad = -42.9┬░
+≡ƒÄ¿ Map Display Angle: 5.4617 rad = 312.9┬░ ΓåÆ WEST (ΓåÉ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (471.4, 501.9) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_009.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_009.png
+âœ… Generated position map: navigation_context_009.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_009.png
+METRICS: Screenshot 9 captured - Analysis #2
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_009.png
+ðŸ—ºï¸ Map Image: navigation_context_009.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_008.png (1,584,674 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Cook oatmeal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_008.png (FP view)
+ðŸ“· Image 2: navigation_context_009.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_008.png
+📷 Loaded image: navigation_context_009.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing the Kitchen (arrow points directly to target). FP view confirms clear doorway with kitchen appliances visible. Both images align - moving forward to reach target room for cooking task.
+Ã°Å¸Â§Â  METRICS: LLM Call 7 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0153, y=-0.0271, z=-0.7494), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.06
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0177, y=-0.0255, z=-0.8427), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 2 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['RIGHT', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing the Kitchen (arrow points directly to target). FP view confirms clear doorway with kitchen appliances visible. Both images align - moving forward to reach target room for cooking task.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0177, y=-0.0255, z=-0.8427), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.05
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0200, y=-0.0238, z=-0.9361), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+ðŸ’¾ Auto-export at step 10
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+METRICS: Step 2 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 3/5: 'Cook oatmeal'
+Ã°Å¸â€â€ž Step 3/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_010.png (#10)
+âœ… Screenshot requested: fp_view_010.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -0.9361 rad (-53.6Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -0.9361 rad = -53.6┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -53.6┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -0.9361 rad = -53.6┬░
+≡ƒÄ¿ Map Display Angle: 5.6484 rad = 323.6┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (477.9, 509.2) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_010.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_010.png
+âœ… Generated position map: navigation_context_010.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_010.png
+METRICS: Screenshot 10 captured - Analysis #3
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_010.png
+ðŸ—ºï¸ Map Image: navigation_context_010.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_009.png (1,641,125 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Cook oatmeal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_009.png (FP view)
+ðŸ“· Image 2: navigation_context_010.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_009.png
+📷 Loaded image: navigation_context_010.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing Kitchen (arrow points north to target). FP view confirms clear doorway ahead with kitchen appliances visible. Both images align - moving forward toward target.
+Ã°Å¸Â§Â  METRICS: LLM Call 8 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0200, y=-0.0238, z=-0.9361), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.05
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0222, y=-0.0218, z=-1.0294), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 3 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['RIGHT', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing Kitchen (arrow points north to target). FP view confirms clear doorway ahead with kitchen appliances visible. Both images align - moving forward toward target.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0222, y=-0.0218, z=-1.0294), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.05
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0241, y=-0.0197, z=-1.1227), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 3 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 3/5: 'Cook oatmeal'
+Ã°Å¸â€â€ž Step 4/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_011.png (#11)
+âœ… Screenshot requested: fp_view_011.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.1227 rad (-64.3Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.1227 rad = -64.3┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -64.3┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.1227 rad = -64.3┬░
+≡ƒÄ¿ Map Display Angle: 5.8351 rad = 334.3┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (482.9, 517.5) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_011.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_011.png
+âœ… Generated position map: navigation_context_011.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_011.png
+METRICS: Screenshot 11 captured - Analysis #4
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_011.png
+ðŸ—ºï¸ Map Image: navigation_context_011.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_010.png (1,661,504 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Cook oatmeal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_010.png (FP view)
+ðŸ“· Image 2: navigation_context_011.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_010.png
+📷 Loaded image: navigation_context_011.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Turned left last step and can see some open space ahead. Following loop prevention rule: turn then forward. Making spatial progress toward kitchen.
+Ã°Å¸Â§Â  METRICS: LLM Call 9 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0241, y=-0.0197, z=-1.1227), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0258, y=-0.0173, z=-1.2160), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 4 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Turned left last step and can see some open space ahead. Following loop prevention rule: turn then forward. Making spatial progress toward kitchen.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0258, y=-0.0173, z=-1.2160), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0273, y=-0.0148, z=-1.3094), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 4 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 3/5: 'Cook oatmeal'
+Ã°Å¸â€â€ž Step 5/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_012.png (#12)
+âœ… Screenshot requested: fp_view_012.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.3094 rad (-75.0Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.3094 rad = -75.0┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -75.0┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.3094 rad = -75.0┬░
+≡ƒÄ¿ Map Display Angle: 6.0217 rad = 345.0┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (486.2, 526.6) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_012.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_012.png
+âœ… Generated position map: navigation_context_012.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_012.png
+METRICS: Screenshot 12 captured - Analysis #5
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_012.png
+ðŸ—ºï¸ Map Image: navigation_context_012.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_011.png (1,649,706 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Cook oatmeal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_011.png (FP view)
+ðŸ“· Image 2: navigation_context_012.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_011.png
+📷 Loaded image: navigation_context_012.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Both images confirm clear path to Kitchen. Map shows arrow pointing toward target room, FP view shows no obstacles. Moving forward makes spatial progress toward cooking area.
+Ã°Å¸Â§Â  METRICS: LLM Call 10 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0273, y=-0.0148, z=-1.3094), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0286, y=-0.0122, z=-1.4027), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 5 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Both images confirm clear path to Kitchen. Map shows arrow pointing toward target room, FP view shows no obstacles. Moving forward makes spatial progress toward cooking area.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0286, y=-0.0122, z=-1.4027), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0296, y=-0.0095, z=-1.4960), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 5 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 3/5: 'Cook oatmeal'
+Ã°Å¸â€â€ž Step 6/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_013.png (#13)
+âœ… Screenshot requested: fp_view_013.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.4960 rad (-85.7Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.4960 rad = -85.7┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -85.7┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.4960 rad = -85.7┬░
+≡ƒÄ¿ Map Display Angle: 6.2083 rad = 355.7┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (487.9, 536.1) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_013.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_013.png
+âœ… Generated position map: navigation_context_013.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_013.png
+METRICS: Screenshot 13 captured - Analysis #6
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_013.png
+ðŸ—ºï¸ Map Image: navigation_context_013.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_012.png (1,634,886 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Cook oatmeal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_012.png (FP view)
+ðŸ“· Image 2: navigation_context_013.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_012.png
+📷 Loaded image: navigation_context_013.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map indicates the Kitchen is directly ahead with the red arrow pointing that way. FP view confirms a clear path into the Kitchen with visible appliances. Moving forward aligns with both images and progresses toward the task goal.
+Ã°Å¸Â§Â  METRICS: LLM Call 11 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0296, y=-0.0095, z=-1.4960), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0304, y=-0.0067, z=-1.5893), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 6 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map indicates the Kitchen is directly ahead with the red arrow pointing that way. FP view confirms a clear path into the Kitchen with visible appliances. Moving forward aligns with both images and progresses toward the task goal.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0304, y=-0.0067, z=-1.5893), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0309, y=-0.0038, z=-1.6825), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 6 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 3/5: 'Cook oatmeal'
+Ã°Å¸â€â€ž Step 7/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_014.png (#14)
+âœ… Screenshot requested: fp_view_014.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.6825 rad (-96.4Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.6825 rad = -96.4┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -96.4┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.6825 rad = -96.4┬░
+≡ƒÄ¿ Map Display Angle: 0.1117 rad = 6.4┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (487.7, 545.8) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_014.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_014.png
+âœ… Generated position map: navigation_context_014.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_014.png
+METRICS: Screenshot 14 captured - Analysis #7
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_014.png
+ðŸ—ºï¸ Map Image: navigation_context_014.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_013.png (1,641,230 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Cook oatmeal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_013.png (FP view)
+ðŸ“· Image 2: navigation_context_014.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_013.png
+📷 Loaded image: navigation_context_014.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows the Kitchen is directly ahead with the arrow pointing that way. FP view confirms a clear doorway into the Kitchen. Both images align - moving forward is safe and progresses toward the task.
+Ã°Å¸Â§Â  METRICS: LLM Call 12 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0309, y=-0.0038, z=-1.6825), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0311, y=-0.0010, z=-1.7758), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 7 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows the Kitchen is directly ahead with the arrow pointing that way. FP view confirms a clear doorway into the Kitchen. Both images align - moving forward is safe and progresses toward the task.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0311, y=-0.0010, z=-1.7758), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0310, y=0.0019, z=-1.8691), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+ðŸ’¾ Auto-export at step 20
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+METRICS: Step 7 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 3/5: 'Cook oatmeal'
+Ã°Å¸â€â€ž Step 8/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_015.png (#15)
+âœ… Screenshot requested: fp_view_015.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.8691 rad (-107.1Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.8691 rad = -107.1┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -107.1┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.8691 rad = -107.1┬░
+≡ƒÄ¿ Map Display Angle: 0.2983 rad = 17.1┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (485.7, 555.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_015.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_015.png
+âœ… Generated position map: navigation_context_015.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_015.png
+METRICS: Screenshot 15 captured - Analysis #8
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_015.png
+ðŸ—ºï¸ Map Image: navigation_context_015.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_014.png (1,669,024 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Cook oatmeal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_014.png (FP view)
+ðŸ“· Image 2: navigation_context_015.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_014.png
+📷 Loaded image: navigation_context_015.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing kitchen (arrow points north to target). FP view confirms clear doorway ahead with kitchen visible. Both images align - moving forward toward target.
+Ã°Å¸Â§Â  METRICS: LLM Call 13 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0310, y=0.0019, z=-1.8691), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0307, y=0.0048, z=-1.9624), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 8 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing kitchen (arrow points north to target). FP view confirms clear doorway ahead with kitchen visible. Both images align - moving forward toward target.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0307, y=0.0048, z=-1.9624), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0301, y=0.0077, z=-2.0557), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 8 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 3/5: 'Cook oatmeal'
+Ã°Å¸â€â€ž Step 9/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_016.png (#16)
+âœ… Screenshot requested: fp_view_016.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.0557 rad (-117.8Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.0557 rad = -117.8┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -117.8┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.0557 rad = -117.8┬░
+≡ƒÄ¿ Map Display Angle: 0.4849 rad = 27.8┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (482.0, 564.2) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_016.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_016.png
+âœ… Generated position map: navigation_context_016.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_016.png
+METRICS: Screenshot 16 captured - Analysis #9
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_016.png
+ðŸ—ºï¸ Map Image: navigation_context_016.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_015.png (1,669,733 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Cook oatmeal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_015.png (FP view)
+ðŸ“· Image 2: navigation_context_016.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_015.png
+📷 Loaded image: navigation_context_016.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows red figure in Kitchen. FP view confirms kitchen furniture. Both images verify task completion criteria met.
+Ã°Å¸Â§Â  METRICS: LLM Call 14 - Room: KITCHEN, Task Complete: True
+âœ… VLM reports task 'Cook oatmeal' is COMPLETE!
+âœ… METRICS: Task COMPLETED in 152.2s with 16 steps
+
+============================================================
+VESPER NAVIGATION METRICS SUMMARY
+============================================================
+ðŸ“…  Session Duration: 298.0s
+ðŸŽ¯ Tasks Completed: 3/3 (100.0%)
+ðŸ“Š Total Steps: 22
+ðŸ“¸ Screenshots Taken: 16
+ðŸ“… LLM Calls Made: 14
+ðŸ§  Average Steps per Task: 7.3
+ðŸ§  Average Time per Task: 96.7s
+============================================================
+ðŸ“ Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets\vesper_metrics_p01_20251008_192948.json
+============================================================
+
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+METRICS: Starting task 4: 'Eat meal'
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 1/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_017.png (#17)
+âœ… Screenshot requested: fp_view_017.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.0557 rad (-117.8Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.0557 rad = -117.8┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -117.8┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.0557 rad = -117.8┬░
+≡ƒÄ¿ Map Display Angle: 0.4849 rad = 27.8┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (482.0, 564.2) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_017.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_017.png
+âœ… Generated position map: navigation_context_017.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_017.png
+METRICS: Screenshot 17 captured - Analysis #1
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_017.png
+ðŸ—ºï¸ Map Image: navigation_context_017.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_016.png (1,665,407 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_016.png (FP view)
+ðŸ“· Image 2: navigation_context_017.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_016.png
+📷 Loaded image: navigation_context_017.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+âš ï¸Â Ã¯Â¸Â No JSON found in VLM response
+Ã¢ÂÅ’ No valid navigation result - stopping navigation (no fallback)
+Ã°Å¸â€ºâ€˜ Navigation halted due to VLM failure
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 1/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_018.png (#18)
+âœ… Screenshot requested: fp_view_018.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.0557 rad (-117.8Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.0557 rad = -117.8┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -117.8┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.0557 rad = -117.8┬░
+≡ƒÄ¿ Map Display Angle: 0.4849 rad = 27.8┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (482.0, 564.2) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_018.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_018.png
+âœ… Generated position map: navigation_context_018.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_018.png
+METRICS: Screenshot 18 captured - Analysis #1
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_018.png
+ðŸ—ºï¸ Map Image: navigation_context_018.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_017.png (1,665,407 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_017.png (FP view)
+ðŸ“· Image 2: navigation_context_018.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_017.png
+📷 Loaded image: navigation_context_018.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+âš ï¸Â Ã¯Â¸Â No JSON found in VLM response
+Ã¢ÂÅ’ No valid navigation result - stopping navigation (no fallback)
+Ã°Å¸â€ºâ€˜ Navigation halted due to VLM failure
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 1/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_019.png (#19)
+âœ… Screenshot requested: fp_view_019.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.0557 rad (-117.8Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.0557 rad = -117.8┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -117.8┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.0557 rad = -117.8┬░
+≡ƒÄ¿ Map Display Angle: 0.4849 rad = 27.8┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (482.0, 564.2) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_019.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_019.png
+âœ… Generated position map: navigation_context_019.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_019.png
+METRICS: Screenshot 19 captured - Analysis #1
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_019.png
+ðŸ—ºï¸ Map Image: navigation_context_019.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_018.png (1,665,407 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_018.png (FP view)
+ðŸ“· Image 2: navigation_context_019.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_018.png
+📷 Loaded image: navigation_context_019.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Living Room is ahead (direction of arrow). FP view confirms clear path to Living Room with dining table visible. Both images align - moving forward toward target.
+Ã°Å¸Â§Â  METRICS: LLM Call 15 - Room: KITCHEN, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0301, y=0.0077, z=-2.0557), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.05
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0293, y=0.0104, z=-2.1490), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 1 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Living Room is ahead (direction of arrow). FP view confirms clear path to Living Room with dining table visible. Both images align - moving forward toward target.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0293, y=0.0104, z=-2.1490), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.05
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0282, y=0.0131, z=-2.2423), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 1 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 2/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_020.png (#20)
+âœ… Screenshot requested: fp_view_020.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.2423 rad (-128.5Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.2423 rad = -128.5┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -128.5┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.2423 rad = -128.5┬░
+≡ƒÄ¿ Map Display Angle: 0.6715 rad = 38.5┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (476.7, 572.4) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_020.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_020.png
+âœ… Generated position map: navigation_context_020.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_020.png
+METRICS: Screenshot 20 captured - Analysis #2
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_020.png
+ðŸ—ºï¸ Map Image: navigation_context_020.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_019.png (1,697,649 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_019.png (FP view)
+ðŸ“· Image 2: navigation_context_020.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_019.png
+📷 Loaded image: navigation_context_020.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+âš ï¸Â Ã¯Â¸Â No JSON found in VLM response
+Ã¢ÂÅ’ No valid navigation result - stopping navigation (no fallback)
+Ã°Å¸â€ºâ€˜ Navigation halted due to VLM failure
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 2/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_021.png (#21)
+âœ… Screenshot requested: fp_view_021.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.2423 rad (-128.5Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.2423 rad = -128.5┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -128.5┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.2423 rad = -128.5┬░
+≡ƒÄ¿ Map Display Angle: 0.6715 rad = 38.5┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (476.7, 572.4) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_021.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_021.png
+âœ… Generated position map: navigation_context_021.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_021.png
+METRICS: Screenshot 21 captured - Analysis #2
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_021.png
+ðŸ—ºï¸ Map Image: navigation_context_021.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_020.png (1,696,404 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_020.png (FP view)
+ðŸ“· Image 2: navigation_context_021.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_020.png
+📷 Loaded image: navigation_context_021.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows the kitchen is directly ahead (arrow points toward it). FP view confirms a clear path into the kitchen with visible appliances. Both images align - moving forward toward the target room to begin cooking.
+Ã°Å¸Â§Â  METRICS: LLM Call 16 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0282, y=0.0131, z=-2.2423), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.05
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0268, y=0.0157, z=-2.3356), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 2 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows the kitchen is directly ahead (arrow points toward it). FP view confirms a clear path into the kitchen with visible appliances. Both images align - moving forward toward the target room to begin cooking.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0268, y=0.0157, z=-2.3356), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.06
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0253, y=0.0181, z=-2.4289), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 2 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 3/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_022.png (#22)
+âœ… Screenshot requested: fp_view_022.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.4289 rad (-139.2Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.4289 rad = -139.2┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -139.2┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.4289 rad = -139.2┬░
+≡ƒÄ¿ Map Display Angle: 0.8581 rad = 49.2┬░ ΓåÆ EAST (ΓåÆ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (470.0, 579.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_022.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_022.png
+âœ… Generated position map: navigation_context_022.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_022.png
+METRICS: Screenshot 22 captured - Analysis #3
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_022.png
+ðŸ—ºï¸ Map Image: navigation_context_022.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_021.png (1,662,627 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_021.png (FP view)
+ðŸ“· Image 2: navigation_context_022.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_021.png
+📷 Loaded image: navigation_context_022.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+âš ï¸Â Ã¯Â¸Â No JSON found in VLM response
+Ã¢ÂÅ’ No valid navigation result - stopping navigation (no fallback)
+Ã°Å¸â€ºâ€˜ Navigation halted due to VLM failure
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 3/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_023.png (#23)
+âœ… Screenshot requested: fp_view_023.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.4289 rad (-139.2Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.4289 rad = -139.2┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -139.2┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.4289 rad = -139.2┬░
+≡ƒÄ¿ Map Display Angle: 0.8581 rad = 49.2┬░ ΓåÆ EAST (ΓåÆ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (470.0, 579.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_023.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_023.png
+âœ… Generated position map: navigation_context_023.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_023.png
+METRICS: Screenshot 23 captured - Analysis #3
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_023.png
+ðŸ—ºï¸ Map Image: navigation_context_023.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_022.png (1,655,999 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_022.png (FP view)
+ðŸ“· Image 2: navigation_context_023.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_022.png
+📷 Loaded image: navigation_context_023.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+âš ï¸Â Ã¯Â¸Â No JSON found in VLM response
+Ã¢ÂÅ’ No valid navigation result - stopping navigation (no fallback)
+Ã°Å¸â€ºâ€˜ Navigation halted due to VLM failure
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 3/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_024.png (#24)
+âœ… Screenshot requested: fp_view_024.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.4289 rad (-139.2Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.4289 rad = -139.2┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -139.2┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.4289 rad = -139.2┬░
+≡ƒÄ¿ Map Display Angle: 0.8581 rad = 49.2┬░ ΓåÆ EAST (ΓåÆ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (470.0, 579.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_024.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_024.png
+âœ… Generated position map: navigation_context_024.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_024.png
+METRICS: Screenshot 24 captured - Analysis #3
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_024.png
+ðŸ—ºï¸ Map Image: navigation_context_024.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_023.png (1,655,999 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_023.png (FP view)
+ðŸ“· Image 2: navigation_context_024.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_023.png
+📷 Loaded image: navigation_context_024.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing living room (arrow points toward it). FP view confirms clear doorway with dining table visible. Both images align - moving forward toward target.
+Ã°Å¸Â§Â  METRICS: LLM Call 17 - Room: KITCHEN, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0253, y=0.0181, z=-2.4289), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.06
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0235, y=0.0204, z=-2.5222), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 3 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing living room (arrow points toward it). FP view confirms clear doorway with dining table visible. Both images align - moving forward toward target.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0235, y=0.0204, z=-2.5222), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.07
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0215, y=0.0225, z=-2.6156), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 3 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 4/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_025.png (#25)
+âœ… Screenshot requested: fp_view_025.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.6156 rad (-149.9Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.6156 rad = -149.9┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -149.9┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.6156 rad = -149.9┬░
+≡ƒÄ¿ Map Display Angle: 1.0448 rad = 59.9┬░ ΓåÆ EAST (ΓåÆ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (462.1, 585.0) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_025.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_025.png
+âœ… Generated position map: navigation_context_025.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_025.png
+METRICS: Screenshot 25 captured - Analysis #4
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_025.png
+ðŸ—ºï¸ Map Image: navigation_context_025.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_024.png (1,622,120 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_024.png (FP view)
+ðŸ“· Image 2: navigation_context_025.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_024.png
+📷 Loaded image: navigation_context_025.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Kitchen is east but blocked. Turning left follows hallway to Kitchen. FP view confirms left doorway is clear after turning.
+Ã°Å¸Â§Â  METRICS: LLM Call 18 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0215, y=0.0225, z=-2.6156), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0255, y=0.0178, z=-2.4156), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 4 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'LEFT']
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Kitchen is east but blocked. Turning left follows hallway to Kitchen. FP view confirms left doorway is clear after turning.
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0255, y=0.0178, z=-2.4156), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0285, y=0.0124, z=-2.2156), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+ðŸ’¾ Auto-export at step 30
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+METRICS: Step 4 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 5/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_026.png (#26)
+âœ… Screenshot requested: fp_view_026.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.2156 rad (-126.9Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.2156 rad = -126.9┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -126.9┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.2156 rad = -126.9┬░
+≡ƒÄ¿ Map Display Angle: 0.6448 rad = 36.9┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (477.6, 571.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_026.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_026.png
+âœ… Generated position map: navigation_context_026.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_026.png
+METRICS: Screenshot 26 captured - Analysis #5
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_026.png
+ðŸ—ºï¸ Map Image: navigation_context_026.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_025.png (1,700,063 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_025.png (FP view)
+ðŸ“· Image 2: navigation_context_026.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_025.png
+📷 Loaded image: navigation_context_026.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+âš ï¸Â Ã¯Â¸Â No JSON found in VLM response
+Ã¢ÂÅ’ No valid navigation result - stopping navigation (no fallback)
+Ã°Å¸â€ºâ€˜ Navigation halted due to VLM failure
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 5/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_027.png (#27)
+âœ… Screenshot requested: fp_view_027.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.2156 rad (-126.9Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.2156 rad = -126.9┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -126.9┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.2156 rad = -126.9┬░
+≡ƒÄ¿ Map Display Angle: 0.6448 rad = 36.9┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (477.6, 571.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_027.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_027.png
+âœ… Generated position map: navigation_context_027.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_027.png
+METRICS: Screenshot 27 captured - Analysis #5
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_027.png
+ðŸ—ºï¸ Map Image: navigation_context_027.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_026.png (1,706,162 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_026.png (FP view)
+ðŸ“· Image 2: navigation_context_027.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_026.png
+📷 Loaded image: navigation_context_027.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows character in Living Room; FP view confirms doorway to dining area. Moving forward progresses toward task goal of eating.
+Ã°Å¸Â§Â  METRICS: LLM Call 19 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0285, y=0.0124, z=-2.2156), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.05
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0273, y=0.0150, z=-2.3089), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 5 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'FORWARD', 'LEFT', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows character in Living Room; FP view confirms doorway to dining area. Moving forward progresses toward task goal of eating.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0273, y=0.0150, z=-2.3089), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.05
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0257, y=0.0175, z=-2.4023), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 5 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 6/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_028.png (#28)
+âœ… Screenshot requested: fp_view_028.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.4023 rad (-137.6Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.4023 rad = -137.6┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -137.6┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.4023 rad = -137.6┬░
+≡ƒÄ¿ Map Display Angle: 0.8315 rad = 47.6┬░ ΓåÆ EAST (ΓåÆ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (471.0, 578.4) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_028.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_028.png
+âœ… Generated position map: navigation_context_028.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_028.png
+METRICS: Screenshot 28 captured - Analysis #6
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_028.png
+ðŸ—ºï¸ Map Image: navigation_context_028.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_027.png (1,665,812 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_027.png (FP view)
+ðŸ“· Image 2: navigation_context_028.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_027.png
+📷 Loaded image: navigation_context_028.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing kitchen (arrow points toward it). FP view confirms wall ahead blocking current path. Turning left aligns with map direction and opens doorway to kitchen.
+Ã°Å¸Â§Â  METRICS: LLM Call 20 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0257, y=0.0175, z=-2.4023), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0287, y=0.0120, z=-2.2023), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 6 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'FORWARD', 'LEFT', 'FORWARD', 'LEFT']
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows I'm facing kitchen (arrow points toward it). FP view confirms wall ahead blocking current path. Turning left aligns with map direction and opens doorway to kitchen.
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0287, y=0.0120, z=-2.2023), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0305, y=0.0061, z=-2.0024), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 6 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 7/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_029.png (#29)
+âœ… Screenshot requested: fp_view_029.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -2.0024 rad (-114.7Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -2.0024 rad = -114.7┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -114.7┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -2.0024 rad = -114.7┬░
+≡ƒÄ¿ Map Display Angle: 0.4316 rad = 24.7┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (483.2, 561.8) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_029.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_029.png
+âœ… Generated position map: navigation_context_029.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_029.png
+METRICS: Screenshot 29 captured - Analysis #7
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_029.png
+ðŸ—ºï¸ Map Image: navigation_context_029.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_028.png (1,645,324 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_028.png (FP view)
+ðŸ“· Image 2: navigation_context_029.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_028.png
+📷 Loaded image: navigation_context_029.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: FP view shows wall ahead; turning left aligns with map's Living Room target. Progressing toward dining table for task completion.
+Ã°Å¸Â§Â  METRICS: LLM Call 21 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0305, y=0.0061, z=-2.0024), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0311, y=-0.0001, z=-1.8025), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 7 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'FORWARD', 'LEFT', 'FORWARD', 'LEFT', 'LEFT']
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: FP view shows wall ahead; turning left aligns with map's Living Room target. Progressing toward dining table for task completion.
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0311, y=-0.0001, z=-1.8025), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0305, y=-0.0063, z=-1.6026), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 7 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 8/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_030.png (#30)
+âœ… Screenshot requested: fp_view_030.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.6026 rad (-91.8Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.6026 rad = -91.8┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -91.8┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.6026 rad = -91.8┬░
+≡ƒÄ¿ Map Display Angle: 0.0318 rad = 1.8┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (488.0, 541.7) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_030.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_030.png
+âœ… Generated position map: navigation_context_030.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_030.png
+METRICS: Screenshot 30 captured - Analysis #8
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_030.png
+ðŸ—ºï¸ Map Image: navigation_context_030.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_029.png (1,621,917 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_029.png (FP view)
+ðŸ“· Image 2: navigation_context_030.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_029.png
+📷 Loaded image: navigation_context_030.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: MAP shows target room (Living Room) is forward. FP view shows kitchen counter ahead but no obstruction to moving forward into Living Room. Task requires reaching dining table in Living Room.
+Ã°Å¸Â§Â  METRICS: LLM Call 22 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0305, y=-0.0063, z=-1.6026), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0309, y=-0.0034, z=-1.6959), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 8 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'LEFT', 'FORWARD', 'LEFT', 'LEFT', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: MAP shows target room (Living Room) is forward. FP view shows kitchen counter ahead but no obstruction to moving forward into Living Room. Task requires reaching dining table in Living Room.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0309, y=-0.0034, z=-1.6959), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0311, y=-0.0005, z=-1.7892), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 8 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 9/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_031.png (#31)
+âœ… Screenshot requested: fp_view_031.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.7892 rad (-102.5Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.7892 rad = -102.5┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -102.5┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.7892 rad = -102.5┬░
+≡ƒÄ¿ Map Display Angle: 0.2184 rad = 12.5┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (486.8, 551.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_031.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_031.png
+âœ… Generated position map: navigation_context_031.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_031.png
+METRICS: Screenshot 31 captured - Analysis #9
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_031.png
+ðŸ—ºï¸ Map Image: navigation_context_031.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_030.png (1,655,705 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_030.png (FP view)
+ðŸ“· Image 2: navigation_context_031.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_030.png
+📷 Loaded image: navigation_context_031.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: Map confirms target room is Living Room. FP view shows kitchen counter blocking current path. Turning left aligns with map to reorient toward dining table.
+Ã°Å¸Â§Â  METRICS: LLM Call 23 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0311, y=-0.0005, z=-1.7892), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0304, y=-0.0067, z=-1.5893), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 9 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€œÂ Movement history: ['LEFT', 'FORWARD', 'LEFT', 'LEFT', 'FORWARD', 'LEFT']
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: Map confirms target room is Living Room. FP view shows kitchen counter blocking current path. Turning left aligns with map to reorient toward dining table.
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0304, y=-0.0067, z=-1.5893), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0284, y=-0.0126, z=-1.3893), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+ðŸ’¾ Auto-export at step 40
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+METRICS: Step 9 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 10/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_032.png (#32)
+âœ… Screenshot requested: fp_view_032.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.3893 rad (-79.6Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.3893 rad = -79.6┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -79.6┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.3893 rad = -79.6┬░
+≡ƒÄ¿ Map Display Angle: 6.1017 rad = 349.6┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (487.1, 530.6) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_032.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_032.png
+âœ… Generated position map: navigation_context_032.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_032.png
+METRICS: Screenshot 32 captured - Analysis #10
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_032.png
+ðŸ—ºï¸ Map Image: navigation_context_032.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_031.png (1,637,192 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_031.png (FP view)
+ðŸ“· Image 2: navigation_context_032.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_031.png
+📷 Loaded image: navigation_context_032.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Living Room is directly ahead. FP view shows open space towards Living Room area. Both images align - moving forward toward target.
+Ã°Å¸Â§Â  METRICS: LLM Call 24 - Room: KITCHEN, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0284, y=-0.0126, z=-1.3893), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0295, y=-0.0099, z=-1.4826), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 10 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['FORWARD', 'LEFT', 'LEFT', 'FORWARD', 'LEFT', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Living Room is directly ahead. FP view shows open space towards Living Room area. Both images align - moving forward toward target.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0295, y=-0.0099, z=-1.4826), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0303, y=-0.0071, z=-1.5759), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 10 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 4/5: 'Eat meal'
+Ã°Å¸â€â€ž Step 11/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_033.png (#33)
+âœ… Screenshot requested: fp_view_033.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.5759 rad (-90.3Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.5759 rad = -90.3┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -90.3┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.5759 rad = -90.3┬░
+≡ƒÄ¿ Map Display Angle: 0.0051 rad = 0.3┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (488.0, 540.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_033.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_033.png
+âœ… Generated position map: navigation_context_033.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_033.png
+METRICS: Screenshot 33 captured - Analysis #11
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_033.png
+ðŸ—ºï¸ Map Image: navigation_context_033.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_032.png (1,627,607 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Eat meal' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_032.png (FP view)
+ðŸ“· Image 2: navigation_context_033.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_032.png
+📷 Loaded image: navigation_context_033.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows target room (living room) is current location but direction points to dining table. FP view confirms clear path to dining area. Both images align - moving forward to reach dining table.
+Ã°Å¸Â§Â  METRICS: LLM Call 25 - Room: LIVING_ROOM, Task Complete: True
+âœ… VLM reports task 'Eat meal' is COMPLETE!
+âœ… METRICS: Task COMPLETED in 399.7s with 20 steps
+
+============================================================
+VESPER NAVIGATION METRICS SUMMARY
+============================================================
+ðŸ“…  Session Duration: 701.7s
+ðŸŽ¯ Tasks Completed: 4/4 (100.0%)
+ðŸ“Š Total Steps: 42
+ðŸ“¸ Screenshots Taken: 33
+ðŸ“… LLM Calls Made: 25
+ðŸ§  Average Steps per Task: 10.5
+ðŸ§  Average Time per Task: 172.4s
+============================================================
+ðŸ“ Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets\vesper_metrics_p01_20251008_192948.json
+============================================================
+
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+METRICS: Starting task 5: 'Clean dishes'
+
+Ã°Å¸Å½Â¯ Task 5/5: 'Clean dishes'
+Ã°Å¸â€â€ž Step 1/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_034.png (#34)
+âœ… Screenshot requested: fp_view_034.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.5759 rad (-90.3Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.5759 rad = -90.3┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -90.3┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.5759 rad = -90.3┬░
+≡ƒÄ¿ Map Display Angle: 0.0051 rad = 0.3┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (488.0, 540.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_034.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_034.png
+âœ… Generated position map: navigation_context_034.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_034.png
+METRICS: Screenshot 34 captured - Analysis #1
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_034.png
+ðŸ—ºï¸ Map Image: navigation_context_034.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_033.png (1,622,903 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Clean dishes' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_033.png (FP view)
+ðŸ“· Image 2: navigation_context_034.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_033.png
+📷 Loaded image: navigation_context_034.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Kitchen directly ahead with arrow pointing that way. FP view confirms clear doorway and kitchen appliances visible. Both images align - moving forward toward target.
+Ã°Å¸Â§Â  METRICS: LLM Call 26 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0303, y=-0.0071, z=-1.5759), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0308, y=-0.0043, z=-1.6692), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 1 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€œÂ Movement history: ['LEFT', 'LEFT', 'FORWARD', 'LEFT', 'FORWARD', 'FORWARD']
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows Kitchen directly ahead with arrow pointing that way. FP view confirms clear doorway and kitchen appliances visible. Both images align - moving forward toward target.
+âœ… Found actor: Actor
+Executing: FORWARD
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0308, y=-0.0043, z=-1.6692), order='XYZ'>
+Moving forward
+Ã°Å¸Å¡Â§ Obstacle detected: Mesh_32 at distance 0.04
+Ã°Å¸Å¡Â§ Cannot move forward - obstacle detected!
+Ã°Å¸â€â€ž Trying to turn to avoid obstacle...
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0311, y=-0.0014, z=-1.7625), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.093 radians
+METRICS: Step 1 - FORWARD from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Movement executed successfully: FORWARD
+âœ… Movement executed: FORWARD
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 5/5: 'Clean dishes'
+Ã°Å¸â€â€ž Step 2/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_035.png (#35)
+âœ… Screenshot requested: fp_view_035.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.7625 rad (-101.0Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.7625 rad = -101.0┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -101.0┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.7625 rad = -101.0┬░
+≡ƒÄ¿ Map Display Angle: 0.1917 rad = 11.0┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (487.0, 549.9) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_035.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_035.png
+âœ… Generated position map: navigation_context_035.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_035.png
+METRICS: Screenshot 35 captured - Analysis #2
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_035.png
+ðŸ—ºï¸ Map Image: navigation_context_035.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_034.png (1,657,273 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Clean dishes' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_034.png (FP view)
+ðŸ“· Image 2: navigation_context_035.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_034.png
+📷 Loaded image: navigation_context_035.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows target is left of current position (doorway aligns with arrow direction). FP view confirms wall blocking forward path. Turning left aligns with map direction and opens clear path to target.
+Ã°Å¸Â§Â  METRICS: LLM Call 27 - Room: LIVING_ROOM, Task Complete: False
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0311, y=-0.0014, z=-1.7625), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0302, y=-0.0075, z=-1.5626), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 2 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€œÂ Movement history: ['LEFT', 'FORWARD', 'LEFT', 'FORWARD', 'FORWARD', 'LEFT']
+Ã°Å¸Â¤â€“ VLM Decision: LEFT
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows target is left of current position (doorway aligns with arrow direction). FP view confirms wall blocking forward path. Turning left aligns with map direction and opens clear path to target.
+âœ… Found actor: Actor
+Executing: LEFT
+Actor position before: <Vector (-1.2076, -0.5839, -0.9931)>
+Actor orientation before: <Euler (x=0.0302, y=-0.0075, z=-1.5626), order='XYZ'>
+Turning left (human-like rotation)
+Ã°Å¸â€œÂ Actor position after: <Vector (-1.2076, -0.5839, -0.9931)>
+Ã°Å¸Â§Â­ Actor orientation after: <Euler (x=0.0281, y=-0.0134, z=-1.3627), order='XYZ'>
+Ã°Å¸â€œÂ Distance moved: 0.000 units
+Ã°Å¸â€â€ž Orientation change: 0.200 radians
+METRICS: Step 2 - LEFT from [-1.2, -0.6] to [-1.2, -0.6]
+METRICS: Room detected - UNKNOWN
+ðŸ” Checking motion sensors at position: [-1.2, -0.6]
+🔍 Actor at: [-1.21, -0.58]
+  motion1: pos=[-4.9,-0.3] scale=[1.9,1.9] dist=[3.7,0.3] → IN
+  motion2: pos=[-4.6,4.7] scale=[1.8,1.8] dist=[3.4,5.3] → IN
+  motion3: pos=[1.0,-0.8] scale=[0.9,0.9] dist=[2.2,0.2] → IN
+  motion4: pos=[1.0,-5.1] scale=[1.3,1.3] dist=[2.3,4.5] → IN
+  motion5: pos=[2.8,0.7] scale=[0.7,0.7] dist=[4.0,1.3] → out
+  motion6: pos=[3.1,-1.3] scale=[0.8,0.8] dist=[4.3,0.7] → out
+âœ… Rotation executed successfully: LEFT
+âœ… Movement executed: LEFT
+Ã°Å¸â€â€ž Movement completed, yielding to BGE render cycle
+
+Ã°Å¸Å½Â¯ Task 5/5: 'Clean dishes'
+Ã°Å¸â€â€ž Step 3/30
+Ã°Å¸â€œÂ¸ Capturing: fp_view_036.png (#36)
+âœ… Screenshot requested: fp_view_036.png (BGE async)
+🔄 Fallback: Using basic spatial context
+âš ï¸ MCP returned dict instead of file path - skipping MCP
+ðŸ“ Using coordinate-based position mapping (fallback)
+ðŸ—ºï¸ Generating map for Actor at (-1.21, -0.58)
+ðŸ§­ Actor orientation: -1.3627 rad (-78.1Â°)
+ðŸŽ¯ Task: Navigate, Room: None
+≡ƒº¡ DEBUG Orientation: -1.3627 rad = -78.1┬░
+≡ƒôì Actor position updated: World(-1.21, -0.58) ΓåÆ Map(436, 540), Facing: -78.1┬░
+≡ƒÅá Current room: UNKNOWN | Target: UNKNOWN
+≡ƒº¡ BGE Raw Orientation: -1.3627 rad = -78.1┬░
+≡ƒÄ¿ Map Display Angle: 6.0751 rad = 348.1┬░ ΓåÆ NORTH (Γåæ)
+≡ƒöä Coordinate System: Game Engine ΓåÆ Map Conversion Applied
+≡ƒÄ¿ Arrow tip: (486.9, 529.3) relative to center (436, 540)
+≡ƒº¡ Navigation context map generated: navigation_context_036.png
+≡ƒù║∩╕Å Updated navigation map: navigation_context_036.png
+âœ… Generated position map: navigation_context_036.png
+ðŸ—ºï¸ Using updated navigation context map: navigation_context_036.png
+METRICS: Screenshot 36 captured - Analysis #3
+ðŸ–¼ï¸ Using image-based VLM navigation
+ðŸ–¼ï¸ Using standard dual-image navigation analysis
+ðŸ“ FP Image: fp_view_036.png
+ðŸ—ºï¸ Map Image: navigation_context_036.png
+Ã¢ÂÂ³ Current screenshot not ready, checking for recent screenshots...
+Ã°Å¸â€œÂ¸ Using recent screenshot: fp_view_035.png (1,643,363 bytes)
+Ã°Å¸â€Â VLM analyzing: FP view + house layout for 'Clean dishes' (obstacle-aware)
+ðŸ” Using dual-image VLM navigation (total images: 2)
+ðŸ“· Image 1: fp_view_035.png (FP view)
+ðŸ“· Image 2: navigation_context_036.png (navigation map)
+🔍 DEBUG: Vision completion starting...
+📷 Loaded image: fp_view_035.png
+📷 Loaded image: navigation_context_036.png
+👁️ Using Open WebUI for vision with 2 images: OpenGVLab/InternVL3_5-30B-A3B
+👁️ Added image 1/2 to vision request
+👁️ Added image 2/2 to vision request
+👁️ Sending vision request to Open WebUI: OpenGVLab/InternVL3_5-30B-A3B
+âœ… VLM spatial analysis completed
+Ã°Å¸Â¤â€“ VLM Decision: FORWARD
+Ã°Å¸â€™Â­ VLM Reasoning: Map shows target room (Kitchen) is adjacent and arrow points toward it. FP view confirms kitchen furniture (sink, stove). Both images align - task complete.
+Ã°Å¸Â§Â  METRICS: LLM Call 28 - Room: KITCHEN, Task Complete: True
+âœ… VLM reports task 'Clean dishes' is COMPLETE!
+âœ… METRICS: Task COMPLETED in 50.1s with 4 steps
+
+============================================================
+VESPER NAVIGATION METRICS SUMMARY
+============================================================
+ðŸ“…  Session Duration: 755.8s
+ðŸŽ¯ Tasks Completed: 5/5 (100.0%)
+ðŸ“Š Total Steps: 46
+ðŸ“¸ Screenshots Taken: 36
+ðŸ“… LLM Calls Made: 28
+ðŸ§  Average Steps per Task: 9.2
+ðŸ§  Average Time per Task: 148.0s
+============================================================
+ðŸ“ Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets\vesper_metrics_p01_20251008_192948.json
+============================================================
+
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+ðŸŽ‰ ALL TASKS COMPLETED! Navigation system finished.
+
+============================================================
+VESPER NAVIGATION METRICS SUMMARY
+============================================================
+ðŸ“…  Session Duration: 759.7s
+ðŸŽ¯ Tasks Completed: 5/5 (100.0%)
+ðŸ“Š Total Steps: 46
+ðŸ“¸ Screenshots Taken: 36
+ðŸ“… LLM Calls Made: 28
+ðŸ§  Average Steps per Task: 9.2
+ðŸ§  Average Time per Task: 148.0s
+============================================================
+ðŸ“ Full log saved to: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets\vesper_metrics_p01_20251008_192948.json
+============================================================
+
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+âœ… Metrics: vesper_metrics_p01_20251008_192948.json
+ðŸ“ Location: C:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+ðŸŽ‰ ALL TASKS COMPLETED! Navigation system finished.
