@@ -10,6 +10,10 @@ import queue
 import threading
 from datetime import datetime
 from pathlib import Path
+from collections import deque
+
+
+# ============================================================================
 
 # CASAS Motion Sensor Logger
 try:
@@ -77,10 +81,28 @@ except ImportError as e:
 try:
     from vlm_position_mcp import get_vlm_position_map, get_mcp_instance
     VLM_POSITION_AVAILABLE = True
-    print("âœ… VLM position estimation system integrated")
+    print("✅ VLM position estimation system integrated")
 except ImportError as e:
     VLM_POSITION_AVAILABLE = False
-    print(f"âš ï¸ VLM position estimation not available: {e}")
+
+# Smart Pathfinding System
+try:
+    from smart_pathfinding import (
+        update_spatial_memory,
+        detect_stuck_loop,
+        get_escape_action,
+        get_target_room_for_task,
+        calculate_room_distance,
+        record_successful_path,
+        clear_spatial_memory,
+        get_navigation_context
+    )
+    SMART_PATHFINDING_AVAILABLE = True
+    print("✅ Smart pathfinding system integrated")
+except ImportError as e:
+    SMART_PATHFINDING_AVAILABLE = False
+    print(f"⚠️ Smart pathfinding not available: {e}")
+    print(f"⚠️ VLM position estimation not available: {e}")
 
 # =============================
 # VESPER Evaluation Metrics & Logging System
@@ -1162,7 +1184,7 @@ def main():
             
             bge.logic.current_task_index = 0
             bge.logic.navigation_step = 0
-            bge.logic.max_steps_per_task = 30
+            bge.logic.max_steps_per_task = 50  # Increased from 30 to allow complex tasks
             bge.logic.llm_initialized = False
             bge.logic.startup_complete = False
             
