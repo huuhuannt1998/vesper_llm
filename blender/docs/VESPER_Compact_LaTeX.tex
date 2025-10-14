@@ -1,0 +1,131 @@
+% ============================================================================
+% VESPER INTERACTION SYSTEM - COMPACT VERSION
+% For papers with strict page limits (2-3 paragraphs + 1-2 tables)
+% ============================================================================
+
+\subsection{Interaction and Time Tracking System}
+
+To enable CASAS-compatible dataset generation and efficient simulation of long-duration activities, we implemented a comprehensive interaction and time tracking system comprising three components: (1) Item Sensor Manager with 19 CASAS-format binary sensors distributed across five room types, (2) Virtual Device Manager with 11 IoT devices for smart home automation, and (3) Virtual Time Manager for temporal acceleration. Item sensors activate when the agent approaches objects within configurable proximity thresholds (1.0--1.5m), logging ON/OFF events with millisecond-precision timestamps in standard CASAS format. Virtual devices (lights and appliances) automatically activate based on task semantics—for example, ``Cook oatmeal'' triggers Kitchen Light and Stove activation, while ``Make phone call'' activates Dining Light.
+
+The time acceleration system enables efficient simulation of long-duration activities by compressing virtual time while maintaining accurate timestamps. Given a task with virtual duration $t_v$ and maximum real duration $t_r^{\max}$, the acceleration factor is $s = t_v/t_r^{\max}$. Virtual timestamps are computed as $t_v(t_r) = t_0 + s \cdot (t_r - t_{r0})$, where $t_0$ is the virtual start time. For example, 8 hours of sleep executes in 5 seconds (5760$\times$ acceleration) while cooking oatmeal for 10 minutes executes in 3 seconds (200$\times$ acceleration). Table~\ref{tab:time_acceleration_compact} shows acceleration factors for common ADL tasks.
+
+The system exports four standardized output files: (1) CASAS-format sensor logs (.txt), (2) detailed interaction metadata (JSON), (3) SmartThings device logs (JSON), and (4) time acceleration records. Validation across five common tasks demonstrated successful compression of 41 minutes of virtual activity into 13 seconds of execution time while triggering 8 sensors and controlling 6 devices with format-compliant outputs compatible with existing CASAS activity recognition pipelines.
+
+% ============================================================================
+% COMPACT TABLES (Choose 1-2 depending on space)
+% ============================================================================
+
+% Option 1: Time Acceleration (most impressive/novel)
+\begin{table}[t]
+\centering
+\caption{Time Acceleration for Common ADL Tasks}
+\label{tab:time_acceleration_compact}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Task Type} & \textbf{Virtual} & \textbf{Real} & \textbf{Factor} \\
+\midrule
+Sleep & 8 hrs & 5s & 5760$\times$ \\
+Cook meal & 15--45 min & 4--6s & 225--450$\times$ \\
+Eat meal & 20 min & 3s & 400$\times$ \\
+Phone call & 5--30 min & 3--5s & 100--360$\times$ \\
+Wash hands & 1 min & 2s & 30$\times$ \\
+Clean dishes & 5 min & 2s & 150$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Option 2: Sensor Distribution (shows system coverage)
+\begin{table}[t]
+\centering
+\caption{CASAS-Compatible Sensor Distribution}
+\label{tab:sensor_summary}
+\small
+\begin{tabular}{@{}lrl@{}}
+\toprule
+\textbf{Room} & \textbf{Sensors} & \textbf{Examples} \\
+\midrule
+Kitchen & 7 & Sink, Stove, Fridge, Microwave \\
+Dining Room & 2 & Phone, Table \\
+Bathroom & 4 & Sink, Shower, Toilet \\
+Bedroom & 3 & Bed, Closet, Lamp \\
+Living Room & 3 & TV, Couch, Book \\
+\midrule
+\textbf{Total} & \textbf{19} & \textbf{11 Virtual Devices} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Option 3: Validation Results (shows system works)
+\begin{table}[t]
+\centering
+\caption{System Validation: Five Common ADL Tasks}
+\label{tab:validation_compact}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Task} & \textbf{Virtual Time} & \textbf{Real Time} & \textbf{Sensors} \\
+\midrule
+Make phone call & 5m & 3s & 1 \\
+Wash hands & 1m & 2s & 1 \\
+Cook oatmeal & 10m & 3s & 3 \\
+Eat meal & 20m & 3s & 1 \\
+Clean dishes & 5m & 2s & 2 \\
+\midrule
+\textbf{Total} & \textbf{41m} & \textbf{13s} & \textbf{8} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================================
+% ULTRA-COMPACT VERSION (1 paragraph)
+% ============================================================================
+
+% Use this if you have extremely limited space:
+%
+% \textbf{Interaction and Time Tracking.} 
+% We implemented a CASAS-compatible interaction system with 19 binary item
+% sensors and 11 virtual IoT devices that activate based on proximity (1.0--1.5m)
+% and task semantics. A temporal acceleration mechanism compresses virtual time
+% while maintaining accurate timestamps, enabling 8 hours of sleep to execute
+% in 5 seconds (5760$\times$) and 10 minutes of cooking in 3 seconds (200$\times$).
+% The system exports CASAS-format logs with millisecond precision, SmartThings
+% device states, and detailed interaction metadata for activity recognition
+% evaluation.
+
+% ============================================================================
+% INLINE STATISTICS (if you prefer text over tables)
+% ============================================================================
+
+% Include these statistics in your text:
+% - 19 CASAS-compatible item sensors
+% - 11 virtual smart home devices  
+% - 24 task-specific time profiles
+% - Time acceleration: 30× to 5760×
+% - 4 standardized output formats
+% - Validation: 41 min → 13 sec (189× average)
+% - Format compatibility with existing CASAS datasets
+
+% ============================================================================
+% KEY TAKEAWAYS FOR DISCUSSION
+% ============================================================================
+
+% Benefits to emphasize:
+% 1. CASAS format compatibility enables direct comparison with real datasets
+% 2. Time acceleration enables rapid dataset generation (weeks → hours)
+% 3. Millisecond-precision timestamps support fine-grained activity recognition
+% 4. SmartThings integration enables IoT/smart home research
+% 5. Configurable sensors/devices support diverse scenarios
+% 6. Ground truth interaction data enables rigorous evaluation
+
+% ============================================================================
+% CITATION SUGGESTIONS
+% ============================================================================
+
+% Cite these relevant works:
+% - CASAS dataset: Cook et al., "CASAS: A Smart Home in a Box", IEEE Computer 2012
+% - Activity recognition: Rashidi & Cook, "Keeping the Resident in the Loop", TIST 2009
+% - Smart home simulation: Prior work on simulation-based activity recognition
+% - Time compression: Any work on temporal abstraction in simulation
+
+\end{document}

@@ -1,0 +1,306 @@
+% ============================================================================
+% VESPER INTERACTION SYSTEM - TABLES AND FIGURES ONLY
+% Copy these into your existing paper as needed
+% ============================================================================
+
+% TABLE 1: Item Sensor Configuration
+% ----------------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{CASAS-Compatible Item Sensor Configuration}
+\label{tab:item_sensors}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Sensor ID} & \textbf{Object} & \textbf{Room} & \textbf{Category} \\
+\midrule
+\multicolumn{4}{l}{\textit{Kitchen (7 sensors)}} \\
+I001 & Sink & Kitchen & Appliance \\
+I002 & Stove & Kitchen & Appliance \\
+I003 & Refrigerator & Kitchen & Appliance \\
+I004 & Microwave & Kitchen & Appliance \\
+I005 & Coffee Maker & Kitchen & Appliance \\
+I006 & Kettle & Kitchen & Item \\
+I007 & Dishes & Kitchen & Item \\
+\midrule
+\multicolumn{4}{l}{\textit{Dining Room (2 sensors)}} \\
+I008 & Phone & Dining Room & Item \\
+I009 & Dining Table & Dining Room & Furniture \\
+\midrule
+\multicolumn{4}{l}{\textit{Bathroom (4 sensors)}} \\
+I010 & Bathroom Sink & Bathroom & Appliance \\
+I011 & Shower & Bathroom & Appliance \\
+I012 & Toilet & Bathroom & Appliance \\
+I013 & Medicine Cabinet & Bathroom & Item \\
+\midrule
+\multicolumn{4}{l}{\textit{Bedroom (3 sensors)}} \\
+I014 & Bed & Bedroom & Furniture \\
+I015 & Closet & Bedroom & Furniture \\
+I016 & Lamp & Bedroom & Item \\
+\midrule
+\multicolumn{4}{l}{\textit{Living Room (3 sensors)}} \\
+I017 & Television & Living Room & Appliance \\
+I018 & Couch & Living Room & Furniture \\
+I019 & Book & Living Room & Item \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% TABLE 2: Virtual Device Configuration
+% ----------------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Virtual Smart Home Device Configuration}
+\label{tab:virtual_devices}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Device ID} & \textbf{Name} & \textbf{Type} & \textbf{Room} \\
+\midrule
+D001 & Kitchen Light & Light & Kitchen \\
+D002 & Kitchen Stove & Appliance & Kitchen \\
+D003 & Kitchen Fridge & Appliance & Kitchen \\
+D004 & Kitchen Microwave & Appliance & Kitchen \\
+D005 & Living Light & Light & Living Room \\
+D006 & Living TV & Appliance & Living Room \\
+D007 & Living Lamp & Light & Living Room \\
+D008 & Bedroom Light & Light & Bedroom \\
+D009 & Bedroom Lamp & Light & Bedroom \\
+D010 & Bathroom Light & Light & Bathroom \\
+D011 & Dining Light & Light & Dining Room \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% TABLE 3: Time Profiles for ADL Tasks
+% ----------------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Virtual Time Profiles for Common ADL Tasks}
+\label{tab:time_profiles}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Task Category} & \textbf{Virtual} & \textbf{Real} & \textbf{Scale} \\
+& \textbf{Duration} & \textbf{Duration} & \textbf{Factor} \\
+\midrule
+\multicolumn{4}{l}{\textit{Sleep \& Rest}} \\
+Sleep (8 hrs) & 28800s & 5s & 5760$\times$ \\
+Nap (30 min) & 1800s & 3s & 600$\times$ \\
+Rest (10 min) & 600s & 3s & 200$\times$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Personal Care}} \\
+Shower (10 min) & 600s & 4s & 150$\times$ \\
+Wash hands (1 min) & 60s & 2s & 30$\times$ \\
+Brush teeth (2 min) & 120s & 2s & 60$\times$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Cooking}} \\
+Cook simple (15 min) & 900s & 4s & 225$\times$ \\
+Cook complex (45 min) & 2700s & 6s & 450$\times$ \\
+Cook oatmeal (10 min) & 600s & 3s & 200$\times$ \\
+Microwave (3 min) & 180s & 2s & 90$\times$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Eating}} \\
+Eat meal (20 min) & 1200s & 3s & 400$\times$ \\
+Snack (5 min) & 300s & 2s & 150$\times$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Communication}} \\
+Phone call (5 min) & 300s & 3s & 100$\times$ \\
+Long call (30 min) & 1800s & 5s & 360$\times$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Entertainment}} \\
+Watch TV (1 hr) & 3600s & 8s & 450$\times$ \\
+Read (30 min) & 1800s & 4s & 450$\times$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Cleaning}} \\
+Clean dishes (5 min) & 300s & 2s & 150$\times$ \\
+Clean room (15 min) & 900s & 4s & 225$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% TABLE 4: Validation Results
+% ----------------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Interaction System Validation Results}
+\label{tab:validation_results}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Task} & \textbf{Virtual} & \textbf{Real} & \textbf{Sensors} & \textbf{Devices} \\
+& \textbf{Time} & \textbf{Time} & \textbf{Triggered} & \textbf{Used} \\
+\midrule
+Make phone call & 5m & 3s & 1 & 1 \\
+Wash hands & 1m & 2s & 1 & 1 \\
+Cook oatmeal & 10m & 3s & 3 & 2 \\
+Eat meal & 20m & 3s & 1 & 1 \\
+Clean dishes & 5m & 2s & 2 & 1 \\
+\midrule
+\textbf{Total} & 41m & 13s & 8 & 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ============================================================================
+% KEY EQUATIONS
+% ============================================================================
+
+% Proximity-based interaction detection
+\begin{equation}
+    \text{Interact}(o, a) = \begin{cases}
+        \text{True}, & \text{if } \|p_a - p_o\| \leq d_o \\
+        \text{False}, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+% Time acceleration scale calculation
+\begin{equation}
+    s = \frac{t_v}{t_r^{\max}}
+\end{equation}
+
+% Virtual timestamp calculation
+\begin{equation}
+    t_v(t_r) = t_0 + s \cdot (t_r - t_{r0})
+\end{equation}
+
+
+% ============================================================================
+% CODE LISTINGS
+% ============================================================================
+
+% CASAS format example
+\begin{lstlisting}[caption={CASAS-Compatible Sensor Log Format},label={lst:casas_format}]
+2024-10-14 12:00:00.123 I008 Phone ON
+2024-10-14 12:05:15.456 I008 Phone OFF
+2024-10-14 12:10:30.789 I001 Sink ON
+2024-10-14 12:12:45.012 I001 Sink OFF
+\end{lstlisting}
+
+% JSON interaction log example
+\begin{lstlisting}[language=json,caption={Detailed Interaction Log (JSON)},label={lst:interaction_json}]
+{
+  "session_start": "2024-10-14T12:00:00",
+  "interactions": [
+    {
+      "sensor_id": "I008",
+      "sensor_name": "Phone",
+      "room": "dining_room",
+      "start_time": "2024-10-14T12:00:00.123",
+      "end_time": "2024-10-14T12:05:15.456",
+      "duration_seconds": 315.333,
+      "task": "Make a phone call",
+      "interaction_type": "automatic"
+    }
+  ]
+}
+\end{lstlisting}
+
+% Device control log example
+\begin{lstlisting}[language=json,caption={SmartThings Device Control Log},label={lst:device_log}]
+{
+  "device_events": [
+    {
+      "device_id": "D011",
+      "device_name": "Dining_Light",
+      "action": "ON",
+      "timestamp": "2024-10-14T12:00:00",
+      "trigger": "task_start:Make a phone call"
+    }
+  ],
+  "device_usage": {
+    "D011": {"on_time": 315, "activations": 1}
+  }
+}
+\end{lstlisting}
+
+
+% ============================================================================
+% COMPACT VERSIONS (for space-constrained papers)
+% ============================================================================
+
+% COMPACT TABLE: Combined Sensor Summary
+% ----------------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Item Sensor Distribution by Room (19 Total Sensors)}
+\label{tab:sensor_summary}
+\begin{tabular}{@{}lrll@{}}
+\toprule
+\textbf{Room} & \textbf{Count} & \textbf{Examples} & \textbf{IDs} \\
+\midrule
+Kitchen & 7 & Sink, Stove, Fridge, Microwave & I001--I007 \\
+Dining Room & 2 & Phone, Table & I008--I009 \\
+Bathroom & 4 & Sink, Shower, Toilet & I010--I013 \\
+Bedroom & 3 & Bed, Closet, Lamp & I014--I016 \\
+Living Room & 3 & TV, Couch, Book & I017--I019 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% COMPACT TABLE: Time Acceleration Summary
+% ----------------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Time Acceleration for Common ADL Tasks}
+\label{tab:time_acceleration_compact}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Task Type} & \textbf{Virtual} & \textbf{Real} & \textbf{Factor} \\
+\midrule
+Sleep & 8 hrs & 5s & 5760$\times$ \\
+Cook meal & 15--45 min & 4--6s & 225--450$\times$ \\
+Eat meal & 20 min & 3s & 400$\times$ \\
+Phone call & 5--30 min & 3--5s & 100--360$\times$ \\
+Wash hands & 1 min & 2s & 30$\times$ \\
+Clean dishes & 5 min & 2s & 150$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ============================================================================
+% ALTERNATIVE PRESENTATIONS
+% ============================================================================
+
+% ALTERNATIVE: Sensor distribution as inline text
+% Use this in paragraph form if table space is limited:
+%
+% "The system implements 19 CASAS-compatible item sensors distributed across
+% five rooms: Kitchen (7 sensors: Sink, Stove, Refrigerator, Microwave, 
+% Coffee Maker, Kettle, Dishes), Dining Room (2: Phone, Dining Table), 
+% Bathroom (4: Sink, Shower, Toilet, Medicine Cabinet), Bedroom (3: Bed, 
+% Closet, Lamp), and Living Room (3: TV, Couch, Book)."
+
+
+% ALTERNATIVE: Key statistics as inline text
+%
+% "Time acceleration ranges from 30× (hand washing) to 5760× (8-hour sleep),
+% enabling 41 minutes of virtual activity to execute in 13 seconds while
+% maintaining millisecond-precision timestamps in CASAS-compatible format."
+
+
+% ============================================================================
+% FIGURE SUGGESTIONS (create these separately)
+% ============================================================================
+
+% Figure 1: System Architecture Diagram
+% - Show three subsystems (Item Sensors, Virtual Devices, Time Manager)
+% - Data flow from BGE → Interaction System → CASAS Export
+% - Integration points with VLM navigation
+
+% Figure 2: Interaction Detection Flowchart
+% - Proximity check → Interaction type → Sensor activation → Logging
+
+% Figure 3: Time Acceleration Timeline
+% - Visual comparison of virtual time vs. real time for sample task
+% - Show timestamp mapping and acceleration factor
+
+% Figure 4: Sample Output Comparison
+% - Side-by-side: VESPER output vs. real CASAS dataset
+% - Highlight format compatibility
+
+% ============================================================================
+% END OF TABLES AND FIGURES
+% ============================================================================

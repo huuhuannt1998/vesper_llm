@@ -1,4 +1,4 @@
-﻿import bge
+import bge
 import mathutils
 import os
 import sys
@@ -103,6 +103,18 @@ except ImportError as e:
     SMART_PATHFINDING_AVAILABLE = False
     print(f"⚠️ Smart pathfinding not available: {e}")
     print(f"⚠️ VLM position estimation not available: {e}")
+
+# VESPER Interaction System (NEW)
+try:
+    from interaction_system.vesper_interaction_integration import (
+        get_interaction_system,
+        initialize_interaction_system_for_bge
+    )
+    INTERACTION_SYSTEM_AVAILABLE = True
+    print("✅ VESPER Interaction System available")
+except ImportError as e:
+    INTERACTION_SYSTEM_AVAILABLE = False
+    print(f"⚠️ Interaction system not available: {e}")
 
 # =============================
 # VESPER Evaluation Metrics & Logging System
@@ -1221,6 +1233,14 @@ def main():
             except Exception as e:
                 print(f"âš ï¸ Failed to initialize CASAS logger: {e}")
 
+        # Initialize VESPER Interaction System (Item Sensors + Virtual Devices + Time)
+        if INTERACTION_SYSTEM_AVAILABLE and not hasattr(bge.logic, 'interaction_system'):
+            try:
+                initialize_interaction_system_for_bge()
+                print("✅ VESPER Interaction System initialized (Item Sensors + Devices + Time)")
+            except Exception as e:
+                print(f"⚠️ Failed to initialize interaction system: {e}")
+
     # Run continuous navigation if startup is complete
     if hasattr(bge.logic, "startup_complete") and bge.logic.startup_complete:
         run_continuous_navigation()
@@ -1240,6 +1260,17 @@ def run_continuous_navigation():
             print("ðŸŽ‰ ALL TASKS COMPLETED! Navigation system finished.")
             
             # Print final metrics summary and export datasets
+
+            # Export interaction system data (item sensors, devices, time logs)
+            if INTERACTION_SYSTEM_AVAILABLE:
+                try:
+                    interaction_system = get_interaction_system()
+                    if interaction_system:
+                        print("📊 Exporting interaction system data...")
+                        interaction_system.export_all_data()
+                except Exception as e:
+                    print(f"⚠️ Failed to export interaction data: {e}")
+            
             if hasattr(bge.logic, 'metrics_logger'):
                 bge.logic.metrics_logger._print_task_summary()
                 # Export all datasets to production folder
@@ -1255,6 +1286,18 @@ def run_continuous_navigation():
         if not hasattr(bge.logic, 'current_task_logged') or bge.logic.current_task_logged != bge.logic.current_task_index:
             if hasattr(bge.logic, 'metrics_logger'):
                 bge.logic.metrics_logger.start_task(current_task, bge.logic.current_task_index)
+
+                # Start interaction tracking for this task
+                if INTERACTION_SYSTEM_AVAILABLE:
+                    try:
+                        interaction_system = get_interaction_system()
+                        if interaction_system:
+                            interaction_system.start_task_with_interactions(
+                                current_task,
+                                bge.logic.current_task_index
+                            )
+                    except Exception as e:
+                        print(f"⚠️ Failed to start interaction tracking: {e}")
             bge.logic.current_task_logged = bge.logic.current_task_index
         
         # Check if current task has exceeded max steps
@@ -1273,12 +1316,34 @@ def run_continuous_navigation():
                     final_position=final_pos
                 )
             
+            # Complete interaction tracking (task failed)
+            if INTERACTION_SYSTEM_AVAILABLE:
+                try:
+                    interaction_system = get_interaction_system()
+                    if interaction_system:
+                        interaction_system.complete_task(success=False)
+                except Exception as e:
+                    print(f"⚠️ Failed to complete interaction tracking: {e}")
+            
             bge.logic.current_task_index += 1
             bge.logic.navigation_step = 0
             time.sleep(2.0)  # Brief pause between tasks
             return
         
-        # Execute navigation step for current task
+        
+        # Update interaction state (check for nearby objects)
+        if INTERACTION_SYSTEM_AVAILABLE:
+            try:
+                scene = bge.logic.getCurrentScene()
+                actor = scene.objects.get("Actor")
+                if actor:
+                    interaction_system = get_interaction_system()
+                    if interaction_system:
+                        interaction_system.update_interaction_state(actor)
+            except Exception as e:
+                print(f"⚠️ Interaction state update failed: {e}")
+        
+# Execute navigation step for current task
         print(f"\nÃ°Å¸Å½Â¯ Task {bge.logic.current_task_index + 1}/{len(bge.logic.vesper_tasks)}: '{current_task}'")
         print(f"Ã°Å¸â€â€ž Step {bge.logic.navigation_step + 1}/{bge.logic.max_steps_per_task}")
         
@@ -1384,6 +1449,16 @@ def run_continuous_navigation():
                         success=True,
                         final_position=final_pos
                     )
+
+                # Complete interaction tracking
+                if INTERACTION_SYSTEM_AVAILABLE:
+                    try:
+                        interaction_system = get_interaction_system()
+                        if interaction_system:
+                            interaction_system.complete_task(success=True)
+                    except Exception as e:
+                        print(f"⚠️ Failed to complete interaction tracking: {e}")
+                
                 
                 # Move to next task (datasets exported at end of session)
                 bge.logic.current_task_index += 1
