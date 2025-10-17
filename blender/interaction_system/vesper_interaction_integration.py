@@ -16,6 +16,14 @@ from interaction_system.object_interaction_handler import get_interaction_handle
 from time_system.virtual_time_manager import get_virtual_time_manager, get_task_timer, TASK_TIME_PROFILES
 from virtual_sensors.virtual_device_manager import get_device_manager, setup_default_devices
 
+# Import Docker device integration
+try:
+    from interaction_system.device_docker_integration import get_device_docker_bridge
+    DOCKER_INTEGRATION_AVAILABLE = True
+except ImportError:
+    DOCKER_INTEGRATION_AVAILABLE = False
+    print("⚠️ Docker integration not available")
+
 import time
 
 
@@ -33,10 +41,22 @@ class VESPERInteractionSystem:
         self.task_timer = get_task_timer()
         self.device_manager = get_device_manager()
         
+        # Initialize Docker device bridge if available
+        if DOCKER_INTEGRATION_AVAILABLE:
+            self.docker_bridge = get_device_docker_bridge()
+            print("✅ Docker device bridge connected")
+        else:
+            self.docker_bridge = None
+        
         # Integration state
         self.current_task = None
         self.task_start_time = None
         self.active_interactions = []
+        
+        # Device-reaching tracking
+        self.target_device = None  # Device actor is trying to reach
+        self.device_reached = False  # Whether actor has reached device
+        self.min_interaction_distance = 2.0  # Meters - must be within this to interact
         
         print("✅ VESPER Interaction System initialized")
     
@@ -118,21 +138,86 @@ class VESPERInteractionSystem:
         # Check for nearby interactive objects
         nearby_objects = self.interaction_handler.check_nearby_objects(actor_position)
         
+        # Debug logging (only once per session)
+        if nearby_objects and not hasattr(self, '_logged_nearby'):
+            print(f"🎯 Found {len(nearby_objects)} nearby objects:")
+            for obj in nearby_objects[:5]:  # Show first 5
+                print(f"   - {obj['object_name']} ({obj['distance']:.2f}m away)")
+            self._logged_nearby = True
+        
+        # Check if current interaction is still valid (actor moved away)
+        if self.interaction_handler.active_interaction:
+            still_nearby = any(
+                obj["object_name"] == self.interaction_handler.active_interaction 
+                for obj in nearby_objects
+            )
+            
+            if not still_nearby:
+                # Actor moved away - end interaction
+                print(f"👋 Actor moved away from {self.interaction_handler.active_interaction}")
+                self.interaction_handler.end_interaction()
+                events.append({
+                    "type": "interaction_end",
+                    "object": self.interaction_handler.active_interaction,
+                    "reason": "moved_away"
+                })
+        
         # Auto-interact with nearby objects if appropriate
         for obj in nearby_objects:
             if obj["interaction_type"] == "auto" and obj["available"]:
                 # Check if this object is relevant to current task
                 if self._is_object_relevant_to_task(obj["object_name"], current_task):
-                    # Start interaction
-                    if self.interaction_handler.start_interaction(
-                        obj["object_name"], 
-                        current_task
-                    ):
-                        events.append({
-                            "type": "interaction_start",
-                            "object": obj["object_name"],
-                            "task": current_task
-                        })
+                    # Check if actor is close enough to interact
+                    if obj["distance"] > self.min_interaction_distance:
+                        # Set as target device but don't interact yet
+                        if self.target_device != obj["object_name"]:
+                            self.target_device = obj["object_name"]
+                            self.device_reached = False
+                            print(f"🎯 TARGET SET: {obj['object_name']} ({obj['distance']:.2f}m away - NEED TO GET CLOSER)")
+                        continue  # Skip interaction until closer
+                    
+                    # Actor is close enough - mark device as reached
+                    if not self.device_reached and self.target_device == obj["object_name"]:
+                        self.device_reached = True
+                        print(f"✅ DEVICE REACHED: {obj['object_name']} ({obj['distance']:.2f}m away)")
+                    
+                    # Start interaction (only if not already interacting)
+                    if not self.interaction_handler.active_interaction:
+                        # Check Docker container status if available
+                        container_ok = True
+                        if self.docker_bridge:
+                            device_state = self.docker_bridge.get_device_state(obj["object_name"])
+                            container_ok = device_state.get("healthy", True)
+                            
+                            if not container_ok:
+                                print(f"⚠️ Cannot interact with {obj['object_name']} - Docker container unhealthy")
+                                continue
+                        
+                        if self.interaction_handler.start_interaction(
+                            obj["object_name"], 
+                            current_task
+                        ):
+                            print(f"🤝 Started interaction: {obj['object_name']} (task: {current_task})")
+                            
+                            # Flag device as in use in Docker container
+                            if self.docker_bridge:
+                                device_state = self.docker_bridge.get_device_state(obj["object_name"])
+                                if device_state.get("serial"):
+                                    self.docker_bridge.flag_device_in_use(
+                                        obj["object_name"],
+                                        device_state["serial"],
+                                        device_state["port"],
+                                        in_use=True
+                                    )
+                            
+                            events.append({
+                                "type": "interaction_start",
+                                "object": obj["object_name"],
+                                "task": current_task,
+                                "device_reached": True,
+                                "docker_tracked": self.docker_bridge is not None
+                            })
+                            break  # Only interact with one object at a time
         
         return events
     
@@ -147,20 +232,36 @@ class VESPERInteractionSystem:
         # End task timer
         task_duration = self.task_timer.end_task_timer(task_name)
         
-        # End any active interactions
+        # End any active interactions and unflag Docker devices
         if self.interaction_handler.active_interaction:
+            active_obj = self.interaction_handler.active_interaction
+            
+            # Unflag device in Docker container
+            if self.docker_bridge:
+                device_state = self.docker_bridge.get_device_state(active_obj)
+                if device_state.get("serial"):
+                    self.docker_bridge.flag_device_in_use(
+                        active_obj,
+                        device_state["serial"],
+                        device_state["port"],
+                        in_use=False
+                    )
+            
             self.interaction_handler.end_interaction()
         
         # Reset time scale to normal
         if self.time_manager.time_scale != 1.0:
             self.time_manager.set_time_scale(1.0, reason="Task completed")
         
-        # Turn off devices if appropriate
-        # (Could be made more sophisticated)
+        # Reset device reaching state
+        self.target_device = None
+        self.device_reached = False
         
         print(f"\n✅ Task completed: {task_name}")
         if task_duration:
             print(f"   Duration: {task_duration['virtual_duration']:.1f}s ({task_duration['virtual_duration']/60:.1f} min)")
+            print(f"   Real time: {task_duration['real_duration']:.1f}s")
+            print(f"   Time acceleration: {task_duration['time_scale']:.1f}x")
         
         self.current_task = None
     
@@ -284,7 +385,48 @@ class VESPERInteractionSystem:
         # Export time log
         self.time_manager.export_time_log(self.item_sensor_manager.dataset_dir)
         
+        # Export Docker device tracking if available
+        if self.docker_bridge:
+            self.docker_bridge.export_device_tracking_log(self.item_sensor_manager.dataset_dir)
+        
         print("✅ All data exported\n")
+    
+    def is_device_reached(self, object_name=None):
+        """
+        Check if a device has been reached by the actor
+        
+        Args:
+            object_name: Specific object to check (optional, checks current target if None)
+        
+        Returns:
+            bool: True if device has been reached
+        """
+        if object_name:
+            return self.target_device == object_name and self.device_reached
+        return self.device_reached
+    
+    def get_target_device_status(self):
+        """
+        Get status of current target device
+        
+        Returns:
+            dict: Status information
+        """
+        if not self.target_device:
+            return {"has_target": False}
+        
+        status = {
+            "has_target": True,
+            "device_name": self.target_device,
+            "reached": self.device_reached,
+            "docker_tracked": self.docker_bridge is not None
+        }
+        
+        if self.docker_bridge:
+            device_state = self.docker_bridge.get_device_state(self.target_device)
+            status["docker_status"] = device_state
+        
+        return status
     
     def print_session_summary(self):
         """Print comprehensive session summary"""
@@ -300,6 +442,10 @@ class VESPERInteractionSystem:
         
         # Device summary
         self.device_manager.print_summary()
+        
+        # Docker device tracking summary
+        if self.docker_bridge:
+            self.docker_bridge.print_status_summary()
         
         print("="*70 + "\n")
 
@@ -325,14 +471,47 @@ def initialize_interaction_system_for_bge():
         # Initialize system
         system = get_interaction_system()
         
+        # Auto-discover and register scene objects
+        scene = bge.logic.getCurrentScene()
+        
+        print("🔍 Discovering scene objects for interaction...")
+        registered_count = 0
+        skipped_objects = ['Actor', 'Camera', 'Light', 'Sun', 'Lamp', 'Empty']
+        
+        for obj in scene.objects:
+            # Skip non-interactive objects
+            if any(skip in obj.name for skip in skipped_objects):
+                continue
+            
+            # Check if object already configured
+            if obj.name not in system.interaction_handler.interaction_zones:
+                # Auto-register with default settings
+                system.interaction_handler.register_interactive_object(
+                    obj.name,
+                    interaction_distance=2.0,  # Generous distance
+                    interaction_type="auto",    # Auto-interact when nearby
+                    interaction_duration=5.0    # 5 second default
+                )
+                registered_count += 1
+                print(f"   ✅ Auto-registered: {obj.name}")
+        
+        if registered_count > 0:
+            print(f"📊 Auto-registered {registered_count} new interactive objects")
+        
+        # Print configured vs available objects
+        configured_objects = list(system.interaction_handler.interaction_zones.keys())
+        print(f"\n📋 Total interactive objects: {len(configured_objects)}")
+        
         # Store in BGE logic for access
         bge.logic.interaction_system = system
         
-        print("✅ VESPER Interaction System ready for BGE")
+        print("✅ VESPER Interaction System ready for BGE\n")
         return True
         
     except Exception as e:
         print(f"⚠️ BGE interaction initialization failed: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 

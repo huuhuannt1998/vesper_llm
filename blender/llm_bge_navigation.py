@@ -1321,7 +1321,7 @@ def run_continuous_navigation():
                 try:
                     interaction_system = get_interaction_system()
                     if interaction_system:
-                        interaction_system.complete_task(success=False)
+                        interaction_system.complete_task(task_name=current_task, success=False)
                 except Exception as e:
                     print(f"⚠️ Failed to complete interaction tracking: {e}")
             
@@ -1339,11 +1339,12 @@ def run_continuous_navigation():
                 if actor:
                     interaction_system = get_interaction_system()
                     if interaction_system:
-                        interaction_system.update_interaction_state(actor)
+                        actor_pos = (actor.worldPosition.x, actor.worldPosition.y)
+                        interaction_system.update_interaction_state(actor_pos, current_task)
             except Exception as e:
                 print(f"⚠️ Interaction state update failed: {e}")
         
-# Execute navigation step for current task
+        # Execute navigation step for current task
         print(f"\nÃ°Å¸Å½Â¯ Task {bge.logic.current_task_index + 1}/{len(bge.logic.vesper_tasks)}: '{current_task}'")
         print(f"Ã°Å¸â€â€ž Step {bge.logic.navigation_step + 1}/{bge.logic.max_steps_per_task}")
         
@@ -1455,7 +1456,7 @@ def run_continuous_navigation():
                     try:
                         interaction_system = get_interaction_system()
                         if interaction_system:
-                            interaction_system.complete_task(success=True)
+                            interaction_system.complete_task(task_name=current_task, success=True)
                     except Exception as e:
                         print(f"⚠️ Failed to complete interaction tracking: {e}")
                 
