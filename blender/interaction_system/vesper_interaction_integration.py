@@ -183,15 +183,17 @@ class VESPERInteractionSystem:
                     
                     # Start interaction (only if not already interacting)
                     if not self.interaction_handler.active_interaction:
-                        # Check Docker container status if available
+                        # Check Docker container status ONLY for objects mapped to containers
                         container_ok = True
                         if self.docker_bridge:
                             device_state = self.docker_bridge.get_device_state(obj["object_name"])
-                            container_ok = device_state.get("healthy", True)
-                            
-                            if not container_ok:
-                                print(f"⚠️ Cannot interact with {obj['object_name']} - Docker container unhealthy")
-                                continue
+                            # Only check health if this object is actually mapped to a Docker container
+                            if device_state.get("serial"):
+                                container_ok = device_state.get("healthy", False)
+                                
+                                if not container_ok:
+                                    print(f"⚠️ Cannot interact with {obj['object_name']} - Docker container unhealthy")
+                                    continue
                         
                         if self.interaction_handler.start_interaction(
                             obj["object_name"], 

@@ -116,6 +116,22 @@ except ImportError as e:
     INTERACTION_SYSTEM_AVAILABLE = False
     print(f"⚠️ Interaction system not available: {e}")
 
+# Docker Virtual Smart Home Integration (NEW)
+try:
+    from bge_docker_integration import (
+        initialize_docker_integration_for_bge,
+        trigger_virtual_device_on_interaction,
+        check_virtual_device_health,
+        get_virtual_device_status_summary,
+        export_docker_tracking_on_exit,
+        is_docker_integration_active
+    )
+    DOCKER_INTEGRATION_AVAILABLE = True
+    print("✅ Docker virtual smart home integration available")
+except ImportError as e:
+    DOCKER_INTEGRATION_AVAILABLE = False
+    print(f"⚠️ Docker integration not available: {e}")
+
 # =============================
 # VESPER Evaluation Metrics & Logging System
 # =============================
@@ -1240,6 +1256,24 @@ def main():
                 print("✅ VESPER Interaction System initialized (Item Sensors + Devices + Time)")
             except Exception as e:
                 print(f"⚠️ Failed to initialize interaction system: {e}")
+        
+        # Initialize Docker Virtual Smart Home Integration
+        if DOCKER_INTEGRATION_AVAILABLE and not hasattr(bge.logic, 'docker_bridge'):
+            try:
+                docker_success = initialize_docker_integration_for_bge()
+                if docker_success:
+                    print("✅ Docker virtual smart home integration active")
+                    # Print device status summary
+                    status = get_virtual_device_status_summary()
+                    if status.get("available"):
+                        print(f"   📱 Virtual devices ready: {status['healthy_count']} healthy, {status['in_use_count']} in use")
+                else:
+                    print("⚠️ Docker integration initialized but no devices linked")
+                    print("   Simulation will continue without virtual device triggers")
+            except Exception as e:
+                print(f"⚠️ Failed to initialize Docker integration: {e}")
+                import traceback
+                traceback.print_exc()
 
     # Run continuous navigation if startup is complete
     if hasattr(bge.logic, "startup_complete") and bge.logic.startup_complete:
@@ -1270,6 +1304,14 @@ def run_continuous_navigation():
                         interaction_system.export_all_data()
                 except Exception as e:
                     print(f"⚠️ Failed to export interaction data: {e}")
+            
+            # Export Docker virtual device tracking data
+            if DOCKER_INTEGRATION_AVAILABLE:
+                try:
+                    print("🐳 Exporting Docker virtual device tracking...")
+                    export_docker_tracking_on_exit()
+                except Exception as e:
+                    print(f"⚠️ Failed to export Docker tracking: {e}")
             
             if hasattr(bge.logic, 'metrics_logger'):
                 bge.logic.metrics_logger._print_task_summary()

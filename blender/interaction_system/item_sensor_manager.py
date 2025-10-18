@@ -319,39 +319,25 @@ def get_item_sensor_manager():
 
 
 def setup_default_item_sensors():
-    """Setup common household item sensors"""
+    """Setup item sensors for ONLY objects available in Blender scene"""
     manager = get_item_sensor_manager()
     
+    # ========================================
+    # AVAILABLE OBJECTS IN BLENDER SCENE:
+    # Phone, Stove, DiningTable, KitchenSink, BathroomSink1, BathroomSink2
+    # ========================================
+    
     # Kitchen items
-    manager.register_item_sensor("I001", "Sink", "KitchenSink", "Kitchen", "appliance")
+    manager.register_item_sensor("I001", "Phone", "Phone", "Kitchen", "item")
     manager.register_item_sensor("I002", "Stove", "Stove", "Kitchen", "appliance")
-    manager.register_item_sensor("I003", "Fridge", "Refrigerator", "Kitchen", "appliance")
-    manager.register_item_sensor("I004", "Microwave", "Microwave", "Kitchen", "appliance")
-    manager.register_item_sensor("I005", "CoffeeMaker", "CoffeeMaker", "Kitchen", "appliance")
-    manager.register_item_sensor("I006", "Kettle", "Kettle", "Kitchen", "item")
-    manager.register_item_sensor("I007", "Dishes", "Dishes", "Kitchen", "item")
+    manager.register_item_sensor("I003", "DiningTable", "DiningTable", "DiningRoom", "furniture")
+    manager.register_item_sensor("I004", "KitchenSink", "KitchenSink", "Kitchen", "appliance")
     
-    # Dining room
-    manager.register_item_sensor("I008", "Phone", "Phone", "DiningRoom", "item")
-    manager.register_item_sensor("I009", "DiningTable", "DiningTable", "DiningRoom", "furniture")
+    # Bathroom items
+    manager.register_item_sensor("I005", "BathroomSink1", "BathroomSink1", "Bathroom1", "appliance")
+    manager.register_item_sensor("I006", "BathroomSink2", "BathroomSink2", "Bathroom2", "appliance")
     
-    # Bathroom
-    manager.register_item_sensor("I010", "BathroomSink", "BathroomSink", "Bathroom", "appliance")
-    manager.register_item_sensor("I011", "Shower", "Shower", "Bathroom", "appliance")
-    manager.register_item_sensor("I012", "Toilet", "Toilet", "Bathroom", "appliance")
-    manager.register_item_sensor("I013", "Medicine", "MedicineCabinet", "Bathroom", "item")
-    
-    # Bedroom
-    manager.register_item_sensor("I014", "Bed", "Bed", "Bedroom", "furniture")
-    manager.register_item_sensor("I015", "Closet", "Closet", "Bedroom", "furniture")
-    manager.register_item_sensor("I016", "Lamp", "BedroomLamp", "Bedroom", "item")
-    
-    # Living room
-    manager.register_item_sensor("I017", "TV", "Television", "LivingRoom", "appliance")
-    manager.register_item_sensor("I018", "Couch", "Couch", "LivingRoom", "furniture")
-    manager.register_item_sensor("I019", "Book", "Book", "LivingRoom", "item")
-    
-    print("✅ Default item sensors configured")
+    print("✅ Default item sensors configured (6 objects: Phone, Stove, DiningTable, KitchenSink, BathroomSink1, BathroomSink2)")
     return manager
 
 

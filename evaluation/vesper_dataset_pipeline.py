@@ -22,6 +22,14 @@ import numpy as np
 # Add evaluation directory to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+# Import advanced statistical comparison module
+try:
+    from advanced_statistical_comparison import AdvancedStatisticalComparison
+    ADVANCED_STATS_AVAILABLE = True
+except ImportError:
+    print("⚠️  Advanced statistical comparison module not available")
+    ADVANCED_STATS_AVAILABLE = False
+
 
 class VESPERDatasetPipeline:
     """Production pipeline for VESPER dataset analysis and CASAS comparison"""
@@ -702,7 +710,43 @@ class VESPERDatasetPipeline:
         # Step 4: Create visualization graphs
         plot_files = self.create_vesper_visualizations(analysis_results)
         
-        # Save pipeline results JSON first
+        # Step 5: Run advanced statistical comparison with CASAS
+        statistical_results = None
+        if ADVANCED_STATS_AVAILABLE:
+            print("\n" + "="*80)
+            print("RUNNING ADVANCED STATISTICAL COMPARISON WITH CASAS")
+            print("="*80)
+            
+            try:
+                statistical_analyzer = AdvancedStatisticalComparison(str(self.base_dir))
+                statistical_results = statistical_analyzer.run_complete_analysis()
+                
+                if statistical_results:
+                    print("\n✅ Advanced statistical analysis completed!")
+                    print(f"   VESPER datasets: {statistical_results.get('vesper_count', 0)}")
+                    print(f"   CASAS datasets: {statistical_results.get('casas_count', 0)}")
+                    
+                    if 'figures' in statistical_results:
+                        print(f"   Research figures generated: {len(statistical_results['figures'])}")
+                        for fig_path in statistical_results['figures']:
+                            print(f"      - {os.path.basename(fig_path)}")
+                    
+                    if 'reports' in statistical_results:
+                        print(f"   Statistical reports: {len(statistical_results['reports'])}")
+                        for report_path in statistical_results['reports']:
+                            print(f"      - {os.path.basename(report_path)}")
+                else:
+                    print("\n⚠️  Advanced statistical analysis returned no results")
+                    
+            except Exception as e:
+                print(f"\n⚠️  Advanced statistical analysis failed: {e}")
+                import traceback
+                traceback.print_exc()
+        else:
+            print("\n⚠️ Advanced statistical comparison not available")
+            print("   Install required: scipy")
+        
+        # Save pipeline results JSON
         results_json = self.comparison_results_dir / f"vesper_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         
         # Compile final results
@@ -713,15 +757,16 @@ class VESPERDatasetPipeline:
             'report_file': str(report_file),
             'json_file': str(results_json),
             'plot_files': plot_files,
+            'statistical_results': statistical_results,
             'status': 'completed',
             'timestamp': datetime.now().isoformat()
         }
         
         with open(results_json, 'w', encoding='utf-8') as f:
-            json.dump(pipeline_results, f, indent=2)
+            json.dump(pipeline_results, f, indent=2, default=str)
         
-        print(f"✅ Results JSON: {results_json.name}")
-        print(f"\n📁 All outputs: {self.comparison_results_dir}")
+        print(f"\n✅ Results JSON: {results_json.name}")
+        print(f"📁 All outputs: {self.comparison_results_dir}")
         
         print("\n" + "="*80)
         print("PIPELINE COMPLETED SUCCESSFULLY")
@@ -756,6 +801,23 @@ def main():
                 print(f"   Graphs generated: {len(results['plot_files'])}")
                 for plot in results['plot_files']:
                     print(f"      - {os.path.basename(plot)}")
+            
+            # Display statistical comparison results
+            if results.get('statistical_results'):
+                stat_res = results['statistical_results']
+                print(f"\n   Statistical Comparison:")
+                print(f"      VESPER datasets: {stat_res.get('vesper_count', 'N/A')}")
+                print(f"      CASAS datasets: {stat_res.get('casas_count', 'N/A')}")
+                if stat_res.get('figures'):
+                    print(f"      Research figures: {len(stat_res['figures'])}")
+                    for fig in stat_res['figures']:
+                        print(f"         - {os.path.basename(fig)}")
+                if stat_res.get('reports'):
+                    print(f"      Statistical reports: {len(stat_res['reports'])}")
+                    for rep in stat_res['reports']:
+                        print(f"         - {os.path.basename(rep)}")
+            
+            print(f"\n   📁 All results saved to: {pipeline.comparison_results_dir}")
         elif results['status'] == 'no_data':
             print("\n⚠️  No VESPER datasets found to analyze")
             print("   Run BGE navigation first: python blender/llm_bge_navigation.py")

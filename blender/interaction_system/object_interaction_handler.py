@@ -351,25 +351,29 @@ def get_interaction_handler():
 
 
 def setup_default_interactions():
-    """Setup common household interactions"""
+    """Setup common household interactions - ONLY objects available in Blender scene"""
     handler = get_interaction_handler()
     
-    # Kitchen interactions (manual - require explicit action)
-    handler.register_interactive_object("KitchenSink", 1.5, "manual")
-    handler.register_interactive_object("Stove", 1.5, "manual")
-    handler.register_interactive_object("Refrigerator", 1.5, "manual")
-    handler.register_interactive_object("Microwave", 1.2, "manual")
+    # ========================================
+    # AVAILABLE OBJECTS IN BLENDER SCENE:
+    # Phone, Stove, DiningTable, KitchenSink, BathroomSink1, BathroomSink2
+    # ========================================
+    
+    # Kitchen interactions (auto-interact for task-based usage)
+    handler.register_interactive_object("KitchenSink", 1.5, "auto", 20.0)  # 20 sec wash hands
+    handler.register_interactive_object("Stove", 1.5, "auto", 30.0)  # 30 sec cook
+    
+    # Bathroom interactions (auto-interact for hygiene tasks)
+    handler.register_interactive_object("BathroomSink1", 1.5, "auto", 20.0)  # 20 sec wash hands
+    handler.register_interactive_object("BathroomSink2", 1.5, "auto", 20.0)  # 20 sec wash hands
     
     # Items (auto-interact when very close)
-    handler.register_interactive_object("Phone", 1.0, "auto", 10.0)
-    handler.register_interactive_object("Dishes", 1.0, "auto", 5.0)
+    handler.register_interactive_object("Phone", 1.0, "auto", 10.0)  # 10 sec phone call
     
-    # Furniture (auto-interact for tasks like sitting/sleeping)
-    handler.register_interactive_object("Bed", 1.5, "auto", 60.0)  # 1 min default sleep
-    handler.register_interactive_object("Couch", 1.5, "auto", 30.0)
-    handler.register_interactive_object("DiningTable", 1.5, "auto", 15.0)
+    # Furniture (auto-interact for tasks like eating)
+    handler.register_interactive_object("DiningTable", 1.5, "auto", 15.0)  # 15 sec eating/sitting
     
-    print("✅ Default interactions configured")
+    print("✅ Default interactions configured (6 objects: Phone, Stove, DiningTable, KitchenSink, BathroomSink1, BathroomSink2)")
     return handler
 
 

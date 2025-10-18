@@ -51,6 +51,25 @@ class DeviceDockerBridge:
         """Get device type for an object"""
         return self.sensor_to_device_type.get(object_name, "motion_sensor")
     
+    def check_backend_health(self):
+        """
+        Check if backend console API is reachable
+        
+        Returns:
+            bool: True if backend is healthy
+        """
+        if not REQUESTS_AVAILABLE:
+            return False
+        
+        try:
+            response = requests.get(
+                f"{self.backend_api}/health",
+                timeout=5
+            )
+            return response.status_code == 200
+        except:
+            return False
+    
     def check_container_health(self, serial_number, port):
         """
         Check if Docker container is healthy and responding
@@ -134,6 +153,7 @@ class DeviceDockerBridge:
     def flag_device_in_use(self, object_name, serial_number, port, in_use=True):
         """
         Flag a device as in use (actor is interacting)
+        AND trigger virtual item sensor in Docker container
         
         Args:
             object_name: Object being interacted with (Phone, Stove, etc.)
@@ -151,19 +171,25 @@ class DeviceDockerBridge:
             print(f"⚠️ Cannot flag device {object_name} - container {serial_number} unhealthy")
             return False
         
+        # Trigger virtual item sensor in container
+        sensor_triggered = self._trigger_item_sensor(serial_number, port, object_name, in_use)
+        
         # Update device state
         self.device_states[object_name] = {
             "serial": serial_number,
             "port": port,
             "in_use": in_use,
             "last_update": time.time(),
-            "healthy": is_healthy
+            "healthy": is_healthy,
+            "sensor_triggered": sensor_triggered
         }
         
         if in_use:
-            print(f"🔴 Device {object_name} FLAGGED as IN USE (container: {serial_number}:{port})")
+            status = "✅ SENSOR ON" if sensor_triggered else "⚠️ SENSOR FAILED"
+            print(f"🔴 Device {object_name} FLAGGED as IN USE (container: {serial_number}:{port}) {status}")
         else:
-            print(f"🟢 Device {object_name} FLAGGED as AVAILABLE (container: {serial_number}:{port})")
+            status = "✅ SENSOR OFF" if sensor_triggered else "⚠️ SENSOR FAILED"
+            print(f"🟢 Device {object_name} FLAGGED as AVAILABLE (container: {serial_number}:{port}) {status}")
         
         return True
     
@@ -235,6 +261,71 @@ class DeviceDockerBridge:
                 
         except Exception as e:
             print(f"❌ Error sending command to {object_name}: {e}")
+            return False
+    
+    def _trigger_item_sensor(self, serial_number, port, object_name, state_on=True):
+        """
+        Trigger virtual item sensor in Docker container
+        
+        Args:
+            serial_number: Device serial number
+            port: Container port
+            object_name: Object name (Phone, Stove, etc.)
+            state_on: True for ON, False for OFF
+        
+        Returns:
+            bool: True if sensor triggered successfully
+        """
+        if not REQUESTS_AVAILABLE:
+            return False
+        
+        try:
+            # Map object name to sensor ID
+            sensor_map = {
+                "Phone": "I008",
+                "BathroomSink": "I010",
+                "KitchenSink": "I001",
+                "Stove": "I002",
+                "DiningTable": "I009",
+                "Microwave": "I004",
+                "Refrigerator": "I003",
+                "CoffeeMaker": "I005"
+            }
+            
+            sensor_id = sensor_map.get(object_name, "I999")
+            state_str = "ON" if state_on else "OFF"
+            
+            # Map state to interaction action
+            action = "pickup" if state_on else "putdown"
+            
+            # Use /interaction endpoint (confirmed from OpenAPI spec)
+            url = f"http://localhost:{port}/interaction"
+            
+            # Prepare payload matching ItemInteraction schema
+            payload = {
+                "action": action,  # pickup, putdown, or use
+                "actor_id": "BGE_Actor",  # Optional actor ID
+                "timestamp": None  # Let container use current time
+            }
+            
+            try:
+                response = requests.post(url, json=payload, timeout=3)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    print(f"   ✅ Item sensor interaction logged: {action} → {result.get('message', 'OK')}")
+                    return True
+                else:
+                    print(f"   ⚠️ Interaction failed: status {response.status_code}")
+                    print(f"      Response: {response.text[:100]}")
+                    return False
+                    
+            except Exception as e:
+                print(f"   ⚠️ Error logging interaction: {e}")
+                return False
+            
+        except Exception as e:
+            print(f"   ⚠️ Error triggering item sensor: {e}")
             return False
     
     def export_device_tracking_log(self, output_dir):

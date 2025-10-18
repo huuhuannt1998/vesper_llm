@@ -380,31 +380,27 @@ def get_device_manager():
 
 
 def setup_default_devices():
-    """Setup common smart home devices"""
+    """Setup virtual devices for ONLY objects available in Blender scene"""
     manager = get_device_manager()
     
+    # ========================================
+    # AVAILABLE OBJECTS IN BLENDER SCENE:
+    # Phone, Stove, DiningTable, KitchenSink, BathroomSink1, BathroomSink2
+    # ========================================
+    
     # Kitchen devices
-    manager.register_device("D001", "Kitchen_Light", DeviceType.LIGHT, "Kitchen")
-    manager.register_device("D002", "Kitchen_Stove", DeviceType.APPLIANCE, "Kitchen")
-    manager.register_device("D003", "Kitchen_Fridge", DeviceType.APPLIANCE, "Kitchen", DeviceState.ON)
-    manager.register_device("D004", "Kitchen_Microwave", DeviceType.APPLIANCE, "Kitchen")
+    manager.register_device("D001", "Stove", DeviceType.APPLIANCE, "Kitchen")
+    manager.register_device("D002", "KitchenSink", DeviceType.APPLIANCE, "Kitchen")
     
-    # Living room
-    manager.register_device("D005", "Living_Light", DeviceType.LIGHT, "LivingRoom")
-    manager.register_device("D006", "Living_TV", DeviceType.APPLIANCE, "LivingRoom")
-    manager.register_device("D007", "Living_Lamp", DeviceType.LIGHT, "LivingRoom")
+    # Dining room devices
+    manager.register_device("D003", "Phone", DeviceType.APPLIANCE, "DiningRoom")
+    manager.register_device("D004", "DiningTable", DeviceType.APPLIANCE, "DiningRoom")
     
-    # Bedroom
-    manager.register_device("D008", "Bedroom_Light", DeviceType.LIGHT, "Bedroom")
-    manager.register_device("D009", "Bedroom_Lamp", DeviceType.LIGHT, "Bedroom")
+    # Bathroom devices
+    manager.register_device("D005", "BathroomSink1", DeviceType.APPLIANCE, "Bathroom1")
+    manager.register_device("D006", "BathroomSink2", DeviceType.APPLIANCE, "Bathroom2")
     
-    # Bathroom
-    manager.register_device("D010", "Bathroom_Light", DeviceType.LIGHT, "Bathroom")
-    
-    # Dining room
-    manager.register_device("D011", "Dining_Light", DeviceType.LIGHT, "DiningRoom")
-    
-    print("✅ Default devices configured")
+    print("✅ Default devices configured (6 objects: Phone, Stove, DiningTable, KitchenSink, BathroomSink1, BathroomSink2)")
     return manager
 
 
