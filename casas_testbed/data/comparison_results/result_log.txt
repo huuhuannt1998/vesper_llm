@@ -1,0 +1,257 @@
+(base) PS C:\Users\hbui11\Desktop\vesper_llm\evaluation> python .\vesper_dataset_pipeline.py
+📁 VESPER datasets: c:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+📁 Ground truth: c:\Users\hbui11\Desktop\vesper_llm\casas_testbed\data\casas_ground_truth
+📁 Results output: c:\Users\hbui11\Desktop\vesper_llm\casas_testbed\data\comparison_results
+
+================================================================================
+VESPER DATASET ANALYSIS & CASAS COMPARISON PIPELINE
+================================================================================
+
+================================================================================
+DETECTING VESPER DATASETS
+================================================================================
+
+📊 Found 19 VESPER metrics files
+   - vesper_metrics_p001_20251019_010000.json
+   - vesper_metrics_p002_20251019_210000.json
+   - vesper_metrics_p003_20251020_170000.json
+   - vesper_metrics_p004_20251021_160000.json
+   - vesper_metrics_p005_20251022_210000.json
+   - vesper_metrics_p006_20251023_200000.json
+   - vesper_metrics_p007_20251025_140000.json
+   - vesper_metrics_p008_20251026_020000.json
+   - vesper_metrics_p009_20251027_050000.json
+   - vesper_metrics_p010_20251028_050000.json
+   - vesper_metrics_p01_20251008_192948.json
+   - vesper_metrics_p01_20251009_143435.json
+   - vesper_metrics_p01_20251009_173811.json
+   - vesper_metrics_p01_20251010_142601.json
+   - vesper_metrics_p01_20251010_152141.json
+   - vesper_metrics_p01_20251010_163221.json
+   - vesper_metrics_p01_20251014_175824.json
+   - vesper_metrics_p01_20251017_124535.json
+   - vesper_metrics_p01_20251017_213021.json
+   ✅ vesper_metrics_p001_20251019_010000.json: 85 sensor events
+   ✅ vesper_metrics_p002_20251019_210000.json: 81 sensor events
+   ✅ vesper_metrics_p003_20251020_170000.json: 92 sensor events
+   ✅ vesper_metrics_p004_20251021_160000.json: 157 sensor events
+   ✅ vesper_metrics_p005_20251022_210000.json: 154 sensor events
+   ✅ vesper_metrics_p006_20251023_200000.json: 135 sensor events
+   ✅ vesper_metrics_p007_20251025_140000.json: 172 sensor events
+   ✅ vesper_metrics_p008_20251026_020000.json: 101 sensor events
+   ✅ vesper_metrics_p009_20251027_050000.json: 157 sensor events
+   ✅ vesper_metrics_p010_20251028_050000.json: 146 sensor events
+   ✅ vesper_metrics_p01_20251008_192948.json: 4 sensor events
+   ✅ vesper_metrics_p01_20251009_143435.json: 10 sensor events
+   ✅ vesper_metrics_p01_20251009_173811.json: 5 sensor events
+   ✅ vesper_metrics_p01_20251010_142601.json: 5 sensor events
+   ✅ vesper_metrics_p01_20251010_152141.json: 5 sensor events
+   ✅ vesper_metrics_p01_20251010_163221.json: 5 sensor events
+   ✅ vesper_metrics_p01_20251014_175824.json: 13 sensor events
+   ✅ vesper_metrics_p01_20251017_124535.json: 30 sensor events
+   ✅ vesper_metrics_p01_20251017_213021.json: 6 sensor events
+
+================================================================================
+ANALYZING VESPER METRICS
+================================================================================
+
+✅ vesper_metrics_p001_20251019_010000.json
+   Tasks: 3
+   Sensor events: 85
+   Steps: 161
+
+✅ vesper_metrics_p002_20251019_210000.json
+   Tasks: 3
+   Sensor events: 81
+   Steps: 127
+
+✅ vesper_metrics_p003_20251020_170000.json
+   Tasks: 4
+   Sensor events: 92
+   Steps: 154
+
+✅ vesper_metrics_p004_20251021_160000.json
+   Tasks: 4
+   Sensor events: 157
+   Steps: 149
+
+✅ vesper_metrics_p005_20251022_210000.json
+   Tasks: 4
+   Sensor events: 154
+   Steps: 173
+
+✅ vesper_metrics_p006_20251023_200000.json
+   Tasks: 4
+   Sensor events: 135
+   Steps: 186
+
+✅ vesper_metrics_p007_20251025_140000.json
+   Tasks: 5
+   Sensor events: 172
+   Steps: 218
+
+✅ vesper_metrics_p008_20251026_020000.json
+   Tasks: 5
+   Sensor events: 101
+   Steps: 231
+
+✅ vesper_metrics_p009_20251027_050000.json
+   Tasks: 4
+   Sensor events: 157
+   Steps: 171
+
+✅ vesper_metrics_p010_20251028_050000.json
+   Tasks: 4
+   Sensor events: 146
+   Steps: 185
+
+✅ vesper_metrics_p01_20251008_192948.json
+   Tasks: 5
+   Sensor events: 4
+   Steps: 46
+
+✅ vesper_metrics_p01_20251009_143435.json
+   Tasks: 5
+   Sensor events: 10
+   Steps: 278
+
+✅ vesper_metrics_p01_20251009_173811.json
+   Tasks: 5
+   Sensor events: 5
+   Steps: 190
+
+✅ vesper_metrics_p01_20251010_142601.json
+   Tasks: 5
+   Sensor events: 5
+   Steps: 202
+
+✅ vesper_metrics_p01_20251010_152141.json
+   Tasks: 5
+   Sensor events: 5
+   Steps: 282
+
+✅ vesper_metrics_p01_20251010_163221.json
+   Tasks: 2
+   Sensor events: 5
+   Steps: 12
+
+✅ vesper_metrics_p01_20251014_175824.json
+   Tasks: 5
+   Sensor events: 13
+   Steps: 272
+
+✅ vesper_metrics_p01_20251017_124535.json
+   Tasks: 5
+   Sensor events: 30
+   Steps: 336
+
+✅ vesper_metrics_p01_20251017_213021.json
+   Tasks: 5
+   Sensor events: 6
+   Steps: 240
+
+================================================================================
+GENERATING SUMMARY REPORT
+================================================================================
+
+✅ Report saved: vesper_summary_20251019_151315.txt
+
+================================================================================
+GENERATING VISUALIZATION GRAPHS
+================================================================================
+✅ Created: task_completion.png
+✅ Created: sensor_activity.png
+✅ Created: navigation_metrics.png
+✅ Created: sensor_heatmap.png
+
+📊 Total graphs created: 4
+
+================================================================================
+RUNNING ADVANCED STATISTICAL COMPARISON WITH CASAS
+================================================================================
+================================================================================
+ADVANCED STATISTICAL COMPARISON PIPELINE
+================================================================================
+[DATA] VESPER datasets: c:\Users\hbui11\Desktop\vesper_llm\casas_testbed\vesper_datasets
+[DATA] CASAS ground truth: c:\Users\hbui11\Desktop\vesper_llm\casas_testbed\data\casas_ground_truth
+[DATA] Statistical output: c:\Users\hbui11\Desktop\vesper_llm\casas_testbed\data\statistical_analysis
+
+================================================================================
+RUNNING COMPLETE STATISTICAL ANALYSIS
+================================================================================
+
+ Loading VESPER datasets...
+   Loaded 19 VESPER datasets
+
+ Loading CASAS ground truth datasets...
+   Loaded 220 CASAS datasets
+
+ Computing temporal metrics...
+   VESPER: 71.7  64.1 events/dataset
+   CASAS: 52.7  38.5 events/dataset
+
+ Computing sensor distribution metrics...
+   VESPER uses 6 unique sensors
+   CASAS uses 30 unique sensors
+   Similarity score: 0.167 (1.0 = perfect match)
+
+ Computing task performance metrics...
+   Overall success rate: 64.6%
+   Total task attempts: 82
+
+ Computing sequence similarity...
+   Average sequence similarity: 0.000
+
+ Generating statistical report...
+   Report saved: statistical_report_20251019_151321.md
+
+ Creating publication-quality figures...
+   Created: fig1_sensor_distribution_20251019_151321.png
+   Created: fig2_task_performance_20251019_151321.png
+   Created: fig3_event_count_comparison_20251019_151321.png
+
+   Total figures created: 3
+
+ Exporting statistical data...
+   Exported: task_performance_20251019_151322.csv
+   Exported: temporal_comparison_20251019_151322.csv
+
+ Complete metrics saved: complete_metrics_20251019_151322.json
+
+================================================================================
+STATISTICAL ANALYSIS COMPLETE
+================================================================================
+
+ All results saved to: c:\Users\hbui11\Desktop\vesper_llm\casas_testbed\data\statistical_analysis
+ Statistical report: statistical_report_20251019_151321.md
+ Figures generated: 3
+
+✅ Advanced statistical analysis completed!
+   VESPER datasets: 0
+   CASAS datasets: 0
+
+✅ Results JSON: vesper_analysis_20251019_151322.json
+📁 All outputs: c:\Users\hbui11\Desktop\vesper_llm\casas_testbed\data\comparison_results
+
+================================================================================
+PIPELINE COMPLETED SUCCESSFULLY
+================================================================================
+
+
+✅ Pipeline completed successfully!
+   VESPER datasets analyzed: 19
+   Datasets analyzed: 19
+   Report: vesper_summary_20251019_151315.txt
+   JSON results: vesper_analysis_20251019_151322.json
+   Graphs generated: 4
+      - task_completion.png
+      - sensor_activity.png
+      - navigation_metrics.png
+      - sensor_heatmap.png
+
+   Statistical Comparison:
+      VESPER datasets: N/A
+      CASAS datasets: N/A
+
+   📁 All results saved to: c:\Users\hbui11\Desktop\vesper_llm\casas_testbed\data\comparison_results
+(base) PS C:\Users\hbui11\Desktop\vesper_llm\evaluation> 

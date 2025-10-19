@@ -1,6 +1,6 @@
 # VESPER LLM - Complete Production System
 
-![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)
+![Version](https://img.shields.io/badge/version-3.4.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![Blender](https://img.shields.io/badge/blender-4.0+-orange.svg)
 ![UPBGE](https://img.shields.io/badge/UPBGE-0.4+-purple.svg)
@@ -11,11 +11,75 @@ VESPER LLM is a comprehensive AI-powered research platform combining Vision Lang
 
 ---
 
-## 🎉 Latest Update (October 17, 2025)
+## 🎉 Latest Updates
 
-### **Smart Home Interaction System & Virtual Time Tracking: Complete ADL Simulation**
+### **October 19, 2025: Device ON/OFF Status System**
 
-Today we fixed critical bugs in the interaction system and implemented comprehensive device interaction tracking with virtual time acceleration, enabling realistic Activity of Daily Living (ADL) simulation with CASAS-compatible logging.
+**NEW: Simplified Device Control with ON/OFF Status Tracking**
+
+Added a simplified ON/OFF status system for virtual devices, making it easier to track and control device states during ADL simulations.
+
+#### ✅ **What's New:**
+
+1. **Simple ON/OFF API**
+   - ✅ `turn_device_on(device_name)` - Turn any device ON
+   - ✅ `turn_device_off(device_name)` - Turn any device OFF
+   - ✅ `get_device_on_off_status(device_name)` - Check if device is ON/OFF
+   - ✅ `print_device_on_off_status()` - Display all device statuses
+   - ✅ Automatic tracking: ON = device in use, OFF = device idle
+
+2. **Enhanced Tracking**
+   - ✅ All interactions log ON/OFF status alongside REST API calls
+   - ✅ Status persisted in `bge.logic.device_status` for BGE integration
+   - ✅ Bulk operations: `turn_all_devices_off()`, `initialize_all_devices_off()`
+   - ✅ Real-time status monitoring with visual indicators (🔛/⏹️)
+
+3. **REST API Integration**
+   - ✅ Works seamlessly with existing `pickup_item()`, `use_item()`, `putdown_item()`
+   - ✅ Automatic action selection based on device type (pickup vs use)
+   - ✅ Compatible with Docker container virtual devices
+   - ✅ CASAS event logging maintained
+
+4. **Complete Documentation**
+   - ✅ `DEVICE_ON_OFF_GUIDE.md` - Complete user guide (700+ lines)
+   - ✅ `QUICK_REFERENCE_ON_OFF.md` - Quick reference card
+   - ✅ `INTEGRATION_EXAMPLES_ON_OFF.md` - BGE integration examples
+   - ✅ `blender/test_device_on_off.py` - Test suite (all tests passing ✅)
+
+**Example Usage:**
+```python
+from bge_docker_integration import turn_device_on, turn_device_off
+
+# When actor uses Phone
+turn_device_on("Phone")    # Phone status: ON ✅
+
+# When actor stops using Phone  
+turn_device_off("Phone")   # Phone status: OFF ✅
+
+# Check status
+status = get_device_on_off_status("Phone")
+print(f"Phone is {status}")  # "ON" or "OFF"
+```
+
+**Status Display:**
+```
+======================================================================
+📊 DEVICE ON/OFF STATUS
+======================================================================
+🔛 Phone               : ON
+⏹️  Stove               : OFF
+🔛 KitchenSink         : ON
+⏹️  BathroomSink1       : OFF
+----------------------------------------------------------------------
+Summary: 2 ON | 4 OFF
+======================================================================
+```
+
+---
+
+### **October 17, 2025: Smart Home Interaction System & Virtual Time Tracking**
+
+Fixed critical bugs in the interaction system and implemented comprehensive device interaction tracking with virtual time acceleration, enabling realistic Activity of Daily Living (ADL) simulation with CASAS-compatible logging.
 
 #### ✅ **What We Accomplished:**
 
@@ -383,6 +447,197 @@ Energy Consumption Modeling:
 2025-10-17 12:27:11.000 M003 Kitchen ON
 2025-10-17 12:27:56.200 M003 Kitchen OFF
 ```
+
+---
+
+## 🎮 Device Control API
+
+VESPER provides two complementary APIs for controlling virtual devices: a **Traditional API** with explicit actions and a **Simplified ON/OFF API** for easier status management.
+
+### Simplified ON/OFF API (NEW - October 19, 2025)
+
+#### Basic Functions
+
+```python
+from bge_docker_integration import (
+    turn_device_on,           # Turn device ON
+    turn_device_off,          # Turn device OFF
+    get_device_on_off_status, # Check ON/OFF status
+    print_device_on_off_status, # Display all statuses
+    turn_all_devices_off,     # Turn OFF all devices
+    initialize_all_devices_off # Initialize all to OFF
+)
+```
+
+#### Quick Examples
+
+```python
+# Turn device ON (actor starts using it)
+turn_device_on("Phone")      # Phone is now ON
+turn_device_on("Stove")      # Stove is now ON
+
+# Turn device OFF (actor stops using it)
+turn_device_off("Phone")     # Phone is now OFF
+turn_device_off("Stove")     # Stove is now OFF
+
+# Check device status
+status = get_device_on_off_status("Phone")
+if status == "ON":
+    print("Phone is being used")
+elif status == "OFF":
+    print("Phone is idle")
+
+# Display all device statuses
+print_device_on_off_status()
+# Output:
+# 📊 DEVICE ON/OFF STATUS
+# 🔛 Phone               : ON
+# ⏹️  Stove               : OFF
+# 🔛 KitchenSink         : ON
+# Summary: 2 ON | 4 OFF
+
+# Turn all devices OFF (cleanup)
+turn_all_devices_off()
+```
+
+#### Integration with BGE Navigation
+
+```python
+# In your navigation code
+def handle_object_interaction(object_name, is_starting):
+    """Handle actor interaction with objects"""
+    
+    if is_starting:
+        # Actor starts using device
+        turn_device_on(object_name)
+    else:
+        # Actor stops using device
+        turn_device_off(object_name)
+```
+
+#### Real-World Example
+
+```python
+# Cooking scenario with ON/OFF tracking
+def cooking_task():
+    # Check recipe on phone
+    turn_device_on("Phone")
+    time.sleep(2)
+    turn_device_off("Phone")
+    
+    # Wash hands
+    turn_device_on("KitchenSink")
+    time.sleep(3)
+    turn_device_off("KitchenSink")
+    
+    # Cook on stove
+    turn_device_on("Stove")
+    time.sleep(5)
+    turn_device_off("Stove")
+    
+    # Show final status
+    print_device_on_off_status()
+```
+
+### Traditional Device API
+
+For more explicit control with specific actions:
+
+```python
+from bge_docker_integration import (
+    pickup_item,    # Pick up portable items
+    putdown_item,   # Put down items / stop using
+    use_item,       # Use appliances/fixtures
+    get_device_state, # Get detailed state
+    check_virtual_device_health # Health check
+)
+```
+
+#### Examples
+
+```python
+# Portable items (Phone, Medicine, etc.)
+pickup_item("Phone")     # Phone: PRESENT → ABSENT
+putdown_item("Phone")    # Phone: ABSENT → PRESENT
+
+# Fixtures and appliances (Stove, Sink, etc.)
+use_item("Stove")        # Stove: PRESENT → in_use
+putdown_item("Stove")    # Stove: in_use → PRESENT
+
+# Check detailed device state
+state = get_device_state("Phone")
+print(state)
+# {
+#   "presence": "PRESENT",
+#   "item_name": "Phone",
+#   "item_type": "communication",
+#   "interaction_count": 12,
+#   "last_interaction": "2025-10-19T18:44:52+00:00"
+# }
+
+# Health check
+if check_virtual_device_health("Phone"):
+    print("Phone device is healthy")
+```
+
+### Available Devices
+
+| Device Name    | Port | Type          | Actions               | ON/OFF Support |
+|---------------|------|---------------|-----------------------|----------------|
+| Phone         | 9201 | communication | pickup, putdown       | ✅             |
+| BathroomSink1 | 9202 | fixture       | use, putdown          | ✅             |
+| Stove         | 9203 | appliance     | use, putdown          | ✅             |
+| DiningTable   | 9204 | furniture     | (navigation target)   | ✅             |
+| KitchenSink   | 9205 | fixture       | use, putdown          | ✅             |
+| BathroomSink2 | 9206 | fixture       | use, putdown          | ✅             |
+
+### REST API Endpoints
+
+Each device container exposes:
+
+- **GET** `/health` - Check device health
+- **GET** `/state` - Get current state (presence, interaction count, etc.)
+- **POST** `/interaction` - Log interaction (pickup/putdown/use)
+- **GET** `/casas_events` - Get CASAS format events
+- **POST** `/manual_update` - Manually set presence state
+
+#### Example curl Commands
+
+```bash
+# Check device health
+curl http://localhost:9201/health
+
+# Get device state
+curl http://localhost:9201/state
+
+# Log pickup action
+curl -X POST http://localhost:9201/interaction \
+  -H "Content-Type: application/json" \
+  -d '{"action": "pickup"}'
+
+# Get CASAS events
+curl http://localhost:9201/casas_events
+```
+
+### API Comparison
+
+| Feature | ON/OFF API | Traditional API |
+|---------|-----------|----------------|
+| **Simplicity** | ✅ Very simple | More explicit |
+| **Functions** | 2 main (`on`/`off`) | 3+ (`pickup`/`use`/`putdown`) |
+| **Use Case** | Quick status changes | Granular control |
+| **Status Tracking** | Built-in ON/OFF | Detailed state (PRESENT/ABSENT/in_use) |
+| **Best For** | Beginners, dashboards | Detailed simulations |
+
+**Both APIs work together!** Use whichever fits your needs. The ON/OFF API internally calls the traditional API.
+
+### Documentation
+
+- **Quick Reference**: `QUICK_REFERENCE_ON_OFF.md`
+- **Complete Guide**: `DEVICE_ON_OFF_GUIDE.md` (700+ lines)
+- **Integration Examples**: `INTEGRATION_EXAMPLES_ON_OFF.md`
+- **Test Script**: `blender/test_device_on_off.py`
+- **API Reference**: `VIRTUAL_DEVICE_API_REFERENCE.md`
 
 #### Statistical Analysis Pipeline
 ```bash
