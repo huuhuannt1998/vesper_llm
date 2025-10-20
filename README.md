@@ -11,400 +11,274 @@ VESPER LLM is a comprehensive AI-powered research platform combining Vision Lang
 
 ---
 
-## 🎉 Latest Updates
+# Latest System Enhancements
 
-### **October 19, 2025: Device ON/OFF Status System**
+## Device ON/OFF Status System (October 19, 2025)
 
-**NEW: Simplified Device Control with ON/OFF Status Tracking**
+### Problem Addressed
 
-Added a simplified ON/OFF status system for virtual devices, making it easier to track and control device states during ADL simulations.
+The previous interaction model relied entirely on specific functions such as `pickup_item()`, `use_item()`, and `putdown_item()` to represent device activity. While functionally accurate, this made it difficult to:
 
-#### ✅ **What's New:**
+* Determine whether a device was currently active or idle.
+* Track device usage duration across time.
+* Integrate with cloud platforms or smart home standards, which rely on a binary ON/OFF state model.
+* Log behaviors in a consistent way for ADL (Activity of Daily Living) simulation and CASAS dataset generation.
 
-1. **Simple ON/OFF API**
-   - ✅ `turn_device_on(device_name)` - Turn any device ON
-   - ✅ `turn_device_off(device_name)` - Turn any device OFF
-   - ✅ `get_device_on_off_status(device_name)` - Check if device is ON/OFF
-   - ✅ `print_device_on_off_status()` - Display all device statuses
-   - ✅ Automatic tracking: ON = device in use, OFF = device idle
+### Solution Implemented
 
-2. **Enhanced Tracking**
-   - ✅ All interactions log ON/OFF status alongside REST API calls
-   - ✅ Status persisted in `bge.logic.device_status` for BGE integration
-   - ✅ Bulk operations: `turn_all_devices_off()`, `initialize_all_devices_off()`
-   - ✅ Real-time status monitoring with visual indicators (🔛/⏹️)
+A unified ON/OFF status management system was introduced to provide a simplified and standardized interface for virtual device control.
 
-3. **REST API Integration**
-   - ✅ Works seamlessly with existing `pickup_item()`, `use_item()`, `putdown_item()`
-   - ✅ Automatic action selection based on device type (pickup vs use)
-   - ✅ Compatible with Docker container virtual devices
-   - ✅ CASAS event logging maintained
+### New Capabilities
 
-4. **Complete Documentation**
-   - ✅ `DEVICE_ON_OFF_GUIDE.md` - Complete user guide (700+ lines)
-   - ✅ `QUICK_REFERENCE_ON_OFF.md` - Quick reference card
-   - ✅ `INTEGRATION_EXAMPLES_ON_OFF.md` - BGE integration examples
-   - ✅ `blender/test_device_on_off.py` - Test suite (all tests passing ✅)
+#### ON/OFF Control API
 
-**Example Usage:**
 ```python
-from bge_docker_integration import turn_device_on, turn_device_off
+turn_device_on(device_name)        # Set any virtual device to ON state
+turn_device_off(device_name)       # Set any virtual device to OFF state
+get_device_on_off_status(device_name)  # Returns "ON" or "OFF"
+print_device_on_off_status()       # Displays ON/OFF status of all managed devices
+turn_all_devices_off()             # Turns OFF all devices in bulk
+initialize_all_devices_off()       # Sets initial state of all devices to OFF
+```
 
-# When actor uses Phone
-turn_device_on("Phone")    # Phone status: ON ✅
+* On = device in use
+* Off = device idle or not present in task context
 
-# When actor stops using Phone  
-turn_device_off("Phone")   # Phone status: OFF ✅
+#### System Integration
 
-# Check status
+* ON/OFF status is persisted in `bge.logic.device_status` for access across modules.
+* All state changes automatically log alongside REST API calls.
+* Status changes are compatible with both traditional interaction methods and Docker container-based virtual devices.
+* CASAS-format logging is maintained (e.g., `Phone ON`, `Phone OFF` events).
+
+#### Monitoring and Bulk Operations
+
+* Full real-time status reporting for debugging and analytics.
+* Supports visual or console-based status display.
+* Bulk initialization and shutdown operations simplify task transitions.
+
+### Documentation and Test Coverage
+
+* `DEVICE_ON_OFF_GUIDE.md` – detailed guide with 700+ lines of documentation.
+* `QUICK_REFERENCE_ON_OFF.md` – fast reference for developers.
+* `INTEGRATION_EXAMPLES_ON_OFF.md` – examples demonstrating usage in Blender and VLM workflows.
+* `blender/test_device_on_off.py` – full test suite with all test cases passing.
+
+### Example Usage
+
+```python
+from bge_docker_integration import turn_device_on, turn_device_off, get_device_on_off_status
+
+turn_device_on("Phone")   # Phone is now considered active
+turn_device_off("Phone")  # Phone returns to idle state
+
 status = get_device_on_off_status("Phone")
-print(f"Phone is {status}")  # "ON" or "OFF"
+print(f"Phone status: {status}")  # Outputs "ON" or "OFF"
 ```
 
-**Status Display:**
-```
-======================================================================
-📊 DEVICE ON/OFF STATUS
-======================================================================
-🔛 Phone               : ON
-⏹️  Stove               : OFF
-🔛 KitchenSink         : ON
-⏹️  BathroomSink1       : OFF
-----------------------------------------------------------------------
-Summary: 2 ON | 4 OFF
-======================================================================
-```
+### Future Development
 
-#### 🚀 **Future Work:**
+**SmartThings Cloud Integration**
 
-**Next Phase: SmartThings Cloud Integration**
-- Create virtual device profiles on SmartThings platform
-- Enable bidirectional synchronization between Blender and SmartThings cloud
-- Real-time device status monitoring via SmartThings mobile app
-- Cloud-based remote control of virtual devices during experiments
+* Create virtual device profiles on the SmartThings platform.
+* Enable real-time bidirectional synchronization between Blender’s device state and SmartThings cloud status.
+* Provide remote monitoring and control via the SmartThings mobile app.
 
-**Planned Enhancements:**
-- Energy consumption tracking and analytics for ON devices
-- Historical usage patterns and device interaction statistics
-- Multi-user device control with access permissions
-- Integration with additional IoT platforms (Google Home, Alexa)
+**Planned Enhancements**
+
+* Historical usage tracking for long-term analytics.
+* Automated energy consumption modeling based on ON duration.
+* Role-based and multi-user access control policies.
+* Compatibility with additional IoT platforms (e.g., Google Home, Alexa).
 
 ---
 
-### **October 17, 2025: Smart Home Interaction System & Virtual Time Tracking**
+## Smart Home Interaction System and Virtual Time Tracking (October 17, 2025)
 
-Fixed critical bugs in the interaction system and implemented comprehensive device interaction tracking with virtual time acceleration, enabling realistic Activity of Daily Living (ADL) simulation with CASAS-compatible logging.
+### Problem Addressed
 
-#### ✅ **What We Accomplished:**
+The earlier interaction system suffered from several limitations:
 
-1. **Device Interaction System (FIXED)**
-   - ✅ Fixed missing `task_name` parameter causing crashes in `complete_task()` calls
-   - ✅ Implemented automatic interaction lifecycle management (start → monitor → auto-end)
-   - ✅ Added proximity-based interaction detection with 2.0m interaction radius
-   - ✅ Device state tracking: lights, appliances automatically control based on task and room
-   - ✅ Example: "Cook oatmeal" task → Kitchen_Light + Kitchen_Stove automatically turn ON
+* Missing `task_name` parameter caused crashes when completing tasks.
+* The system allowed infinite interactions with the same object.
+* There was no automated mechanism to end interactions based on proximity.
+* ADL tasks were executed in real time, which prevented long-duration tasks (e.g., cooking, sleeping) from being realistically simulated.
 
-2. **Object Interaction Tracking**
-   - ✅ Fixed infinite interaction loop (actor stuck on one object forever)
-   - ✅ Implemented distance-based auto-end: interactions end when actor moves away
-   - ✅ Single-object interaction constraint: only one object at a time
-   - ✅ Task-relevant filtering: only interacts with objects related to current task
-   - ✅ CASAS sensor format: `I008 Phone ON` → duration → `I008 Phone OFF`
+### Solution Implemented
 
-3. **Virtual Time Acceleration System**
-   - ✅ Time scaling for long-duration tasks (30× to 5760× acceleration)
-   - ✅ Task duration profiles: phone call (5 min), cooking (15 min), eating (20 min), sleep (8 hours)
-   - ✅ Real-time ↔ virtual time mapping: 15s real-time = 900s virtual (15 min cooking)
-   - ✅ Automatic time scale reset after task completion
-   - ✅ Complete time tracking logs with acceleration factors
+A complete redesign of the interaction workflow was introduced, along with a virtual time acceleration system for realistic ADL simulation.
 
-4. **CASAS Dataset Compatibility**
-   - ✅ Item sensor logs in CASAS format: `2025-10-17 12:27:15.234 I008 Phone ON`
-   - ✅ Device state change logs with timestamps and durations
-   - ✅ Interaction duration tracking for each object
-   - ✅ Task completion logs with virtual time durations
-   - ✅ Export to multiple formats: CASAS .txt, JSON detailed logs, SmartThings JSON
+### Key Improvements
 
-#### 🐛 **Critical Bugs Fixed:**
+#### Device Interaction Lifecycle
 
-**Bug #1: Task Completion Crashes**
-```python
-# BEFORE (BROKEN)
-interaction_system.complete_task(success=True)
-# ❌ TypeError: missing required argument 'task_name'
+* Automatic detection of interaction start and end based on the actor’s proximity (2.0m radius).
+* Only one object may be interacted with at a time, preventing logical conflicts.
+* Device actions (e.g., lights, stove) automatically activate based on task context.
 
-# AFTER (FIXED)
-interaction_system.complete_task(task_name=current_task, success=True)
-# ✅ Proper task tracking with duration and device states
-```
+#### Object Interaction Tracking
 
-**Bug #2: Stuck Interaction Loop**
-```python
-# BEFORE (BROKEN)
-🤝 Started interaction: Mesh_224
-⚠️ Already interacting with Mesh_224
-⚠️ Already interacting with Mesh_224
-[... 500+ times - actor stuck forever ...]
+* Infinite loops were eliminated using proximity-based exit conditions.
+* Each interaction transition is logged with timestamps, duration, and task context.
+* Interactions are filtered by relevance to the current ADL task.
 
-# AFTER (FIXED)
-🤝 Started interaction: Phone (task: Make a phone call)
-🔔 Item Sensor I008 (Phone) ON
-[actor stays near phone for 12.3s]
-👋 Actor moved away from Phone
-🔔 Item Sensor I008 (Phone) OFF
-✅ Interaction recorded (duration: 12.3s)
-```
+#### Virtual Time Acceleration
 
-**Bug #3: No Interaction End Logic**
-```python
-# BEFORE (BROKEN)
-- Interaction starts → never ends until task completes
-- Actor can't interact with multiple objects during one task
+* Long-duration activities now simulate virtual minutes or hours in seconds of real time.
+* Example time profiles:
 
-# AFTER (FIXED)
-- Proximity check every frame: still_nearby = any(obj == active for obj in nearby)
-- Auto-end when actor moves away (distance > 2.0m)
-- Can interact with multiple objects sequentially during one task
-```
+  * Phone call: 5 minutes real → 5 minutes virtual
+  * Cooking: 15 minutes real → 15 minutes virtual
+  * Sleep: 8 hours virtual
+* Time scaling is automatically reset after each task.
 
-#### 📊 **Interaction System Architecture:**
+#### CASAS Dataset Compatibility
+
+* All sensor events are logged in CASAS format:
+
+  ```
+  2025-10-17 12:27:15.234 I008 Phone ON
+  2025-10-17 12:27:27.567 I008 Phone OFF
+  ```
+* Logs are exported to multiple formats: CASAS text, JSON, and SmartThings-compatible structures.
+
+### Interaction Architecture Overview
 
 ```
-Task: "Cook oatmeal"
-│
-├─ START TASK
-│  ├─ Infer room from task → Kitchen
-│  ├─ Activate devices → Kitchen_Light ON, Kitchen_Stove ON
-│  ├─ Set time scale → 30× acceleration (900s virtual = 30s real)
-│  └─ Start task timer → virtual clock begins
-│
-├─ NAVIGATION LOOP
-│  │
-│  ├─ Frame N: Actor at [0.5, 1.7]
-│  │  ├─ Check nearby objects (2.0m radius)
-│  │  ├─ Find: Stove (1.2m away), Microwave (1.8m away)
-│  │  ├─ Filter by task relevance → Stove relevant to "Cook oatmeal"
-│  │  ├─ Check: NOT currently interacting ✅
-│  │  ├─ 🤝 Start interaction: Stove (task: Cook oatmeal)
-│  │  └─ 🔔 Item Sensor I002 (Stove) ON
-│  │
-│  ├─ Frame N+1 to N+50: Actor stays near Stove
-│  │  ├─ Check nearby objects
-│  │  ├─ Find: Stove (1.3m away) - still nearby ✅
-│  │  ├─ Continue interaction (no spam, clean logging)
-│  │  └─ Virtual time passes: 150s elapsed in 5s real-time
-│  │
-│  ├─ Frame N+51: Actor moves to [1.2, 2.0]
-│  │  ├─ Check nearby objects
-│  │  ├─ Stove NOT in nearby_objects (distance > 2.0m)
-│  │  ├─ Proximity check: Still nearby Stove? NO ❌
-│  │  ├─ 👋 Actor moved away from Stove
-│  │  ├─ end_interaction("Stove")
-│  │  ├─ 🔔 Item Sensor I002 (Stove) OFF
-│  │  └─ ✅ Record interaction: Stove (duration: 165s virtual)
-│  │
-│  ├─ Frame N+52: Actor near Microwave
-│  │  ├─ Check nearby objects
-│  │  ├─ Find: Microwave (1.0m away)
-│  │  ├─ Check: NOT currently interacting ✅
-│  │  ├─ 🤝 Start interaction: Microwave (task: Cook oatmeal)
-│  │  └─ 🔔 Item Sensor I004 (Microwave) ON
-│  │
-│  └─ ... (continues until task complete)
-│
-└─ END TASK
-   ├─ complete_task(task_name="Cook oatmeal", success=True)
-   ├─ end_interaction() → Microwave OFF
-   ├─ ⏱️ End timer: 35.2s real (900s virtual = 15 min)
-   ├─ Reset time scale → 1.0× (normal speed)
-   ├─ Deactivate devices → Kitchen_Light OFF, Kitchen_Stove OFF
-   ├─ Export logs:
-   │  ├─ item_sensor_log_*.txt (CASAS format)
-   │  ├─ item_interactions_*.json (durations)
-   │  ├─ device_log_*.json (state changes)
-   │  └─ task_timer_log.json (task metrics)
-   └─ ✅ Task completed with full interaction tracking
+Task Activation
+    → Room inferred based on task
+    → Relevant devices turned ON (e.g., Kitchen_Stove)
+    → Virtual time scaling activated
+Interaction Lifecycle
+    → Actor approaches object
+    → Interaction started (logged as ON)
+    → Actor moves away
+    → Interaction ended (logged as OFF with duration)
+Task Completion
+    → Time scale reset
+    → Devices turned OFF
+    → Logs exported (sensor, device, and task metrics)
 ```
 
-#### 🔧 **Files Modified:**
+### Code Integration Summary
 
-**1. `llm_bge_navigation.py`** (2 locations)
-- Added `task_name=current_task` parameter to `complete_task()` calls
-- Lines ~1320 (failure case) and ~1458 (success case)
+* `llm_bge_navigation.py`: added `task_name` parameter to both success and failure task completion paths (lines ~1320 and ~1458).
+* `interaction_system/vesper_interaction_integration.py`: implemented interaction monitoring and exit logic (lines ~125–160).
 
-**2. `interaction_system/vesper_interaction_integration.py`**
-- Added auto-end logic when actor moves away from object
-- Single-object interaction constraint (only one at a time)
-- Proximity monitoring with distance-based state management
-- Lines ~125-160 (update_interaction_state method)
+### Example Console Output (After Fix)
 
-#### 📈 **Expected Output (After Fix):**
-
-**Console Log:**
 ```
-🎯 Started task: Make a phone call
-   Room: DiningRoom
-   Expected duration: 300s (5.0 min)
-💡 Device Dining_Light (D011): off → on
-
-🤝 Started interaction: Phone (task: Make a phone call)
-🔔 Item Sensor I008 (Phone) ON
-
-👋 Actor moved away from Phone
-🔔 Item Sensor I008 (Phone) OFF
-   Duration: 12.3s
-
-✅ Task completed: Make a phone call
-   Duration: 45.2s real (300s virtual = 5.0 min)
-💡 Device Dining_Light (D011): on → off
+Started task: Make a phone call
+Room: DiningRoom
+Expected duration: 300s virtual
+Device Dining_Light: OFF → ON
+Started interaction: Phone
+Item Sensor I008 (Phone) ON
+Actor moved away from Phone
+Item Sensor I008 (Phone) OFF
+Interaction duration: 12.3s virtual
+Task completed: Make a phone call
+Total time: 45.2s real (300s virtual)
 ```
-
-**CASAS Log (`item_sensor_log_*.txt`):**
-```
-2025-10-17 12:27:15.234 I008 Phone ON
-2025-10-17 12:27:27.567 I008 Phone OFF
-2025-10-17 12:28:03.123 I009 DiningTable ON
-2025-10-17 12:28:45.456 I009 DiningTable OFF
-```
-
-**Interaction Detail Log (`item_interactions_*.json`):**
-```json
-{
-  "Phone": {
-    "interaction_count": 1,
-    "total_interaction_time": 12.333,
-    "average_duration": 12.333,
-    "interactions": [
-      {
-        "start_time": "2025-10-17 12:27:15.234",
-        "end_time": "2025-10-17 12:27:27.567",
-        "duration": 12.333,
-        "task_context": "Make a phone call"
-      }
-    ]
-  }
-}
-```
-
-**Device State Log (`device_log_*.json`):**
-```json
-{
-  "Dining_Light": {
-    "device_id": "D011",
-    "type": "light",
-    "location": "DiningRoom",
-    "activation_count": 1,
-    "total_on_time": 45.2,
-    "state_changes": [
-      {
-        "timestamp": "2025-10-17 12:27:11.000",
-        "old_state": "off",
-        "new_state": "on",
-        "trigger": "Task started: Make a phone call"
-      },
-      {
-        "timestamp": "2025-10-17 12:27:56.200",
-        "old_state": "on",
-        "new_state": "off",
-        "trigger": "Task completed"
-      }
-    ]
-  }
-}
-```
-
-#### 🎯 **Key Improvements:**
-
-1. **Natural Interaction Flow**
-   - ✅ One object at a time (realistic human behavior)
-   - ✅ Auto-end when moving away (distance-based state machine)
-   - ✅ Multiple objects per task (sequential interactions)
-   - ✅ Task-relevant filtering (phone for "make call", sink for "wash hands")
-
-2. **Complete Data Tracking**
-   - ✅ Device activation times with on/off state changes
-   - ✅ Object interaction durations per task
-   - ✅ Virtual time acceleration for long activities
-   - ✅ CASAS-compatible sensor event logs
-   - ✅ Task completion metrics with success/failure tracking
-
-3. **Production-Ready Logging**
-   - ✅ Multiple export formats (CASAS txt, JSON, SmartThings)
-   - ✅ Timestamp synchronization across all logs
-   - ✅ Human-readable console output for debugging
-   - ✅ Machine-readable structured data for analysis
-   - ✅ Extensible schema for future sensor types
 
 ---
 
-## Virtual Device Integration with Docker Containers
+## Virtual Device Integration with Docker Containers (Updated Section)
 
-VESPER now supports **real-time interaction with virtual smart home devices hosted in Docker containers**, enabling realistic IoT device simulation for Activity of Daily Living (ADL) research.
+### Problem Addressed
 
-### Architecture Overview
+Previous versions of the VESPER system simulated devices purely within the Blender Game Engine environment. This limited realism, made it difficult to model IoT network behavior, and prevented integration with external smart home platforms such as SmartThings or cloud-based device controllers. Devices could not be managed independently, monitored externally, or scaled in a modular fashion.
+
+### Solution Implemented
+
+The system now implements a containerized architecture where each virtual smart home device runs as an isolated Docker container with its own REST API, independent lifecycle, and persistent state server integration. This enables realistic simulation, scalability, and interoperability with external IoT ecosystems.
+
+### System Architecture
 
 ```
-Blender Game Engine (BGE)
-         ↓
-Virtual Device Manager (Python)
-         ↓
-Docker Container (Per Device)
-         ↓
-Cloud Server (State Management)
-         ↓
-SmartThings Platform (Optional)
+Blender Game Engine (Agent Control + Perception)
+    ↓
+Virtual Device Manager (Python Integration Layer)
+    ↓
+Docker Containers (One container per virtual device instance)
+    ↓
+Central Cloud Server (State synchronization and logging)
+    ↓
+Optional External Platforms (e.g., SmartThings, Google Home)
 ```
 
-### Supported Virtual Devices
+### Supported Virtual Device Types
 
-#### 1. Motion Sensors
-- **Container**: One Docker container per sensor
-- **API Endpoints**: `/health`, `/state`, `/trigger_motion`
-- **Detection**: Automatic proximity-based triggering (2.0m radius)
-- **Event Format**: CASAS-compatible motion sensor logs
+#### Motion Sensors
 
-#### 2. Smart Lights
-- **Container**: One Docker container per light
-- **API Endpoints**: `/health`, `/state`, `/control`
-- **Control**: Automatic ON/OFF based on room entry/exit and task context
-- **State Tracking**: Device activation counts and total on-time
+* Each motion sensor runs in its own Docker container.
+* Features include `/health`, `/state`, and `/trigger_motion` REST endpoints.
+* Blender automatically triggers motion events when the virtual actor is within a 2.0m radius.
+* Events are logged using CASAS item sensor format.
 
-#### 3. Smart Appliances
-- **Container**: One Docker container per appliance (Stove, Refrigerator, etc.)
-- **API Endpoints**: `/health`, `/state`, `/control`
-- **Task Integration**: Auto-activation during relevant tasks (e.g., Stove ON during "Cook oatmeal")
-- **Duration Tracking**: Usage time per task with virtual time acceleration
+#### Smart Lights
 
-### Container Management
+* Containers simulate lights that can be turned ON or OFF through REST API calls.
+* Lifecycle is managed automatically based on actor presence or ADL context (e.g., lights in kitchen turn on during "Cook oatmeal" task).
+* Device activation time is logged and can be used for energy modeling.
 
-#### Automatic Device Spawning
-```python
-# From Blender VESPER addon:
-# 1. Select device type (Motion Sensor, Light, Appliance)
-# 2. Enter device name (e.g., "kitchen_light")
-# 3. Click "Spawn Virtual Device"
+#### Appliances (Stove, Microwave, Refrigerators, etc.)
 
-# Result:
-# - Docker container created: kitchen-light-KL-XXXX-YYYY-ZZZZ
-# - Port assigned: 9000+ (auto-incremented)
-# - Registered with cloud server
-# - Ready for interaction
-```
+* Each appliance container supports ON/OFF control and reports its state to the central server.
+* Devices can be automatically activated based on task requirements.
+* Interaction durations are tracked using the virtual time acceleration system.
 
-#### Container Lifecycle
+### Device Lifecycle Management
+
+#### Automatic Device Spawning (Blender Addon Interface)
+
+1. User selects a virtual object in Blender.
+2. Device type is specified (motion sensor, light, appliance, etc.).
+3. The system automatically:
+
+   * Launches a Docker container for that device.
+   * Assigns a unique API port.
+   * Registers the device with the cloud state server.
+   * Links the Blender object to the corresponding container endpoint.
+
+#### Container Interaction Example
+
 ```bash
-# List all virtual device containers
-docker ps --filter "name=*-motion-sensor-*" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+# List running containers
+docker ps --filter "name=*sensor*" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-# Check device health
+# Check health of a device
 curl http://localhost:9000/health
 
-# View device state
+# Query current device state
 curl http://localhost:9000/state
 
-# Manual trigger (for testing)
-docker exec kitchen-light-KL-XXXX python -c "import requests; requests.post('http://localhost:8000/control', json={'command': 'on'})"
+# Send ON command (manual test)
+curl -X POST http://localhost:9000/control -d '{"command": "on"}'
 ```
+
+### Benefits of the Containerized Architecture
+
+* **Scalability:** Devices can be added, removed, or replaced without modifying the core simulation.
+* **Modularity:** Each device operates independently, enabling distributed experimentation.
+* **Realism:** Network latency, REST communication, and cloud synchronization mirror real smart home systems.
+* **Cloud Compatibility:** Devices can be synchronized with SmartThings or other platforms to enable real-time remote monitoring.
+
+### Integration with Cloud Server
+
+* Each container reports its status to a central server that maintains persistent device state.
+* This enables global monitoring, device orchestration, and time-series analytics.
+* The server is designed to support future extensions such as user access control and historical usage modeling.
+
+### Future Development
+
+* Full SmartThings cloud synchronization using OAuth and SmartThings Device Profiles.
+* Support for multi-user control and access permissions.
+* Integration with voice assistants (e.g., Alexa, Google Assistant).
+* Energy consumption estimation based on device ON duration.
+
+---
+
 
 ### Real-Time Device Interaction Results (October 17, 2025)
 
