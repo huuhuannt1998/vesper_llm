@@ -84,13 +84,6 @@ print(f"Phone status: {status}")  # Outputs "ON" or "OFF"
 * Enable real-time bidirectional synchronization between Blender’s device state and SmartThings cloud status.
 * Provide remote monitoring and control via the SmartThings mobile app.
 
-**Planned Enhancements**
-
-* Historical usage tracking for long-term analytics.
-* Automated energy consumption modeling based on ON duration.
-* Role-based and multi-user access control policies.
-* Compatibility with additional IoT platforms (e.g., Google Home, Alexa).
-
 ---
 
 ## Smart Home Interaction System and Virtual Time Tracking (October 17, 2025)
@@ -274,8 +267,6 @@ curl -X POST http://localhost:9000/control -d '{"command": "on"}'
 
 * Full SmartThings cloud synchronization using OAuth and SmartThings Device Profiles.
 * Support for multi-user control and access permissions.
-* Integration with voice assistants (e.g., Alexa, Google Assistant).
-* Energy consumption estimation based on device ON duration.
 
 ---
 
@@ -292,7 +283,6 @@ Device Interactions:
 ┌─────────────────────┬──────────┬──────────────┬───────────┐
 │ Device              │ Type     │ Action       │ Duration  │
 ├─────────────────────┼──────────┼──────────────┼───────────┤
-│ Dining_Light        │ Light    │ ON → OFF     │ 45.2s     │
 │ Phone (I008)        │ Item     │ ON → OFF     │ 12.3s     │
 │ Motion Sensor (M003)│ Motion   │ Triggered    │ 3 events  │
 └─────────────────────┴──────────┴──────────────┴───────────┘
@@ -313,16 +303,10 @@ Device Interactions:
 ┌─────────────────────┬──────────┬──────────────┬───────────┐
 │ Device              │ Type     │ Action       │ Duration  │
 ├─────────────────────┼──────────┼──────────────┼───────────┤
-│ Kitchen_Light       │ Light    │ ON → OFF     │ 900s      │
-│ Kitchen_Stove       │ Appliance│ ON → OFF     │ 900s      │
 │ Stove (I002)        │ Item     │ ON → OFF     │ 385.7s    │
 │ Motion Sensor (M003)│ Motion   │ Triggered    │ 12 events │
 └─────────────────────┴──────────┴──────────────┴───────────┘
 
-Energy Consumption Modeling:
-- Stove usage: 15 minutes × 2000W = 500Wh
-- Kitchen light: 15 minutes × 60W = 15Wh
-- Total energy: 515Wh per cooking session
 ```
 
 ### Integration with CASAS Research
