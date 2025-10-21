@@ -1,0 +1,3325 @@
+{
+  "session_id": "20260304_230000",
+  "start_time": 1772683200.0,
+  "tasks_completed": 3,
+  "tasks_failed": 0,
+  "total_steps": 107,
+  "total_screenshots": 82,
+  "total_llm_calls": 36,
+  "total_device_interactions": 7,
+  "total_subtasks_completed": 7,
+  "virtual_sensor_events": [
+    {
+      "timestamp": 1772683202.6370616,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        0.29,
+        -1.41
+      ]
+    },
+    {
+      "timestamp": 1772683204.0136232,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        2.94,
+        0.65
+      ]
+    },
+    {
+      "timestamp": 1772683212.97777,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        -0.76,
+        -0.51
+      ]
+    },
+    {
+      "timestamp": 1772683244.7312934,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        -0.2,
+        -1.58
+      ]
+    },
+    {
+      "timestamp": 1772683246.6359909,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        -1.7,
+        -1.96
+      ]
+    },
+    {
+      "timestamp": 1772683252.89804,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        2.65,
+        -1.18
+      ]
+    },
+    {
+      "timestamp": 1772683254.7463355,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        0.61,
+        -1.99
+      ]
+    },
+    {
+      "timestamp": 1772683266.6957462,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        1.1,
+        -1.63
+      ]
+    },
+    {
+      "timestamp": 1772683269.2439396,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        3.53,
+        -2.3
+      ]
+    },
+    {
+      "timestamp": 1772683291.0048978,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        0.98,
+        1.43
+      ]
+    },
+    {
+      "timestamp": 1772683299.0666187,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        2.37,
+        2.32
+      ]
+    },
+    {
+      "timestamp": 1772683305.7712767,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "ON",
+      "position": [
+        3.02,
+        3.7
+      ]
+    },
+    {
+      "timestamp": 1772683307.9191236,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "OFF",
+      "position": [
+        -1.49,
+        -2.19
+      ]
+    },
+    {
+      "timestamp": 1772683324.9509788,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        -0.05,
+        3.46
+      ]
+    },
+    {
+      "timestamp": 1772683327.474328,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        3.64,
+        -0.34
+      ]
+    },
+    {
+      "timestamp": 1772683332.314626,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "OFF",
+      "position": [
+        1.59,
+        4.2
+      ]
+    },
+    {
+      "timestamp": 1772683339.4520702,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        -0.3,
+        2.73
+      ]
+    },
+    {
+      "timestamp": 1772683352.2559469,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        -0.45,
+        3.52
+      ]
+    },
+    {
+      "timestamp": 1772683360.3425806,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        -1.63,
+        1.38
+      ]
+    },
+    {
+      "timestamp": 1772683362.8694448,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        1.66,
+        2.72
+      ]
+    },
+    {
+      "timestamp": 1772683365.204736,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        0.16,
+        0.93
+      ]
+    },
+    {
+      "timestamp": 1772683376.1938686,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        -1.57,
+        -1.25
+      ]
+    },
+    {
+      "timestamp": 1772683376.5526617,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "OFF",
+      "position": [
+        -0.54,
+        1.65
+      ]
+    },
+    {
+      "timestamp": 1772683377.0850265,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        4.2,
+        1.72
+      ]
+    },
+    {
+      "timestamp": 1772683381.254169,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        2.5,
+        2.96
+      ]
+    },
+    {
+      "timestamp": 1772683385.2714114,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        4.03,
+        1.26
+      ]
+    },
+    {
+      "timestamp": 1772683394.5865269,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        2.67,
+        4.23
+      ]
+    },
+    {
+      "timestamp": 1772683404.0599685,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        4.19,
+        -2.26
+      ]
+    },
+    {
+      "timestamp": 1772683430.3051674,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        -1.54,
+        3.29
+      ]
+    },
+    {
+      "timestamp": 1772683440.1599493,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        3.86,
+        4.14
+      ]
+    },
+    {
+      "timestamp": 1772683440.7295866,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        4.51,
+        3.57
+      ]
+    },
+    {
+      "timestamp": 1772683441.8877542,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "ON",
+      "position": [
+        3.05,
+        1.89
+      ]
+    },
+    {
+      "timestamp": 1772683442.841424,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        3.42,
+        -0.0
+      ]
+    },
+    {
+      "timestamp": 1772683445.198744,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        0.28,
+        4.28
+      ]
+    },
+    {
+      "timestamp": 1772683448.233966,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        -1.34,
+        2.33
+      ]
+    },
+    {
+      "timestamp": 1772683458.6520693,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        0.51,
+        -2.35
+      ]
+    },
+    {
+      "timestamp": 1772683461.62137,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        -0.35,
+        1.75
+      ]
+    },
+    {
+      "timestamp": 1772683464.8885818,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        1.89,
+        -1.09
+      ]
+    },
+    {
+      "timestamp": 1772683471.0189426,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        -1.83,
+        2.27
+      ]
+    },
+    {
+      "timestamp": 1772683478.1462443,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        4.98,
+        1.8
+      ]
+    },
+    {
+      "timestamp": 1772683519.200352,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        2.01,
+        4.0
+      ]
+    },
+    {
+      "timestamp": 1772683538.0595999,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        4.54,
+        0.77
+      ]
+    },
+    {
+      "timestamp": 1772683552.9621277,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        4.4,
+        3.03
+      ]
+    },
+    {
+      "timestamp": 1772683554.1187441,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        4.82,
+        2.98
+      ]
+    },
+    {
+      "timestamp": 1772683555.1290545,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        3.46,
+        2.29
+      ]
+    },
+    {
+      "timestamp": 1772683559.7853796,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        0.12,
+        -1.78
+      ]
+    },
+    {
+      "timestamp": 1772683560.9599252,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        1.3,
+        3.46
+      ]
+    },
+    {
+      "timestamp": 1772683562.5100284,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        2.6,
+        3.17
+      ]
+    },
+    {
+      "timestamp": 1772683562.8045878,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        2.11,
+        3.72
+      ]
+    },
+    {
+      "timestamp": 1772683563.832403,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        1.4,
+        1.7
+      ]
+    },
+    {
+      "timestamp": 1772683579.6980405,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        4.38,
+        -1.86
+      ]
+    },
+    {
+      "timestamp": 1772683581.0297785,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        2.13,
+        -2.48
+      ]
+    },
+    {
+      "timestamp": 1772683601.296957,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        1.5,
+        -2.02
+      ]
+    },
+    {
+      "timestamp": 1772683617.1334875,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        0.81,
+        1.58
+      ]
+    },
+    {
+      "timestamp": 1772683621.2940826,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        3.79,
+        2.51
+      ]
+    },
+    {
+      "timestamp": 1772683641.983742,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        2.29,
+        1.06
+      ]
+    },
+    {
+      "timestamp": 1772683652.3535342,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        -1.71,
+        1.23
+      ]
+    },
+    {
+      "timestamp": 1772683656.3624263,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        1.8,
+        0.46
+      ]
+    },
+    {
+      "timestamp": 1772683656.5706072,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "ON",
+      "position": [
+        2.09,
+        3.3
+      ]
+    },
+    {
+      "timestamp": 1772683659.9409232,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        2.44,
+        2.1
+      ]
+    },
+    {
+      "timestamp": 1772683667.8321657,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        1.46,
+        -1.71
+      ]
+    },
+    {
+      "timestamp": 1772683689.4257462,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "OFF",
+      "position": [
+        0.09,
+        1.2
+      ]
+    },
+    {
+      "timestamp": 1772683698.0452447,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        1.86,
+        0.03
+      ]
+    },
+    {
+      "timestamp": 1772683705.4365559,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        3.17,
+        -0.95
+      ]
+    },
+    {
+      "timestamp": 1772683707.8709939,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        1.76,
+        -1.18
+      ]
+    },
+    {
+      "timestamp": 1772683718.2359898,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        4.58,
+        1.17
+      ]
+    },
+    {
+      "timestamp": 1772683723.1081648,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        0.21,
+        2.3
+      ]
+    },
+    {
+      "timestamp": 1772683739.5752392,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        -1.0,
+        1.45
+      ]
+    },
+    {
+      "timestamp": 1772683745.6998441,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        -0.89,
+        2.75
+      ]
+    },
+    {
+      "timestamp": 1772683749.5115442,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        2.54,
+        -0.58
+      ]
+    },
+    {
+      "timestamp": 1772683749.8354516,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "OFF",
+      "position": [
+        1.49,
+        -1.46
+      ]
+    },
+    {
+      "timestamp": 1772683750.6993856,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        1.64,
+        -0.11
+      ]
+    },
+    {
+      "timestamp": 1772683754.5443273,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        -0.82,
+        -2.17
+      ]
+    },
+    {
+      "timestamp": 1772683762.0142736,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        1.29,
+        3.01
+      ]
+    },
+    {
+      "timestamp": 1772683790.7729177,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        -0.64,
+        3.68
+      ]
+    },
+    {
+      "timestamp": 1772683793.597474,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        2.74,
+        0.19
+      ]
+    },
+    {
+      "timestamp": 1772683796.2921376,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        3.83,
+        3.91
+      ]
+    },
+    {
+      "timestamp": 1772683801.3039412,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "OFF",
+      "position": [
+        -0.53,
+        -0.24
+      ]
+    },
+    {
+      "timestamp": 1772683805.4170363,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        -1.87,
+        1.99
+      ]
+    },
+    {
+      "timestamp": 1772683810.4943745,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        4.35,
+        -1.1
+      ]
+    },
+    {
+      "timestamp": 1772683814.292451,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        4.81,
+        1.08
+      ]
+    },
+    {
+      "timestamp": 1772683834.753898,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        4.92,
+        -2.47
+      ]
+    },
+    {
+      "timestamp": 1772683836.0523293,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        0.47,
+        -2.12
+      ]
+    },
+    {
+      "timestamp": 1772683840.731971,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        4.05,
+        2.01
+      ]
+    },
+    {
+      "timestamp": 1772683843.1484184,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        3.26,
+        3.53
+      ]
+    },
+    {
+      "timestamp": 1772683845.6901662,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        -1.22,
+        -2.04
+      ]
+    },
+    {
+      "timestamp": 1772683846.0856416,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        2.19,
+        3.09
+      ]
+    },
+    {
+      "timestamp": 1772683847.9306536,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        4.45,
+        2.64
+      ]
+    },
+    {
+      "timestamp": 1772683853.1932235,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        1.54,
+        0.37
+      ]
+    },
+    {
+      "timestamp": 1772683856.3836758,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        4.67,
+        2.85
+      ]
+    },
+    {
+      "timestamp": 1772683864.034851,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        3.36,
+        -1.74
+      ]
+    },
+    {
+      "timestamp": 1772683875.14778,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        -0.6,
+        -1.39
+      ]
+    },
+    {
+      "timestamp": 1772683887.6665907,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        1.34,
+        2.64
+      ]
+    },
+    {
+      "timestamp": 1772683897.8452334,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        0.53,
+        -0.19
+      ]
+    },
+    {
+      "timestamp": 1772683900.1070971,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        0.57,
+        1.29
+      ]
+    },
+    {
+      "timestamp": 1772683903.7211905,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "ON",
+      "position": [
+        -0.18,
+        -0.66
+      ]
+    },
+    {
+      "timestamp": 1772683914.9102094,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        4.92,
+        1.22
+      ]
+    },
+    {
+      "timestamp": 1772683920.587113,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        4.31,
+        3.67
+      ]
+    },
+    {
+      "timestamp": 1772683928.5463042,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        0.93,
+        -1.31
+      ]
+    },
+    {
+      "timestamp": 1772683930.7689092,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        0.54,
+        -0.35
+      ]
+    },
+    {
+      "timestamp": 1772683934.1934276,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        2.92,
+        -1.65
+      ]
+    },
+    {
+      "timestamp": 1772683937.2730942,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        -0.44,
+        2.41
+      ]
+    },
+    {
+      "timestamp": 1772683946.6742532,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        -1.78,
+        3.79
+      ]
+    },
+    {
+      "timestamp": 1772683949.7802737,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        2.49,
+        2.99
+      ]
+    },
+    {
+      "timestamp": 1772683969.7009735,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        -1.03,
+        2.97
+      ]
+    },
+    {
+      "timestamp": 1772683973.2347703,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "ON",
+      "position": [
+        2.03,
+        3.55
+      ]
+    },
+    {
+      "timestamp": 1772683980.3447266,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        3.11,
+        2.53
+      ]
+    },
+    {
+      "timestamp": 1772683987.4222322,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        1.02,
+        -0.15
+      ]
+    },
+    {
+      "timestamp": 1772683988.9560559,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        3.61,
+        -1.14
+      ]
+    },
+    {
+      "timestamp": 1772684000.208694,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        -0.65,
+        1.05
+      ]
+    },
+    {
+      "timestamp": 1772684019.2679327,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        1.89,
+        2.09
+      ]
+    },
+    {
+      "timestamp": 1772684055.8078196,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        2.13,
+        2.4
+      ]
+    },
+    {
+      "timestamp": 1772684057.2275004,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        2.11,
+        3.27
+      ]
+    },
+    {
+      "timestamp": 1772684058.2139018,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        2.4,
+        -1.68
+      ]
+    },
+    {
+      "timestamp": 1772684063.2795644,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        2.59,
+        0.29
+      ]
+    },
+    {
+      "timestamp": 1772684072.637091,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "ON",
+      "position": [
+        3.74,
+        3.19
+      ]
+    },
+    {
+      "timestamp": 1772684078.0050085,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "ON",
+      "position": [
+        4.45,
+        2.02
+      ]
+    },
+    {
+      "timestamp": 1772684081.932832,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        1.02,
+        -1.11
+      ]
+    },
+    {
+      "timestamp": 1772684085.374207,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        0.57,
+        4.03
+      ]
+    },
+    {
+      "timestamp": 1772684086.8989143,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        4.25,
+        -0.53
+      ]
+    },
+    {
+      "timestamp": 1772684098.5747695,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        -0.28,
+        0.8
+      ]
+    },
+    {
+      "timestamp": 1772684128.3494735,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        4.89,
+        -1.9
+      ]
+    },
+    {
+      "timestamp": 1772684134.1744807,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        3.75,
+        -0.72
+      ]
+    },
+    {
+      "timestamp": 1772684135.149187,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        4.15,
+        1.71
+      ]
+    },
+    {
+      "timestamp": 1772684146.0744712,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        3.29,
+        0.3
+      ]
+    },
+    {
+      "timestamp": 1772684155.905778,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        2.15,
+        1.1
+      ]
+    },
+    {
+      "timestamp": 1772684173.595736,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        2.87,
+        2.99
+      ]
+    },
+    {
+      "timestamp": 1772684180.363412,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        4.94,
+        -0.41
+      ]
+    },
+    {
+      "timestamp": 1772684192.8240647,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        -1.7,
+        1.45
+      ]
+    },
+    {
+      "timestamp": 1772684216.1308794,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        1.94,
+        3.49
+      ]
+    },
+    {
+      "timestamp": 1772684217.6878383,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        1.75,
+        -0.12
+      ]
+    },
+    {
+      "timestamp": 1772684222.1459892,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        -1.4,
+        4.08
+      ]
+    },
+    {
+      "timestamp": 1772684235.2902472,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        -0.2,
+        -0.26
+      ]
+    },
+    {
+      "timestamp": 1772684255.5459664,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        3.79,
+        0.98
+      ]
+    },
+    {
+      "timestamp": 1772684263.7047198,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        4.64,
+        3.57
+      ]
+    },
+    {
+      "timestamp": 1772684280.7695658,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        0.94,
+        1.13
+      ]
+    },
+    {
+      "timestamp": 1772684284.6726959,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        0.38,
+        -0.67
+      ]
+    },
+    {
+      "timestamp": 1772684290.6605828,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        1.48,
+        1.22
+      ]
+    },
+    {
+      "timestamp": 1772684292.2231414,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        -1.47,
+        2.32
+      ]
+    },
+    {
+      "timestamp": 1772684311.8945463,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        -1.86,
+        0.91
+      ]
+    },
+    {
+      "timestamp": 1772684331.205276,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        -1.82,
+        1.16
+      ]
+    },
+    {
+      "timestamp": 1772684332.276915,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "OFF",
+      "position": [
+        -1.36,
+        0.72
+      ]
+    },
+    {
+      "timestamp": 1772684333.097518,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "ON",
+      "position": [
+        2.2,
+        2.05
+      ]
+    },
+    {
+      "timestamp": 1772684338.915913,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        -0.97,
+        2.17
+      ]
+    },
+    {
+      "timestamp": 1772684358.9259562,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "OFF",
+      "position": [
+        4.34,
+        1.99
+      ]
+    },
+    {
+      "timestamp": 1772684363.6922765,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        2.73,
+        3.44
+      ]
+    },
+    {
+      "timestamp": 1772684371.6673727,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        4.85,
+        1.03
+      ]
+    },
+    {
+      "timestamp": 1772684373.979993,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "OFF",
+      "position": [
+        3.1,
+        4.01
+      ]
+    },
+    {
+      "timestamp": 1772684410.3922474,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        1.46,
+        -1.36
+      ]
+    },
+    {
+      "timestamp": 1772684424.7409837,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        4.27,
+        -2.15
+      ]
+    },
+    {
+      "timestamp": 1772684434.7050617,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "ON",
+      "position": [
+        -1.1,
+        0.96
+      ]
+    },
+    {
+      "timestamp": 1772684440.8743865,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        3.96,
+        2.28
+      ]
+    },
+    {
+      "timestamp": 1772684459.0885222,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        -1.36,
+        3.96
+      ]
+    },
+    {
+      "timestamp": 1772684473.3161926,
+      "sensor_name": "motion5",
+      "sensor_id": "M005",
+      "room": "Bathroom1",
+      "event": "ON",
+      "position": [
+        -1.49,
+        2.36
+      ]
+    },
+    {
+      "timestamp": 1772684482.085264,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "OFF",
+      "position": [
+        -1.37,
+        -1.25
+      ]
+    },
+    {
+      "timestamp": 1772684482.1285746,
+      "sensor_name": "motion6",
+      "sensor_id": "M006",
+      "room": "Bathroom2",
+      "event": "OFF",
+      "position": [
+        -0.36,
+        3.45
+      ]
+    },
+    {
+      "timestamp": 1772684485.0505521,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        0.98,
+        4.28
+      ]
+    },
+    {
+      "timestamp": 1772684489.4276583,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        2.62,
+        2.46
+      ]
+    },
+    {
+      "timestamp": 1772684492.2333088,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "OFF",
+      "position": [
+        1.33,
+        2.73
+      ]
+    }
+  ],
+  "task_details": [
+    {
+      "task_name": "Wash hands",
+      "task_index": 0,
+      "casas_task_id": "t2",
+      "casas_compatible": true,
+      "start_time": 1772683200.0,
+      "start_position": null,
+      "end_position": [
+        3.14,
+        1.74
+      ],
+      "completion_time": 366.1273137273902,
+      "steps_taken": 27,
+      "screenshots_captured": 25,
+      "llm_calls": 5,
+      "success": true,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "FORWARD",
+          "from_position": [
+            2.43,
+            2.55
+          ],
+          "to_position": [
+            4.45,
+            4.15
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1772683200.0
+        },
+        {
+          "step": 1,
+          "action": "FORWARD",
+          "from_position": [
+            4.45,
+            4.15
+          ],
+          "to_position": [
+            4.69,
+            -2.17
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683215.7184877
+        },
+        {
+          "step": 3,
+          "action": "FORWARD",
+          "from_position": [
+            4.69,
+            -2.17
+          ],
+          "to_position": [
+            1.53,
+            2.3
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1772683228.963588
+        },
+        {
+          "step": 4,
+          "action": "FORWARD",
+          "from_position": [
+            1.53,
+            2.3
+          ],
+          "to_position": [
+            -1.93,
+            -1.25
+          ],
+          "room_detected": "Living_Room",
+          "timestamp": 1772683242.488306
+        },
+        {
+          "step": 5,
+          "action": "FORWARD",
+          "from_position": [
+            -1.93,
+            -1.25
+          ],
+          "to_position": [
+            2.75,
+            -2.38
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772683256.551228
+        },
+        {
+          "step": 3,
+          "action": "FORWARD",
+          "from_position": [
+            2.75,
+            -2.38
+          ],
+          "to_position": [
+            1.75,
+            0.49
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772683271.1908295
+        },
+        {
+          "step": 4,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            1.75,
+            0.49
+          ],
+          "to_position": [
+            1.17,
+            0.72
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772683285.1168816
+        },
+        {
+          "step": 4,
+          "action": "FORWARD",
+          "from_position": [
+            1.17,
+            0.72
+          ],
+          "to_position": [
+            2.6,
+            4.23
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772683299.0935845
+        },
+        {
+          "step": 9,
+          "action": "FORWARD",
+          "from_position": [
+            2.6,
+            4.23
+          ],
+          "to_position": [
+            4.37,
+            -1.34
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683312.0692487
+        },
+        {
+          "step": 10,
+          "action": "FORWARD",
+          "from_position": [
+            4.37,
+            -1.34
+          ],
+          "to_position": [
+            -1.94,
+            3.09
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683327.7332315
+        },
+        {
+          "step": 6,
+          "action": "FORWARD",
+          "from_position": [
+            -1.94,
+            3.09
+          ],
+          "to_position": [
+            4.03,
+            -1.14
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772683342.9194286
+        },
+        {
+          "step": 12,
+          "action": "FORWARD",
+          "from_position": [
+            4.03,
+            -1.14
+          ],
+          "to_position": [
+            1.93,
+            3.35
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683356.2631073
+        },
+        {
+          "step": 13,
+          "action": "FORWARD",
+          "from_position": [
+            1.93,
+            3.35
+          ],
+          "to_position": [
+            2.46,
+            2.58
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772683369.2940505
+        },
+        {
+          "step": 14,
+          "action": "FORWARD",
+          "from_position": [
+            2.46,
+            2.58
+          ],
+          "to_position": [
+            2.96,
+            2.43
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772683380.6875365
+        },
+        {
+          "step": 8,
+          "action": "TURN_LEFT",
+          "from_position": [
+            2.96,
+            2.43
+          ],
+          "to_position": [
+            1.29,
+            1.41
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683391.770581
+        },
+        {
+          "step": 16,
+          "action": "FORWARD",
+          "from_position": [
+            1.29,
+            1.41
+          ],
+          "to_position": [
+            0.78,
+            1.41
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772683405.9466066
+        },
+        {
+          "step": 17,
+          "action": "FORWARD",
+          "from_position": [
+            0.78,
+            1.41
+          ],
+          "to_position": [
+            0.98,
+            3.35
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683417.4980106
+        },
+        {
+          "step": 18,
+          "action": "FORWARD",
+          "from_position": [
+            0.98,
+            3.35
+          ],
+          "to_position": [
+            -0.69,
+            -1.08
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772683429.987132
+        },
+        {
+          "step": 10,
+          "action": "FORWARD",
+          "from_position": [
+            -0.69,
+            -1.08
+          ],
+          "to_position": [
+            4.2,
+            1.83
+          ],
+          "room_detected": "Living_Room",
+          "timestamp": 1772683444.0859609
+        },
+        {
+          "step": 10,
+          "action": "FORWARD",
+          "from_position": [
+            4.2,
+            1.83
+          ],
+          "to_position": [
+            0.99,
+            3.98
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683459.1599498
+        },
+        {
+          "step": 21,
+          "action": "FORWARD",
+          "from_position": [
+            0.99,
+            3.98
+          ],
+          "to_position": [
+            -0.13,
+            3.66
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1772683474.0175993
+        },
+        {
+          "step": 22,
+          "action": "FORWARD",
+          "from_position": [
+            -0.13,
+            3.66
+          ],
+          "to_position": [
+            4.42,
+            3.32
+          ],
+          "room_detected": "Living_Room",
+          "timestamp": 1772683487.2455964
+        },
+        {
+          "step": 23,
+          "action": "FORWARD",
+          "from_position": [
+            4.42,
+            3.32
+          ],
+          "to_position": [
+            2.76,
+            2.56
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683502.1121895
+        },
+        {
+          "step": 24,
+          "action": "FORWARD",
+          "from_position": [
+            2.76,
+            2.56
+          ],
+          "to_position": [
+            2.25,
+            -0.49
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683515.5237727
+        },
+        {
+          "step": 13,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            2.25,
+            -0.49
+          ],
+          "to_position": [
+            3.43,
+            -2.18
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683530.348467
+        },
+        {
+          "step": 13,
+          "action": "FORWARD",
+          "from_position": [
+            3.43,
+            -2.18
+          ],
+          "to_position": [
+            -0.63,
+            3.57
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772683545.6359587
+        },
+        {
+          "step": 27,
+          "action": "TURN_LEFT",
+          "from_position": [
+            -0.63,
+            3.57
+          ],
+          "to_position": [
+            1.14,
+            -0.42
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772683559.091081
+        }
+      ],
+      "subtasks": []
+    },
+    {
+      "task_name": "Cook oatmeal",
+      "task_index": 1,
+      "casas_task_id": "t3",
+      "casas_compatible": true,
+      "start_time": 1772683566.1273136,
+      "start_position": null,
+      "end_position": [
+        1.26,
+        2.05
+      ],
+      "completion_time": 497.2337292947528,
+      "steps_taken": 43,
+      "screenshots_captured": 30,
+      "llm_calls": 16,
+      "success": true,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "FORWARD",
+          "from_position": [
+            4.36,
+            3.56
+          ],
+          "to_position": [
+            2.8,
+            0.19
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683566.1273136
+        },
+        {
+          "step": 1,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            2.8,
+            0.19
+          ],
+          "to_position": [
+            3.74,
+            2.18
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683582.0601552
+        },
+        {
+          "step": 2,
+          "action": "FORWARD",
+          "from_position": [
+            3.74,
+            2.18
+          ],
+          "to_position": [
+            3.05,
+            2.17
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683594.603525
+        },
+        {
+          "step": 4,
+          "action": "FORWARD",
+          "from_position": [
+            3.05,
+            2.17
+          ],
+          "to_position": [
+            -1.47,
+            3.28
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683609.4807112
+        },
+        {
+          "step": 5,
+          "action": "FORWARD",
+          "from_position": [
+            -1.47,
+            3.28
+          ],
+          "to_position": [
+            -1.31,
+            2.27
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683622.2569418
+        },
+        {
+          "step": 6,
+          "action": "FORWARD",
+          "from_position": [
+            -1.31,
+            2.27
+          ],
+          "to_position": [
+            1.48,
+            0.34
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772683633.5551805
+        },
+        {
+          "step": 7,
+          "action": "FORWARD",
+          "from_position": [
+            1.48,
+            0.34
+          ],
+          "to_position": [
+            2.65,
+            3.82
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772683645.3412027
+        },
+        {
+          "step": 4,
+          "action": "FORWARD",
+          "from_position": [
+            2.65,
+            3.82
+          ],
+          "to_position": [
+            3.33,
+            4.22
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1772683658.397558
+        },
+        {
+          "step": 9,
+          "action": "FORWARD",
+          "from_position": [
+            3.33,
+            4.22
+          ],
+          "to_position": [
+            -1.23,
+            -2.19
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772683672.7479143
+        },
+        {
+          "step": 10,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            -1.23,
+            -2.19
+          ],
+          "to_position": [
+            3.3,
+            2.04
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683685.1669345
+        },
+        {
+          "step": 6,
+          "action": "FORWARD",
+          "from_position": [
+            3.3,
+            2.04
+          ],
+          "to_position": [
+            0.1,
+            -1.3
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683699.673219
+        },
+        {
+          "step": 12,
+          "action": "FORWARD",
+          "from_position": [
+            0.1,
+            -1.3
+          ],
+          "to_position": [
+            1.35,
+            -0.43
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683714.1218145
+        },
+        {
+          "step": 13,
+          "action": "FORWARD",
+          "from_position": [
+            1.35,
+            -0.43
+          ],
+          "to_position": [
+            0.9,
+            1.61
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683727.804545
+        },
+        {
+          "step": 14,
+          "action": "FORWARD",
+          "from_position": [
+            0.9,
+            1.61
+          ],
+          "to_position": [
+            3.96,
+            3.97
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683739.9686666
+        },
+        {
+          "step": 8,
+          "action": "FORWARD",
+          "from_position": [
+            3.96,
+            3.97
+          ],
+          "to_position": [
+            2.8,
+            1.17
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772683753.6545773
+        },
+        {
+          "step": 16,
+          "action": "FORWARD",
+          "from_position": [
+            2.8,
+            1.17
+          ],
+          "to_position": [
+            -0.82,
+            3.27
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683765.4671612
+        },
+        {
+          "step": 17,
+          "action": "FORWARD",
+          "from_position": [
+            -0.82,
+            3.27
+          ],
+          "to_position": [
+            4.39,
+            4.17
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772683778.0137186
+        },
+        {
+          "step": 9,
+          "action": "FORWARD",
+          "from_position": [
+            4.39,
+            4.17
+          ],
+          "to_position": [
+            0.67,
+            1.24
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683791.0470545
+        },
+        {
+          "step": 19,
+          "action": "TURN_LEFT",
+          "from_position": [
+            0.67,
+            1.24
+          ],
+          "to_position": [
+            1.18,
+            -1.07
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683805.8777397
+        },
+        {
+          "step": 10,
+          "action": "FORWARD",
+          "from_position": [
+            1.18,
+            -1.07
+          ],
+          "to_position": [
+            -0.56,
+            -0.03
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1772683821.3732953
+        },
+        {
+          "step": 11,
+          "action": "FORWARD",
+          "from_position": [
+            -0.56,
+            -0.03
+          ],
+          "to_position": [
+            -1.64,
+            1.67
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772683835.8444982
+        },
+        {
+          "step": 11,
+          "action": "FORWARD",
+          "from_position": [
+            -1.64,
+            1.67
+          ],
+          "to_position": [
+            -1.74,
+            2.11
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772683848.2010257
+        },
+        {
+          "step": 23,
+          "action": "FORWARD",
+          "from_position": [
+            -1.74,
+            2.11
+          ],
+          "to_position": [
+            -1.3,
+            2.53
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772683860.0788474
+        },
+        {
+          "step": 24,
+          "action": "FORWARD",
+          "from_position": [
+            -1.3,
+            2.53
+          ],
+          "to_position": [
+            0.05,
+            0.09
+          ],
+          "room_detected": "Living_Room",
+          "timestamp": 1772683871.5215323
+        },
+        {
+          "step": 13,
+          "action": "FORWARD",
+          "from_position": [
+            0.05,
+            0.09
+          ],
+          "to_position": [
+            4.9,
+            3.06
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683886.4773493
+        },
+        {
+          "step": 26,
+          "action": "FORWARD",
+          "from_position": [
+            4.9,
+            3.06
+          ],
+          "to_position": [
+            2.72,
+            -0.67
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683898.7705457
+        },
+        {
+          "step": 27,
+          "action": "FORWARD",
+          "from_position": [
+            2.72,
+            -0.67
+          ],
+          "to_position": [
+            4.82,
+            4.42
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772683912.6531951
+        },
+        {
+          "step": 14,
+          "action": "FORWARD",
+          "from_position": [
+            4.82,
+            4.42
+          ],
+          "to_position": [
+            2.01,
+            -1.8
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772683927.187767
+        },
+        {
+          "step": 15,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            2.01,
+            -1.8
+          ],
+          "to_position": [
+            0.41,
+            1.39
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1772683942.2766185
+        },
+        {
+          "step": 30,
+          "action": "FORWARD",
+          "from_position": [
+            0.41,
+            1.39
+          ],
+          "to_position": [
+            3.67,
+            2.2
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772683954.8103547
+        },
+        {
+          "step": 31,
+          "action": "FORWARD",
+          "from_position": [
+            3.67,
+            2.2
+          ],
+          "to_position": [
+            2.56,
+            -1.59
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772683970.7931437
+        },
+        {
+          "step": 32,
+          "action": "FORWARD",
+          "from_position": [
+            2.56,
+            -1.59
+          ],
+          "to_position": [
+            -1.01,
+            -0.1
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772683982.262359
+        },
+        {
+          "step": 17,
+          "action": "FORWARD",
+          "from_position": [
+            -1.01,
+            -0.1
+          ],
+          "to_position": [
+            -1.43,
+            2.94
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772683996.1291404
+        },
+        {
+          "step": 34,
+          "action": "FORWARD",
+          "from_position": [
+            -1.43,
+            2.94
+          ],
+          "to_position": [
+            4.27,
+            -1.08
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772684011.8744702
+        },
+        {
+          "step": 18,
+          "action": "FORWARD",
+          "from_position": [
+            4.27,
+            -1.08
+          ],
+          "to_position": [
+            -0.85,
+            4.43
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684022.9768183
+        },
+        {
+          "step": 36,
+          "action": "TURN_LEFT",
+          "from_position": [
+            -0.85,
+            4.43
+          ],
+          "to_position": [
+            0.55,
+            0.2
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772684036.960331
+        },
+        {
+          "step": 19,
+          "action": "FORWARD",
+          "from_position": [
+            0.55,
+            0.2
+          ],
+          "to_position": [
+            1.26,
+            -0.74
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1772684050.3650346
+        },
+        {
+          "step": 19,
+          "action": "FORWARD",
+          "from_position": [
+            1.26,
+            -0.74
+          ],
+          "to_position": [
+            3.64,
+            0.36
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772684065.3500931
+        },
+        {
+          "step": 20,
+          "action": "FORWARD",
+          "from_position": [
+            3.64,
+            0.36
+          ],
+          "to_position": [
+            0.77,
+            -0.9
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1772684076.7057476
+        },
+        {
+          "step": 20,
+          "action": "TURN_LEFT",
+          "from_position": [
+            0.77,
+            -0.9
+          ],
+          "to_position": [
+            -0.91,
+            0.72
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684091.3332124
+        },
+        {
+          "step": 21,
+          "action": "FORWARD",
+          "from_position": [
+            -0.91,
+            0.72
+          ],
+          "to_position": [
+            4.38,
+            0.7
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772684103.3610737
+        },
+        {
+          "step": 21,
+          "action": "TURN_LEFT",
+          "from_position": [
+            4.38,
+            0.7
+          ],
+          "to_position": [
+            3.56,
+            -2.08
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772684117.5657732
+        },
+        {
+          "step": 43,
+          "action": "FORWARD",
+          "from_position": [
+            3.56,
+            -2.08
+          ],
+          "to_position": [
+            3.18,
+            -1.82
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684132.224037
+        }
+      ],
+      "subtasks": []
+    },
+    {
+      "task_name": "Clean dishes",
+      "task_index": 2,
+      "casas_task_id": "t5",
+      "casas_compatible": true,
+      "start_time": 1772684063.361043,
+      "start_position": null,
+      "end_position": [
+        3.46,
+        -2.33
+      ],
+      "completion_time": 431.65725295597014,
+      "steps_taken": 37,
+      "screenshots_captured": 27,
+      "llm_calls": 15,
+      "success": true,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "FORWARD",
+          "from_position": [
+            3.68,
+            3.48
+          ],
+          "to_position": [
+            -1.56,
+            -2.42
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772684063.361043
+        },
+        {
+          "step": 2,
+          "action": "FORWARD",
+          "from_position": [
+            -1.56,
+            -2.42
+          ],
+          "to_position": [
+            4.68,
+            -1.68
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772684077.5522726
+        },
+        {
+          "step": 2,
+          "action": "FORWARD",
+          "from_position": [
+            4.68,
+            -1.68
+          ],
+          "to_position": [
+            -1.41,
+            -2.08
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684092.5903463
+        },
+        {
+          "step": 2,
+          "action": "TURN_LEFT",
+          "from_position": [
+            -1.41,
+            -2.08
+          ],
+          "to_position": [
+            3.44,
+            -2.26
+          ],
+          "room_detected": "Living_Room",
+          "timestamp": 1772684104.4896557
+        },
+        {
+          "step": 3,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            3.44,
+            -2.26
+          ],
+          "to_position": [
+            3.6,
+            1.34
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1772684120.1713607
+        },
+        {
+          "step": 6,
+          "action": "FORWARD",
+          "from_position": [
+            3.6,
+            1.34
+          ],
+          "to_position": [
+            0.21,
+            1.97
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684132.0090902
+        },
+        {
+          "step": 7,
+          "action": "FORWARD",
+          "from_position": [
+            0.21,
+            1.97
+          ],
+          "to_position": [
+            -0.78,
+            3.86
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684145.8538146
+        },
+        {
+          "step": 4,
+          "action": "FORWARD",
+          "from_position": [
+            -0.78,
+            3.86
+          ],
+          "to_position": [
+            3.79,
+            -1.33
+          ],
+          "room_detected": "Living_Room",
+          "timestamp": 1772684158.2809083
+        },
+        {
+          "step": 5,
+          "action": "TURN_LEFT",
+          "from_position": [
+            3.79,
+            -1.33
+          ],
+          "to_position": [
+            -0.04,
+            2.97
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684173.5434296
+        },
+        {
+          "step": 5,
+          "action": "FORWARD",
+          "from_position": [
+            -0.04,
+            2.97
+          ],
+          "to_position": [
+            3.41,
+            4.41
+          ],
+          "room_detected": "Living_Room",
+          "timestamp": 1772684188.760725
+        },
+        {
+          "step": 6,
+          "action": "FORWARD",
+          "from_position": [
+            3.41,
+            4.41
+          ],
+          "to_position": [
+            -0.19,
+            -0.29
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684200.613855
+        },
+        {
+          "step": 6,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            -0.19,
+            -0.29
+          ],
+          "to_position": [
+            -1.19,
+            3.19
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684213.7188761
+        },
+        {
+          "step": 7,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            -1.19,
+            3.19
+          ],
+          "to_position": [
+            2.23,
+            4.33
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684227.9089608
+        },
+        {
+          "step": 7,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            2.23,
+            4.33
+          ],
+          "to_position": [
+            2.34,
+            0.41
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772684242.4080307
+        },
+        {
+          "step": 8,
+          "action": "BACKWARD",
+          "from_position": [
+            2.34,
+            0.41
+          ],
+          "to_position": [
+            4.72,
+            1.09
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772684254.7742264
+        },
+        {
+          "step": 16,
+          "action": "FORWARD",
+          "from_position": [
+            4.72,
+            1.09
+          ],
+          "to_position": [
+            4.46,
+            1.46
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684266.7564034
+        },
+        {
+          "step": 9,
+          "action": "FORWARD",
+          "from_position": [
+            4.46,
+            1.46
+          ],
+          "to_position": [
+            2.4,
+            -0.98
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684279.7613642
+        },
+        {
+          "step": 18,
+          "action": "TURN_RIGHT",
+          "from_position": [
+            2.4,
+            -0.98
+          ],
+          "to_position": [
+            -1.02,
+            -0.4
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772684291.3723607
+        },
+        {
+          "step": 10,
+          "action": "FORWARD",
+          "from_position": [
+            -1.02,
+            -0.4
+          ],
+          "to_position": [
+            3.85,
+            3.77
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684306.011649
+        },
+        {
+          "step": 20,
+          "action": "FORWARD",
+          "from_position": [
+            3.85,
+            3.77
+          ],
+          "to_position": [
+            1.79,
+            -1.87
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772684319.068435
+        },
+        {
+          "step": 11,
+          "action": "BACKWARD",
+          "from_position": [
+            1.79,
+            -1.87
+          ],
+          "to_position": [
+            -1.56,
+            -2.45
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684332.9928453
+        },
+        {
+          "step": 11,
+          "action": "FORWARD",
+          "from_position": [
+            -1.56,
+            -2.45
+          ],
+          "to_position": [
+            3.99,
+            2.37
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684347.6650686
+        },
+        {
+          "step": 23,
+          "action": "FORWARD",
+          "from_position": [
+            3.99,
+            2.37
+          ],
+          "to_position": [
+            3.78,
+            -0.84
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772684363.0644188
+        },
+        {
+          "step": 12,
+          "action": "FORWARD",
+          "from_position": [
+            3.78,
+            -0.84
+          ],
+          "to_position": [
+            -1.51,
+            4.19
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772684378.65665
+        },
+        {
+          "step": 25,
+          "action": "FORWARD",
+          "from_position": [
+            -1.51,
+            4.19
+          ],
+          "to_position": [
+            -1.61,
+            1.04
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772684391.2565298
+        },
+        {
+          "step": 26,
+          "action": "FORWARD",
+          "from_position": [
+            -1.61,
+            1.04
+          ],
+          "to_position": [
+            1.76,
+            3.0
+          ],
+          "room_detected": "Living_Room",
+          "timestamp": 1772684405.677335
+        },
+        {
+          "step": 14,
+          "action": "FORWARD",
+          "from_position": [
+            1.76,
+            3.0
+          ],
+          "to_position": [
+            4.99,
+            2.73
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772684418.7297323
+        },
+        {
+          "step": 14,
+          "action": "FORWARD",
+          "from_position": [
+            4.99,
+            2.73
+          ],
+          "to_position": [
+            3.03,
+            -2.34
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684431.5518198
+        },
+        {
+          "step": 29,
+          "action": "FORWARD",
+          "from_position": [
+            3.03,
+            -2.34
+          ],
+          "to_position": [
+            -1.89,
+            -0.47
+          ],
+          "room_detected": "Bedroom1",
+          "timestamp": 1772684445.2293892
+        },
+        {
+          "step": 30,
+          "action": "FORWARD",
+          "from_position": [
+            -1.89,
+            -0.47
+          ],
+          "to_position": [
+            2.65,
+            4.37
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684459.6327322
+        },
+        {
+          "step": 16,
+          "action": "FORWARD",
+          "from_position": [
+            2.65,
+            4.37
+          ],
+          "to_position": [
+            2.88,
+            -0.54
+          ],
+          "room_detected": "Kitchen",
+          "timestamp": 1772684473.1510105
+        },
+        {
+          "step": 16,
+          "action": "FORWARD",
+          "from_position": [
+            2.88,
+            -0.54
+          ],
+          "to_position": [
+            3.21,
+            0.21
+          ],
+          "room_detected": "Bedroom2",
+          "timestamp": 1772684486.1025324
+        },
+        {
+          "step": 17,
+          "action": "FORWARD",
+          "from_position": [
+            3.21,
+            0.21
+          ],
+          "to_position": [
+            -0.1,
+            -0.54
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684501.4603395
+        },
+        {
+          "step": 17,
+          "action": "FORWARD",
+          "from_position": [
+            -0.1,
+            -0.54
+          ],
+          "to_position": [
+            1.72,
+            2.9
+          ],
+          "room_detected": "Living_Room",
+          "timestamp": 1772684517.3909051
+        },
+        {
+          "step": 18,
+          "action": "FORWARD",
+          "from_position": [
+            1.72,
+            2.9
+          ],
+          "to_position": [
+            2.53,
+            0.61
+          ],
+          "room_detected": "Bathroom1",
+          "timestamp": 1772684531.2415683
+        },
+        {
+          "step": 18,
+          "action": "FORWARD",
+          "from_position": [
+            2.53,
+            0.61
+          ],
+          "to_position": [
+            -0.48,
+            4.3
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684546.691061
+        },
+        {
+          "step": 19,
+          "action": "FORWARD",
+          "from_position": [
+            -0.48,
+            4.3
+          ],
+          "to_position": [
+            3.18,
+            1.08
+          ],
+          "room_detected": "Bathroom2",
+          "timestamp": 1772684560.3026178
+        }
+      ],
+      "subtasks": []
+    }
+  ]
+}

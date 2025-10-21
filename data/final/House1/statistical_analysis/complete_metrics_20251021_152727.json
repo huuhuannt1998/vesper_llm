@@ -1,0 +1,670 @@
+{
+  "temporal": {
+    "vesper": {
+      "total_datasets": 150,
+      "total_events": 26657,
+      "avg_events_per_dataset": 177.71333333333334,
+      "std_events_per_dataset": 43.15527571713825,
+      "median_events": 173.5,
+      "avg_duration_seconds": 1513.0905530548096,
+      "avg_event_rate": 0.11787047960090362
+    },
+    "casas": {
+      "total_datasets": 220,
+      "total_events": 11586,
+      "avg_events_per_dataset": 52.663636363636364,
+      "std_events_per_dataset": 38.48867065247956,
+      "median_events": 39.0
+    },
+    "comparison": {
+      "t_statistic": 29.120025583827964,
+      "p_value": 1.5356392416055896e-97,
+      "cohens_d": 3.0583020703641846,
+      "significant": true
+    }
+  },
+  "sensor_distribution": {
+    "vesper_sensors": {
+      "M002": 4443,
+      "M001": 4466,
+      "M004": 4456,
+      "M005": 4445,
+      "M006": 4484,
+      "M003": 4363
+    },
+    "casas_sensors": {
+      "M08": 89,
+      "M07": 90,
+      "M09": 72,
+      "M14": 903,
+      "M23": 72,
+      "M01": 83,
+      "M13": 1911,
+      "I08": 58,
+      "asterisk": 86,
+      "M15": 367,
+      "M16": 421,
+      "M17": 3178,
+      "AD1-B": 950,
+      "I07": 49,
+      "D01": 337,
+      "I02": 73,
+      "I03": 101,
+      "I01": 101,
+      "I04": 62,
+      "I05": 75,
+      "AD1-C": 416,
+      "AD1-A": 1568,
+      "E01": 8,
+      "I06": 50,
+      "M18": 458,
+      "M21": 1,
+      "M22": 1,
+      "M10": 2,
+      "I09": 2,
+      "M06": 2
+    },
+    "vesper_distribution": {
+      "M002": 0.16667291893311326,
+      "M001": 0.16753573170274225,
+      "M004": 0.16716059571594702,
+      "M005": 0.1667479461304723,
+      "M006": 0.16821097647897362,
+      "M003": 0.16367183103875155
+    },
+    "casas_distribution": {
+      "M08": 0.007681684791990333,
+      "M07": 0.007767995857068877,
+      "M09": 0.006214396685655101,
+      "M14": 0.07793889176592439,
+      "M23": 0.006214396685655101,
+      "M01": 0.007163818401519075,
+      "M13": 0.1649404453650958,
+      "I08": 0.005006041774555498,
+      "asterisk": 0.007422751596754704,
+      "M15": 0.031676160883825306,
+      "M16": 0.03633695839806663,
+      "M17": 0.2742965648196099,
+      "AD1-B": 0.08199551182461591,
+      "I07": 0.004229242188848611,
+      "D01": 0.029086828931469015,
+      "I02": 0.006300707750733644,
+      "I03": 0.00871741757293285,
+      "I01": 0.00871741757293285,
+      "I04": 0.00535128603486967,
+      "I05": 0.00647332988089073,
+      "AD1-C": 0.03590540307267392,
+      "AD1-A": 0.13533575004315554,
+      "E01": 0.0006904885206283445,
+      "I06": 0.004315553253927153,
+      "M18": 0.039530467805972726,
+      "M21": 8.631106507854307e-05,
+      "M22": 8.631106507854307e-05,
+      "M10": 0.00017262213015708613,
+      "I09": 0.00017262213015708613,
+      "M06": 0.00017262213015708613
+    },
+    "js_divergence": 0.8325546111576978,
+    "similarity_score": 0.1674453888423022,
+    "common_sensors": []
+  },
+  "task_performance": {
+    "by_task": {
+      "Make a phone call": {
+        "total_attempts": 122,
+        "success_rate": 0.9754098360655737,
+        "avg_steps": 18.0,
+        "std_steps": 1.4598450400585696,
+        "avg_duration": 325.1226646703414,
+        "std_duration": 14.062985556887798,
+        "avg_llm_calls": 5.311475409836065
+      },
+      "Cook oatmeal": {
+        "total_attempts": 119,
+        "success_rate": 0.9747899159663865,
+        "avg_steps": 42.04201680672269,
+        "std_steps": 1.4632469821632883,
+        "avg_duration": 482.14640917545034,
+        "std_duration": 13.542692084471906,
+        "avg_llm_calls": 13.579831932773109
+      },
+      "Clean dishes": {
+        "total_attempts": 120,
+        "success_rate": 0.9666666666666667,
+        "avg_steps": 37.975,
+        "std_steps": 1.519114325300546,
+        "avg_duration": 452.8140381217174,
+        "std_duration": 14.783509597362464,
+        "avg_llm_calls": 11.916666666666666
+      },
+      "Eat meal": {
+        "total_attempts": 117,
+        "success_rate": 0.9743589743589743,
+        "avg_steps": 22.23076923076923,
+        "std_steps": 1.4871794871794872,
+        "avg_duration": 335.1939295759478,
+        "std_duration": 14.097718445492838,
+        "avg_llm_calls": 6.581196581196581
+      },
+      "Wash hands": {
+        "total_attempts": 111,
+        "success_rate": 0.9099099099099099,
+        "avg_steps": 25.16216216216216,
+        "std_steps": 1.4859130753166983,
+        "avg_duration": 347.867897637361,
+        "std_duration": 15.43152956885613,
+        "avg_llm_calls": 7.495495495495495
+      }
+    },
+    "overall_success_rate": 0.9609507640067911,
+    "total_attempts": 589,
+    "total_successes": 566
+  },
+  "sequence_similarity": {
+    "pairwise_similarities": [
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p001_20251018_230000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p002_20251020_030000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p003_20251021_060000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p004_20251022_090000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p005_20251022_160000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p006_20251023_180000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p007_20251024_200000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p008_20251026_100000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p009_20251027_120000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p01.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p01.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p01.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p01.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p01.t5.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p02.t1.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p02.t2.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p02.t3.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p02.t4.csv",
+        "lcs_ratio": 0.0
+      },
+      {
+        "vesper_file": "vesper_metrics_p010_20251027_170000.json",
+        "casas_file": "p02.t5.csv",
+        "lcs_ratio": 0.0
+      }
+    ],
+    "average_similarity": 0.0,
+    "max_similarity": 0.0,
+    "min_similarity": 0.0
+  }
+}
