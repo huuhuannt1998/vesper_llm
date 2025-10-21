@@ -132,6 +132,19 @@ except ImportError as e:
     DOCKER_INTEGRATION_AVAILABLE = False
     print(f"⚠️ Docker integration not available: {e}")
 
+# Object Position Extraction for VLM Navigation Guidance
+try:
+    from object_position_extractor import (
+        get_target_object_position,
+        format_target_info_for_vlm,
+        is_actor_close_enough_for_interaction
+    )
+    OBJECT_POSITION_EXTRACTOR_AVAILABLE = True
+    print("✅ Object position extractor available")
+except ImportError as e:
+    OBJECT_POSITION_EXTRACTOR_AVAILABLE = False
+    print(f"⚠️ Object position extractor not available: {e}")
+
 # =============================
 # VESPER Evaluation Metrics & Logging System
 # =============================
@@ -1803,6 +1816,32 @@ def take_enhanced_screenshot():
 
 # Position-based navigation removed - only image-based VLM navigation allowed
 
+def get_target_object_info_for_prompt(task_name):
+    """
+    Get target object position information to include in VLM prompt
+    
+    Args:
+        task_name: Name of the CASAS task
+    
+    Returns:
+        str: Formatted text with object position info or empty string
+    """
+    if not OBJECT_POSITION_EXTRACTOR_AVAILABLE:
+        return ""
+    
+    try:
+        # Get formatted target info
+        target_info_text = format_target_info_for_vlm(task_name)
+        
+        if target_info_text and not target_info_text.startswith("⚠️"):
+            return target_info_text
+        else:
+            return ""
+    except Exception as e:
+        print(f"⚠️ Failed to get target object info: {e}")
+        return ""
+
+
 def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, current_position, step_number):
     """Analyze navigation using BOTH first-person view AND house layout reference with obstacle avoidance"""
     try:
@@ -1922,6 +1961,8 @@ def analyze_dual_image_navigation(fp_image_path, house_layout_path, task, curren
 CURRENT MISSION: {task}
 MAP POSITION: {current_position} (see red figure on navigation map)
 NAVIGATION STEP: {step_number + 1}
+
+{get_target_object_info_for_prompt(task)}
 
 CRITICAL NAVIGATION RULES:
 ðŸš§ OBSTACLE AVOIDANCE: 
