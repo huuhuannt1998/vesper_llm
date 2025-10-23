@@ -145,6 +145,15 @@ except ImportError as e:
     OBJECT_POSITION_EXTRACTOR_AVAILABLE = False
     print(f"⚠️ Object position extractor not available: {e}")
 
+# Virtual Time System for Realistic Task Duration Simulation
+try:
+    from time_system.virtual_time_manager import VirtualTimeManager, TaskTimer
+    VIRTUAL_TIME_AVAILABLE = True
+    print("✅ Virtual time system available")
+except ImportError as e:
+    VIRTUAL_TIME_AVAILABLE = False
+    print(f"⚠️ Virtual time system not available: {e}")
+
 # =============================
 # VESPER Evaluation Metrics & Logging System
 # =============================
@@ -166,6 +175,19 @@ class VESPERMetricsLogger:
         # Set up log file path (required for _log_to_file method)
         self.log_file = os.path.join(self.dataset_dir, f"vesper_metrics_p01_{self.session_id}.json")
         
+        # Initialize Virtual Time System (120x speed: 60 min real = 30 sec virtual)
+        if VIRTUAL_TIME_AVAILABLE:
+            from datetime import datetime
+            self.virtual_time_manager = VirtualTimeManager(
+                start_time=datetime.now(),
+                time_scale=120.0  # 120x speed: 60 real minutes = 0.5 real seconds
+            )
+            self.task_timer = TaskTimer(self.virtual_time_manager)
+            print("⏱️  Virtual time: 120x speed (60 min = 30 sec real)")
+        else:
+            self.virtual_time_manager = None
+            self.task_timer = None
+        
         # Initialize metrics tracking
         self.session_data = {
             "session_id": timestamp,
@@ -178,7 +200,9 @@ class VESPERMetricsLogger:
             "total_device_interactions": 0,
             "total_subtasks_completed": 0,
             "virtual_sensor_events": [],  # Track virtual motion sensor activations
-            "task_details": []
+            "task_details": [],
+            "virtual_time_enabled": VIRTUAL_TIME_AVAILABLE,
+            "time_scale": 120.0 if VIRTUAL_TIME_AVAILABLE else 1.0
         }
         
         # Current task tracking
@@ -196,23 +220,33 @@ class VESPERMetricsLogger:
             "Eat meal": "t4",
             "Clean dishes": "t5"
         }
-        # casas_task_mapping = {
-        #     "Go to the kitchen": "t1",
-        #     "Go to the bedroom": "t2", 
-        #     "Go to the livingroom": "t3"
-        # }
         casas_task_id = casas_task_mapping.get(task_name, f"t{task_index + 1}")
         
         self.current_task_start_time = time.time()
+        
+        # Start virtual time tracking for this task
+        if self.virtual_time_manager:
+            virtual_start_time = self.virtual_time_manager.get_formatted_time()
+            virtual_timestamp = self.virtual_time_manager.get_timestamp()
+            self.task_timer.start_task_timer(task_name)
+            print(f"⏱️  Virtual time at task start: {virtual_start_time}")
+        else:
+            virtual_start_time = None
+            virtual_timestamp = None
+        
         self.current_task_data = {
             "task_name": task_name,
             "task_index": task_index,
             "casas_task_id": casas_task_id,
             "casas_compatible": True,
             "start_time": self.current_task_start_time,
+            "virtual_start_time": virtual_start_time,
+            "virtual_start_timestamp": virtual_timestamp,
             "start_position": None,
             "end_position": None,
             "completion_time": None,
+            "virtual_end_time": None,
+            "virtual_duration": None,
             "steps_taken": 0,
             "screenshots_captured": 0,
             "llm_calls": 0,
@@ -334,6 +368,24 @@ class VESPERMetricsLogger:
             self.current_task_data["failure_reason"] = failure_reason
             self.current_task_data["end_position"] = [round(final_position[0], 2), round(final_position[1], 2)] if final_position else None
             
+            # End virtual time tracking
+            if self.virtual_time_manager:
+                virtual_end_time = self.virtual_time_manager.get_formatted_time()
+                virtual_timestamp = self.virtual_time_manager.get_timestamp()
+                
+                # Get task timer data
+                timer_data = self.task_timer.end_task_timer(self.current_task_data["task_name"])
+                if timer_data:
+                    virtual_duration = timer_data["virtual_duration"]
+                    self.current_task_data["virtual_end_time"] = virtual_end_time
+                    self.current_task_data["virtual_end_timestamp"] = virtual_timestamp
+                    self.current_task_data["virtual_duration"] = virtual_duration
+                    
+                    # Log both real and virtual time
+                    print(f"⏱️  Real time: {completion_time:.1f}s")
+                    print(f"⏱️  Virtual time: {virtual_duration:.1f}s ({virtual_duration/60:.1f} min)")
+                    print(f"⏱️  Virtual end: {virtual_end_time}")
+            
             # Update session totals
             if success:
                 self.session_data["tasks_completed"] += 1
@@ -409,6 +461,10 @@ def get_metrics_logger():
             
             import types
             metrics_logger._export_datasets = types.MethodType(_export_datasets, metrics_logger)
+    
+    # Export virtual time log if available
+    if metrics_logger.virtual_time_manager:
+        metrics_logger.virtual_time_manager.export_time_log(metrics_logger.dataset_dir)
     
     return metrics_logger
 
