@@ -1251,8 +1251,59 @@ async def handle_schema_state_refresh(device_id: str, include_timestamp: bool = 
             }]
         }
     
+    # Determine device type from serial number prefix
+    device_type = None
+    state_key = None
+    
+    if device_id.startswith("VST-"):
+        # Thermostat
+        device_type = "thermostat"
+        state_key = f"thermostat:{device_id}:state"
+    elif device_id.startswith("VSI-"):
+        # Item Sensor
+        device_type = "item_sensor"
+        # Try serial number first
+        state_key = f"item_sensor:{device_id}:state"
+        # If not found, check for internal_id mapping in metadata
+        state_data_check = redis_client.get(state_key)
+        if not state_data_check:
+            # Check metadata for internal ID mapping
+            internal_id = redis_client.hget(device_exists_key, "internal_id")
+            if internal_id:
+                internal_id_str = internal_id.decode('utf-8') if isinstance(internal_id, bytes) else str(internal_id)
+                state_key = f"item_sensor:{internal_id_str}:state"
+                logger.info(f"Using internal ID mapping: {device_id} -> {internal_id_str}")
+    elif device_id.startswith("VSM-"):
+        # Motion Sensor
+        device_type = "motion_sensor"
+        # Try serial number first
+        state_key = f"motion_sensor:{device_id}:state"
+        # If not found, check for internal_id mapping in metadata
+        state_data_check = redis_client.get(state_key)
+        if not state_data_check:
+            # Check metadata for internal ID mapping
+            internal_id = redis_client.hget(device_exists_key, "internal_id")
+            if internal_id:
+                internal_id_str = internal_id.decode('utf-8') if isinstance(internal_id, bytes) else str(internal_id)
+                state_key = f"motion_sensor:{internal_id_str}:state"
+                logger.info(f"Using internal ID mapping: {device_id} -> {internal_id_str}")
+    elif device_id.startswith("VSA-"):
+        # Appliance Controller
+        device_type = "appliance"
+        state_key = f"appliance:{device_id}:state"
+    else:
+        logger.warning(f"Unknown device type for {device_id}")
+        return {
+            "externalDeviceId": device_id,
+            "deviceError": [{
+                "errorEnum": "DEVICE-OFFLINE",
+                "detail": "Unknown device type"
+            }]
+        }
+    
+    logger.info(f"Device type: {device_type}, State key: {state_key}")
+    
     # Get state from Redis
-    state_key = f"thermostat:{device_id}:state"
     state_data = redis_client.get(state_key)
     
     if not state_data:
@@ -1269,76 +1320,144 @@ async def handle_schema_state_refresh(device_id: str, include_timestamp: bool = 
     logger.info(f"Device {device_id} current state: {state}")
     timestamp = int(time.time() * 1000)
     
-    # Check device health
-    is_online = state.get("online", True)
-    if not is_online:
-        logger.warning(f"Device {device_id} is marked as offline")
-        return {
-            "externalDeviceId": device_id,
-            "states": [{
+    # Build states list based on device type
+    states_list = []
+    
+    if device_type == "thermostat":
+        # Check device health
+        is_online = state.get("online", True)
+        if not is_online:
+            logger.warning(f"Device {device_id} is marked as offline")
+            return {
+                "externalDeviceId": device_id,
+                "states": [{
+                    "component": "main",
+                    "capability": "st.healthCheck",
+                    "attribute": "healthStatus",
+                    "value": "offline",
+                    "timestamp": timestamp
+                }]
+            }
+        
+        # Convert to Schema format with all required states
+        states_list = [
+            {
                 "component": "main",
                 "capability": "st.healthCheck",
                 "attribute": "healthStatus",
-                "value": "offline",
-                "timestamp": timestamp
-            }]
-        }
+                "value": "online"
+            },
+            {
+                "component": "main",
+                "capability": "st.temperatureMeasurement",
+                "attribute": "temperature",
+                "value": state["current_temp"],
+                "unit": "F"
+            },
+            {
+                "component": "main",
+                "capability": "st.thermostatCoolingSetpoint",
+                "attribute": "coolingSetpoint",
+                "value": state["target_temp"],
+                "unit": "F"
+            },
+            {
+                "component": "main",
+                "capability": "st.thermostatHeatingSetpoint",
+                "attribute": "heatingSetpoint",
+                "value": state["target_temp"],
+                "unit": "F"
+            },
+            {
+                "component": "main",
+                "capability": "st.thermostatMode",
+                "attribute": "thermostatMode",
+                "value": state["mode"]
+            },
+            {
+                "component": "main",
+                "capability": "st.thermostatFanMode",
+                "attribute": "thermostatFanMode",
+                "value": state["fan_mode"]
+            },
+            {
+                "component": "main",
+                "capability": "st.relativeHumidityMeasurement",
+                "attribute": "humidity",
+                "value": state["current_humidity"],
+                "unit": "%"
+            },
+            {
+                "component": "main",
+                "capability": "st.thermostatOperatingState",
+                "attribute": "thermostatOperatingState",
+                "value": "idle" if not state["is_running"] else state["mode"]
+            }
+        ]
     
-    # Convert to Schema format with all required states
-    states_list = [
-        {
-            "component": "main",
-            "capability": "st.healthCheck",
-            "attribute": "healthStatus",
-            "value": "online"
-        },
-        {
-            "component": "main",
-            "capability": "st.temperatureMeasurement",
-            "attribute": "temperature",
-            "value": state["current_temp"],
-            "unit": "F"
-        },
-        {
-            "component": "main",
-            "capability": "st.thermostatCoolingSetpoint",
-            "attribute": "coolingSetpoint",
-            "value": state["target_temp"],
-            "unit": "F"
-        },
-        {
-            "component": "main",
-            "capability": "st.thermostatHeatingSetpoint",
-            "attribute": "heatingSetpoint",
-            "value": state["target_temp"],
-            "unit": "F"
-        },
-        {
-            "component": "main",
-            "capability": "st.thermostatMode",
-            "attribute": "thermostatMode",
-            "value": state["mode"]
-        },
-        {
-            "component": "main",
-            "capability": "st.thermostatFanMode",
-            "attribute": "thermostatFanMode",
-            "value": state["fan_mode"]
-        },
-        {
-            "component": "main",
-            "capability": "st.relativeHumidityMeasurement",
-            "attribute": "humidity",
-            "value": state["current_humidity"],
-            "unit": "%"
-        },
-        {
-            "component": "main",
-            "capability": "st.thermostatOperatingState",
-            "attribute": "thermostatOperatingState",
-            "value": "idle" if not state["is_running"] else state["mode"]
-        }
-    ]
+    elif device_type == "item_sensor":
+        # Item Sensor - uses contact sensor capability
+        presence = state.get("presence", "PRESENT")
+        # Map presence to contact sensor value
+        # PRESENT = item is there = closed
+        # ABSENT = item is missing/picked up = open
+        contact_value = "closed" if presence == "PRESENT" else "open"
+        
+        states_list = [
+            {
+                "component": "main",
+                "capability": "st.healthCheck",
+                "attribute": "healthStatus",
+                "value": "online"
+            },
+            {
+                "component": "main",
+                "capability": "st.contactSensor",
+                "attribute": "contact",
+                "value": contact_value
+            }
+        ]
+        logger.info(f"Item sensor {device_id}: presence={presence}, contact={contact_value}")
+    
+    elif device_type == "motion_sensor":
+        # Motion Sensor - uses motion sensor capability
+        motion = state.get("motion", "inactive")
+        
+        states_list = [
+            {
+                "component": "main",
+                "capability": "st.healthCheck",
+                "attribute": "healthStatus",
+                "value": "online"
+            },
+            {
+                "component": "main",
+                "capability": "st.motionSensor",
+                "attribute": "motion",
+                "value": motion
+            }
+        ]
+        logger.info(f"Motion sensor {device_id}: motion={motion}")
+    
+    elif device_type == "appliance":
+        # Appliance Controller - uses switch capability
+        power = state.get("power", "off")
+        
+        states_list = [
+            {
+                "component": "main",
+                "capability": "st.healthCheck",
+                "attribute": "healthStatus",
+                "value": "online"
+            },
+            {
+                "component": "main",
+                "capability": "st.switch",
+                "attribute": "switch",
+                "value": power
+            }
+        ]
+        logger.info(f"Appliance {device_id}: power={power}")
     
     # Add timestamps only if requested (for callbacks, not for request responses)
     if include_timestamp:

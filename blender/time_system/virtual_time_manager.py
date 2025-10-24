@@ -1,9 +1,3 @@
-"""
-VESPER Virtual Time System
-Manages simulation time with time acceleration for long-duration tasks
-Compatible with CASAS dataset timestamp requirements
-"""
-
 import time
 from datetime import datetime, timedelta
 import json
@@ -11,19 +5,8 @@ import os
 
 
 class VirtualTimeManager:
-    """
-    Manages virtual time that can run faster or slower than real time
-    Essential for tasks like sleeping, cooking, etc.
-    """
     
     def __init__(self, start_time=None, time_scale=1.0):
-        """
-        Initialize virtual time manager
-        
-        Args:
-            start_time: Virtual start time (datetime object) or None for now
-            time_scale: Time acceleration factor (1.0 = real-time, 10.0 = 10x faster)
-        """
         # Real-world tracking
         self.real_start_time = time.time()
         
@@ -86,14 +69,7 @@ class VirtualTimeManager:
         return time_str
     
     def set_time_scale(self, scale, duration_real_seconds=None, reason=""):
-        """
-        Change time acceleration
-        
-        Args:
-            scale: New time scale (1.0 = real-time)
-            duration_real_seconds: How long to keep this scale (real seconds)
-            reason: Why time is being accelerated (for logging)
-        """
+
         self.update()  # Update before changing scale
         
         old_scale = self.time_scale
@@ -120,17 +96,7 @@ class VirtualTimeManager:
             )
     
     def accelerate_for_task(self, task_name, virtual_duration_seconds, max_real_seconds=10.0):
-        """
-        Accelerate time for a specific task
-        
-        Args:
-            task_name: Name of task (e.g., "sleeping", "cooking")
-            virtual_duration_seconds: How long the task takes in virtual time
-            max_real_seconds: Maximum real-world time to spend
-        
-        Returns:
-            Required time scale to complete task in max_real_seconds
-        """
+
         required_scale = virtual_duration_seconds / max_real_seconds
         
         print(f"🚀 Accelerating time for task: {task_name}")

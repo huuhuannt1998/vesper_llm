@@ -48,6 +48,16 @@ DEVICE_TYPE_MAP = {
     "KitchenSink": "fixture",
 }
 
+# Device serial number mappings (for SmartThings integration)
+DEVICE_SERIAL_MAP = {
+    "Phone": "VSI-DF8A-CE65-08F5",
+    "BathroomSink1": "VSI-A699-1704-65F5",
+    "Stove": "VSI-F6AF-676E-2BBD",
+    "DiningTable": "VSI-13CB-B4F7-2611",
+    "KitchenSink": "VSI-7A48-71F9-D909",
+    "BathroomSink2": "VSI-1B6D-D44D-8FFC",
+}
+
 # Track device ON/OFF status in BGE
 # This provides a simplified view: ON = device is being used, OFF = device is idle
 DEVICE_STATUS = {}  # Will store {"Phone": "ON", "Stove": "OFF", ...}
@@ -165,6 +175,13 @@ def trigger_virtual_device_on_interaction(object_name, action="use", state_on=Tr
                 "timestamp": time.time(),
                 "response": result
             })
+            
+            # Sync state to SmartThings
+            # This notifies SmartThings of the state change
+            try:
+                sync_device_state_to_smartthings(object_name)
+            except Exception as e:
+                print(f"⚠️ SmartThings sync failed for {object_name}: {e}")
             
             return True
         else:
@@ -531,6 +548,51 @@ def get_device_on_off_status(object_name):
     
     # Check module-level dict
     return DEVICE_STATUS.get(object_name, "UNKNOWN")
+
+
+def sync_device_state_to_smartthings(object_name):
+    """
+    Sync device state to SmartThings by notifying the cloud server
+    This triggers a state change callback to SmartThings
+    
+    Args:
+        object_name: Name of device to sync (e.g., "Phone", "Stove")
+    
+    Returns:
+        bool: True if notification sent successfully
+    
+    Example:
+        turn_device_on("Phone")
+        sync_device_state_to_smartthings("Phone")  # Notify SmartThings
+    """
+    serial_number = DEVICE_SERIAL_MAP.get(object_name)
+    
+    if not serial_number:
+        print(f"⚠️ No serial number mapping for {object_name}")
+        return False
+    
+    try:
+        # Notify cloud server of state change
+        url = f"http://localhost:8081/api/devices/{serial_number}/state-changed"
+        response = requests.post(url, json={}, timeout=2)
+        
+        if response.status_code == 200:
+            result = response.json()
+            callback_sent = result.get("callback_sent", False)
+            
+            if callback_sent:
+                print(f"📡 {object_name} state synced to SmartThings")
+            else:
+                print(f"📡 {object_name} state notification sent (no SmartThings callback configured)")
+            
+            return True
+        else:
+            print(f"⚠️ Failed to notify SmartThings for {object_name}: HTTP {response.status_code}")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        print(f"⚠️ Error notifying SmartThings for {object_name}: {e}")
+        return False
 
 
 def get_all_devices_on_off_status():

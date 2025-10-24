@@ -34,7 +34,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://admin:secure_password@postgres/smart_home_testbed
       REDIS_URL: redis://redis:6379
       NGROK_AUTH_TOKEN: ${NGROK_AUTH_TOKEN:-2eEdMNa3XkIOw7CsHuV7crgAtbD_6hdTjRRUawk5bA2PTdWX5}
-      NGROK_DOMAIN: 76b651de9d9a.ngrok-free.app
+      NGROK_DOMAIN: 9104a04a38e2.ngrok-free.app
       JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-change-in-production}
       SMARTTHINGS_CLIENT_ID: ${SMARTTHINGS_CLIENT_ID}
       SMARTTHINGS_CLIENT_SECRET: ${SMARTTHINGS_CLIENT_SECRET}

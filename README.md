@@ -263,10 +263,21 @@ curl -X POST http://localhost:9000/control -d '{"command": "on"}'
 * This enables global monitoring, device orchestration, and time-series analytics.
 * The server is designed to support future extensions such as user access control and historical usage modeling.
 
+### SmartThings Cloud Integration ✅ IMPLEMENTED
+
+* **✅ Device Discovery**: All 6 virtual devices discoverable via SmartThings Schema
+* **✅ Real-time State Sync**: Automatic synchronization from BGE to SmartThings
+* **✅ Mobile App Monitoring**: Watch simulations in real SmartThings mobile app
+* **✅ REST API Control**: Full manual control via curl commands
+* **✅ Contact Sensor Mapping**: PRESENT/ABSENT states mapped to closed/open
+* See **📱 SmartThings Cloud Integration** section below for complete documentation
+
 ### Future Development
 
-* Full SmartThings cloud synchronization using OAuth and SmartThings Device Profiles.
-* Support for multi-user control and access permissions.
+* Complete OAuth flow for automated push notifications (current: manual refresh required)
+* Support for multi-user control and access permissions
+* Motion sensor SmartThings integration
+* SmartThings Scenes and Automations support
 
 ---
 
@@ -491,6 +502,79 @@ curl -X POST http://localhost:9201/interaction \
 curl http://localhost:9201/casas_events
 ```
 
+#### PowerShell & Windows Users
+
+If you're using **PowerShell on Windows**, the curl commands above won't work directly because PowerShell aliases `curl` to `Invoke-WebRequest`, which has different syntax. Here are the working alternatives:
+
+**Option 1: Use `curl.exe` (Real curl)**
+
+```powershell
+# Check device health
+curl.exe http://localhost:9201/health
+
+# Get device state
+curl.exe http://localhost:9201/state
+
+# Log pickup action (note: single quotes around JSON, escaped quotes inside)
+curl.exe -X POST http://localhost:9201/interaction -H "Content-Type: application/json" -d '{\"action\": \"pickup\"}'
+
+# Log putdown action
+curl.exe -X POST http://localhost:9201/interaction -H "Content-Type: application/json" -d '{\"action\": \"putdown\"}'
+
+# Get CASAS events
+curl.exe http://localhost:9201/casas_events
+```
+
+**Option 2: Use PowerShell Native Commands (Recommended)**
+
+```powershell
+# Check device health
+Invoke-WebRequest -Uri http://localhost:9201/health
+
+# Get device state
+Invoke-WebRequest -Uri http://localhost:9201/state
+
+# Log pickup action
+Invoke-WebRequest -Uri http://localhost:9201/interaction `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"action": "pickup"}'
+
+# Log putdown action
+Invoke-WebRequest -Uri http://localhost:9201/interaction `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"action": "putdown"}'
+
+# Get CASAS events
+Invoke-WebRequest -Uri http://localhost:9201/casas_events
+```
+
+**Option 3: Use Here-String for Complex JSON**
+
+```powershell
+# For complex JSON payloads
+$json = @"
+{
+  "action": "pickup",
+  "timestamp": "2025-10-24T12:00:00Z"
+}
+"@
+
+Invoke-WebRequest -Uri http://localhost:9201/interaction `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body $json
+```
+
+**Common PowerShell Errors:**
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `Cannot bind parameter 'Headers'` | Using `-H` with PowerShell's `curl` alias | Use `curl.exe` or `-Headers @{...}` |
+| `JSON decode error` | Quote escaping issues | Use `curl.exe` with `'{\"key\": \"value\"}'` or native PowerShell |
+| `URL rejected: Malformed input` | Double quote issues in PowerShell | Use single quotes around JSON with escaped inner quotes |
+
 ### API Comparison
 
 | Feature | ON/OFF API | Traditional API |
@@ -502,6 +586,391 @@ curl http://localhost:9201/casas_events
 | **Best For** | Beginners, dashboards | Detailed simulations |
 
 **Both APIs work together!** Use whichever fits your needs. The ON/OFF API internally calls the traditional API.
+
+---
+
+## 📱 SmartThings Cloud Integration (October 24, 2025)
+
+### Overview
+
+VESPER virtual devices are fully integrated with **Samsung SmartThings** cloud platform, enabling real-time monitoring and control through the SmartThings mobile app. This integration bridges the gap between virtual simulation and real-world IoT ecosystems.
+
+### System Architecture
+
+```
+Blender Game Engine (Actor Simulation)
+    ↓
+BGE Docker Integration (turn_device_on/off)
+    ↓
+Device Containers (REST API endpoints)
+    ↓
+Cloud Server (State synchronization + SmartThings Schema)
+    ↓
+SmartThings Cloud (OAuth + Device Profiles)
+    ↓
+SmartThings Mobile App (Real-time monitoring)
+```
+
+### Supported Devices
+
+All 6 VESPER virtual devices are discoverable and controllable via SmartThings:
+
+| Device | Serial Number | SmartThings Type | States |
+|--------|--------------|------------------|--------|
+| Phone | VSI-DF8A-CE65-08F5 | Contact Sensor | closed (PRESENT) / open (ABSENT) |
+| BathroomSink1 | VSI-A699-1704-65F5 | Contact Sensor | closed (PRESENT) / open (ABSENT) |
+| Stove | VSI-F6AF-676E-2BBD | Contact Sensor | closed (idle) / open (in use) |
+| DiningTable | VSI-13CB-B4F7-2611 | Contact Sensor | closed (PRESENT) / open (ABSENT) |
+| KitchenSink | VSI-7A48-71F9-D909 | Contact Sensor | closed (idle) / open (in use) |
+| BathroomSink2 | VSI-1B6D-D44D-8FFC | Contact Sensor | closed (PRESENT) / open (ABSENT) |
+
+**Note**: Item sensors are mapped to Contact Sensors in SmartThings:
+- **Closed** = Device present/idle (PRESENT state)
+- **Open** = Device being used/picked up (ABSENT state)
+
+### Automatic State Synchronization
+
+Every device interaction in Blender Game Engine automatically syncs to SmartThings:
+
+```python
+# In Blender task execution
+turn_device_on("Phone")   # → SmartThings shows "open" (in use)
+time.sleep(15)            # Virtual time
+turn_device_off("Phone")  # → SmartThings shows "closed" (idle)
+```
+
+**Integration Flow:**
+1. BGE calls `turn_device_on("Phone")`
+2. Container updates internal state to ABSENT
+3. BGE calls `sync_device_state_to_smartthings("Phone")`
+4. Cloud server sends callback to SmartThings
+5. SmartThings app updates to show "open"
+
+### Manual Device Control via curl
+
+You can manually control and query devices using curl commands:
+
+#### 1. Check Device Health
+
+```bash
+# Check if device container is running
+curl http://localhost:9201/health
+
+# Response:
+# {"status": "healthy", "device": "Phone"}
+```
+
+#### 2. Get Current Device State
+
+```bash
+# Get Phone state
+curl http://localhost:9201/state
+
+# Response:
+# {
+#   "presence": "PRESENT",
+#   "item_name": "Phone",
+#   "item_type": "communication",
+#   "location": "table",
+#   "interaction_count": 28,
+#   "last_interaction": "2025-10-24T17:59:32+00:00"
+# }
+```
+
+#### 3. Trigger Device Interaction (Simulate Pickup)
+
+```bash
+# Simulate actor picking up Phone
+curl -X POST http://localhost:9201/interaction \
+  -H "Content-Type: application/json" \
+  -d '{"action": "pickup"}'
+
+# Response:
+# {
+#   "status": "success",
+#   "new_presence": "ABSENT",
+#   "interaction_count": 29
+# }
+```
+
+**PowerShell:**
+```powershell
+curl.exe -X POST http://localhost:9201/interaction -H "Content-Type: application/json" -d '{\"action\": \"pickup\"}'
+
+# Or using Invoke-WebRequest:
+Invoke-WebRequest -Uri http://localhost:9201/interaction -Method POST -ContentType "application/json" -Body '{"action": "pickup"}'
+```
+
+#### 4. Return Device to Idle State
+
+```bash
+# Simulate actor putting down Phone
+curl -X POST http://localhost:9201/interaction \
+  -H "Content-Type: application/json" \
+  -d '{"action": "putdown"}'
+
+# Response:
+# {
+#   "status": "success",
+#   "new_presence": "PRESENT",
+#   "interaction_count": 30
+# }
+```
+
+**PowerShell:**
+```powershell
+curl.exe -X POST http://localhost:9201/interaction -H "Content-Type: application/json" -d '{\"action\": \"putdown\"}'
+
+# Or using Invoke-WebRequest:
+Invoke-WebRequest -Uri http://localhost:9201/interaction -Method POST -ContentType "application/json" -Body '{"action": "putdown"}'
+```
+
+#### 5. Notify SmartThings of State Change
+
+```bash
+# Trigger SmartThings sync after manual state change
+curl -X POST http://localhost:8081/api/devices/VSI-DF8A-CE65-08F5/state-changed
+
+# Response:
+# {
+#   "status": "success",
+#   "callback_sent": true
+# }
+```
+
+#### 6. Query SmartThings State (Schema Protocol)
+
+```bash
+# Query SmartThings for Phone state
+curl -X POST http://localhost:8081/schema \
+  -H "Content-Type: application/json" \
+  -d '{
+    "headers": {
+      "schema": "st-schema",
+      "version": "1.0",
+      "interactionType": "stateRefreshRequest",
+      "requestId": "test-request"
+    },
+    "devices": [{
+      "externalDeviceId": "VSI-DF8A-CE65-08F5"
+    }]
+  }'
+
+# Response:
+# {
+#   "headers": {...},
+#   "deviceState": [{
+#     "externalDeviceId": "VSI-DF8A-CE65-08F5",
+#     "states": [
+#       {"capability": "st.healthCheck", "attribute": "healthStatus", "value": "online"},
+#       {"capability": "st.contactSensor", "attribute": "contact", "value": "closed"}
+#     ]
+#   }]
+# }
+```
+
+### Complete Device Control Examples
+
+#### Control Phone Device
+
+```bash
+# 1. Check health
+curl http://localhost:9201/health
+
+# 2. Pickup Phone (user starts phone call)
+curl -X POST http://localhost:9201/interaction \
+  -H "Content-Type: application/json" \
+  -d '{"action": "pickup"}'
+
+# 3. Sync to SmartThings
+curl -X POST http://localhost:8081/api/devices/VSI-DF8A-CE65-08F5/state-changed
+
+# 4. Verify SmartThings shows "open"
+# (Check SmartThings app or use schema query above)
+
+# 5. Putdown Phone (end call)
+curl -X POST http://localhost:9201/interaction \
+  -H "Content-Type: application/json" \
+  -d '{"action": "putdown"}'
+
+# 6. Sync to SmartThings
+curl -X POST http://localhost:8081/api/devices/VSI-DF8A-CE65-08F5/state-changed
+```
+
+**PowerShell Equivalent:**
+```powershell
+# 1. Check health
+curl.exe http://localhost:9201/health
+
+# 2. Pickup Phone (user starts phone call)
+curl.exe -X POST http://localhost:9201/interaction -H "Content-Type: application/json" -d '{\"action\": \"pickup\"}'
+
+# 3. Sync to SmartThings
+curl.exe -X POST http://localhost:8081/api/devices/VSI-DF8A-CE65-08F5/state-changed
+
+# 4. Verify SmartThings shows "open"
+# (Check SmartThings app or use schema query above)
+
+# 5. Putdown Phone (end call)
+curl.exe -X POST http://localhost:9201/interaction -H "Content-Type: application/json" -d '{\"action\": \"putdown\"}'
+
+# 6. Sync to SmartThings
+curl.exe -X POST http://localhost:8081/api/devices/VSI-DF8A-CE65-08F5/state-changed
+```
+
+#### Control Stove Device
+
+```bash
+# 1. Turn on Stove (start cooking)
+curl -X POST http://localhost:9203/interaction \
+  -H "Content-Type: application/json" \
+  -d '{"action": "use"}'
+
+# 2. Sync to SmartThings
+curl -X POST http://localhost:8081/api/devices/VSI-F6AF-676E-2BBD/state-changed
+
+# 3. Check container state
+curl http://localhost:9203/state
+
+# 4. Turn off Stove (finish cooking)
+curl -X POST http://localhost:9203/interaction \
+  -H "Content-Type: application/json" \
+  -d '{"action": "putdown"}'
+
+# 5. Sync to SmartThings
+curl -X POST http://localhost:8081/api/devices/VSI-F6AF-676E-2BBD/state-changed
+```
+
+#### Control Kitchen Sink
+
+```bash
+# 1. Turn on sink (wash hands)
+curl -X POST http://localhost:9205/interaction \
+  -H "Content-Type: application/json" \
+  -d '{"action": "use"}'
+
+# 2. Sync to SmartThings
+curl -X POST http://localhost:8081/api/devices/VSI-7A48-71F9-D909/state-changed
+
+# 3. Turn off sink
+curl -X POST http://localhost:9205/interaction \
+  -H "Content-Type: application/json" \
+  -d '{"action": "putdown"}'
+
+# 4. Sync to SmartThings
+curl -X POST http://localhost:8081/api/devices/VSI-7A48-71F9-D909/state-changed
+```
+
+### Device Port Reference
+
+| Device | Port | Container Name |
+|--------|------|---------------|
+| Phone | 9201 | virtual-item-sensor-phone |
+| BathroomSink1 | 9202 | virtual-item-sensor-bathroomsink1 |
+| Stove | 9203 | virtual-item-sensor-stove |
+| DiningTable | 9204 | virtual-item-sensor-diningtable |
+| KitchenSink | 9205 | virtual-item-sensor-kitchensink |
+| BathroomSink2 | 9206 | virtual-item-sensor-bathroomsink2 |
+
+### Verification Commands
+
+#### List All Running Containers
+
+```bash
+docker ps --filter "name=virtual-item-sensor" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+```
+
+#### Check Cloud Server Health
+
+```bash
+curl http://localhost:8081/health
+
+# Response:
+# {
+#   "status": "healthy",
+#   "ngrok_status": "connected",
+#   "webhook_url": "https://9104a04a38e2.ngrok-free.app",
+#   "devices_registered": 6
+# }
+```
+
+#### Discover All Devices via SmartThings
+
+```bash
+curl -X POST http://localhost:8081/schema \
+  -H "Content-Type: application/json" \
+  -d '{
+    "headers": {
+      "schema": "st-schema",
+      "version": "1.0",
+      "interactionType": "discoveryRequest",
+      "requestId": "discover-test"
+    }
+  }'
+
+# Returns all 6 devices with capabilities
+```
+
+### SmartThings App Usage
+
+1. **Open SmartThings App** on your mobile device
+2. **View Devices**: All 6 VESPER devices appear in device list
+3. **Check Status**: Each shows "online" with contact sensor state
+4. **Monitor Changes**: 
+   - When Blender actor picks up Phone → App shows "Open"
+   - When actor puts down Phone → App shows "Closed"
+5. **Manual Refresh**: Pull down to refresh if state seems cached
+
+**Note**: SmartThings mobile app caches device states. Pull down to refresh manually to see latest updates.
+
+### Integration Test
+
+A complete integration test script is available:
+
+```bash
+# Run integration test
+python test_bge_smartthings_integration.py
+
+# Expected output:
+# 1️⃣ Sending 'pickup' interaction to Phone...
+#    ✅ Interaction successful: {'new_presence': 'ABSENT'}
+# 2️⃣ Verifying container state...
+#    ✅ Container state: {'presence': 'ABSENT'}
+# 3️⃣ Notifying SmartThings...
+#    ✅ Notification sent: {'callback_sent': True}
+# 5️⃣ Querying SmartThings state...
+#    ✅ SmartThings state: contact=open, healthStatus=online
+# 🎉 Integration test PASSED!
+```
+
+### Benefits
+
+- ✅ **Real-time Monitoring**: Watch virtual activities through actual SmartThings app
+- ✅ **Independent Validation**: SmartThings provides third-party verification of simulation
+- ✅ **Realistic IoT Behavior**: Mimics real smart home device interactions
+- ✅ **Research Quality**: Demonstrates cloud integration capabilities
+- ✅ **Remote Access**: Monitor simulations from anywhere via SmartThings cloud
+
+### Documentation
+
+- **Complete Integration Guide**: `BGE_SMARTTHINGS_INTEGRATION.md` (90KB, comprehensive)
+- **Integration Test Script**: `test_bge_smartthings_integration.py`
+- **State Change Documentation**: `PHONE_STATE_CHANGE_SUMMARY.md`
+
+### Known Limitations
+
+- **Manual Refresh Required**: SmartThings app caches states; pull down to refresh
+- **OAuth Setup**: Full automated push notifications require OAuth configuration
+- **Contact Sensor Mapping**: Item sensors appear as contact sensors (limitation of SmartThings Schema)
+
+### Future Enhancements
+
+- Complete OAuth flow for automatic push notifications
+- Add motion sensor SmartThings integration
+- Support for SmartThings Scenes and Automations
+- Historical data sync with SmartThings Insights
+
+---
 
 ### Documentation
 
