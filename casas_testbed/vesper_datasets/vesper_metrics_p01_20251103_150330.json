@@ -1,0 +1,951 @@
+{
+  "session_id": "20251103_150330",
+  "start_time": 1762200210.3480773,
+  "tasks_completed": 1,
+  "tasks_failed": 0,
+  "total_steps": 28,
+  "total_screenshots": 23,
+  "total_llm_calls": 15,
+  "total_device_interactions": 0,
+  "total_subtasks_completed": 0,
+  "virtual_sensor_events": [
+    {
+      "timestamp": 1762200269.1345851,
+      "sensor_name": "motion1",
+      "sensor_id": "M001",
+      "room": "Living_Room",
+      "event": "ON",
+      "position": [
+        -1.79,
+        -2.07
+      ]
+    },
+    {
+      "timestamp": 1762200269.1446514,
+      "sensor_name": "motion2",
+      "sensor_id": "M002",
+      "room": "Bedroom1",
+      "event": "ON",
+      "position": [
+        -1.79,
+        -2.07
+      ]
+    },
+    {
+      "timestamp": 1762200269.1585872,
+      "sensor_name": "motion4",
+      "sensor_id": "M004",
+      "room": "Bedroom2",
+      "event": "ON",
+      "position": [
+        -1.79,
+        -2.07
+      ]
+    },
+    {
+      "timestamp": 1762200269.1681566,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "ON",
+      "position": [
+        -1.79,
+        -2.07
+      ]
+    },
+    {
+      "timestamp": 1762200625.3973756,
+      "sensor_name": "motion3",
+      "sensor_id": "M003",
+      "room": "Kitchen",
+      "event": "OFF",
+      "position": [
+        -3.49,
+        -1.59
+      ]
+    }
+  ],
+  "task_details": [
+    {
+      "task_name": "Make a phone call",
+      "task_index": 0,
+      "casas_task_id": "t1",
+      "casas_compatible": true,
+      "start_time": 1762200211.2425723,
+      "virtual_start_time": "2025-11-03 15:05:17.567",
+      "virtual_start_timestamp": 1762200317.567976,
+      "start_position": null,
+      "end_position": [
+        -2.97,
+        -0.99
+      ],
+      "completion_time": 395.9604902267456,
+      "virtual_end_time": "2025-11-04 04:17:12.826",
+      "virtual_duration": 47515.258827,
+      "steps_taken": 14,
+      "screenshots_captured": 16,
+      "llm_calls": 8,
+      "success": true,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "LEFT",
+          "from_position": [
+            -1.79,
+            -2.07
+          ],
+          "to_position": [
+            -1.79,
+            -2.07
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200269.1324196
+        },
+        {
+          "step": 1,
+          "action": "LEFT",
+          "from_position": [
+            -1.79,
+            -2.07
+          ],
+          "to_position": [
+            -1.79,
+            -2.07
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200269.4808521
+        },
+        {
+          "step": 2,
+          "action": "LEFT",
+          "from_position": [
+            -1.79,
+            -2.07
+          ],
+          "to_position": [
+            -1.79,
+            -2.07
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200373.1889956
+        },
+        {
+          "step": 2,
+          "action": "LEFT",
+          "from_position": [
+            -1.79,
+            -2.07
+          ],
+          "to_position": [
+            -1.79,
+            -2.07
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200373.4939728
+        },
+        {
+          "step": 3,
+          "action": "FORWARD",
+          "from_position": [
+            -1.79,
+            -2.07
+          ],
+          "to_position": [
+            -2.38,
+            -1.53
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200420.821282
+        },
+        {
+          "step": 3,
+          "action": "FORWARD",
+          "from_position": [
+            -2.38,
+            -1.53
+          ],
+          "to_position": [
+            -2.97,
+            -0.99
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200421.125185
+        },
+        {
+          "step": 4,
+          "action": "LEFT",
+          "from_position": [
+            -2.97,
+            -0.99
+          ],
+          "to_position": [
+            -2.97,
+            -0.99
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200448.812779
+        },
+        {
+          "step": 4,
+          "action": "LEFT",
+          "from_position": [
+            -2.97,
+            -0.99
+          ],
+          "to_position": [
+            -2.97,
+            -0.99
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200449.1171541
+        },
+        {
+          "step": 5,
+          "action": "LEFT",
+          "from_position": [
+            -2.97,
+            -0.99
+          ],
+          "to_position": [
+            -2.97,
+            -0.99
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200477.336069
+        },
+        {
+          "step": 5,
+          "action": "LEFT",
+          "from_position": [
+            -2.97,
+            -0.99
+          ],
+          "to_position": [
+            -2.97,
+            -0.99
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200477.6437798
+        },
+        {
+          "step": 6,
+          "action": "LEFT",
+          "from_position": [
+            -2.97,
+            -0.99
+          ],
+          "to_position": [
+            -2.97,
+            -0.99
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200497.1601229
+        },
+        {
+          "step": 6,
+          "action": "LEFT",
+          "from_position": [
+            -2.97,
+            -0.99
+          ],
+          "to_position": [
+            -2.97,
+            -0.99
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200497.4649873
+        },
+        {
+          "step": 7,
+          "action": "LEFT",
+          "from_position": [
+            -2.97,
+            -0.99
+          ],
+          "to_position": [
+            -2.97,
+            -0.99
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200519.6520464
+        },
+        {
+          "step": 7,
+          "action": "LEFT",
+          "from_position": [
+            -2.97,
+            -0.99
+          ],
+          "to_position": [
+            -2.97,
+            -0.99
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200519.956267
+        }
+      ],
+      "room_detections": [
+        {
+          "step": 1,
+          "room": "UNKNOWN",
+          "position": [
+            -1.79,
+            -2.07
+          ]
+        },
+        {
+          "step": 1,
+          "room": "UNKNOWN",
+          "position": [
+            -1.79,
+            -2.07
+          ]
+        },
+        {
+          "step": 2,
+          "room": "UNKNOWN",
+          "position": [
+            -1.79,
+            -2.07
+          ]
+        },
+        {
+          "step": 2,
+          "room": "UNKNOWN",
+          "position": [
+            -1.79,
+            -2.07
+          ]
+        },
+        {
+          "step": 3,
+          "room": "UNKNOWN",
+          "position": [
+            -2.38,
+            -1.53
+          ]
+        },
+        {
+          "step": 3,
+          "room": "UNKNOWN",
+          "position": [
+            -2.97,
+            -0.99
+          ]
+        },
+        {
+          "step": 4,
+          "room": "UNKNOWN",
+          "position": [
+            -2.97,
+            -0.99
+          ]
+        },
+        {
+          "step": 4,
+          "room": "UNKNOWN",
+          "position": [
+            -2.97,
+            -0.99
+          ]
+        },
+        {
+          "step": 5,
+          "room": "UNKNOWN",
+          "position": [
+            -2.97,
+            -0.99
+          ]
+        },
+        {
+          "step": 5,
+          "room": "UNKNOWN",
+          "position": [
+            -2.97,
+            -0.99
+          ]
+        },
+        {
+          "step": 6,
+          "room": "UNKNOWN",
+          "position": [
+            -2.97,
+            -0.99
+          ]
+        },
+        {
+          "step": 6,
+          "room": "UNKNOWN",
+          "position": [
+            -2.97,
+            -0.99
+          ]
+        },
+        {
+          "step": 7,
+          "room": "UNKNOWN",
+          "position": [
+            -2.97,
+            -0.99
+          ]
+        },
+        {
+          "step": 7,
+          "room": "UNKNOWN",
+          "position": [
+            -2.97,
+            -0.99
+          ]
+        }
+      ],
+      "vlm_responses": [
+        {
+          "call_number": 1,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 1356,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200268.8299146
+        },
+        {
+          "call_number": 2,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 933,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200372.8851118
+        },
+        {
+          "call_number": 3,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 1162,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200420.518187
+        },
+        {
+          "call_number": 4,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 1447,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200448.5092335
+        },
+        {
+          "call_number": 5,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 939,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200477.0319817
+        },
+        {
+          "call_number": 6,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 1186,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200496.854185
+        },
+        {
+          "call_number": 7,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 946,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200519.3478477
+        },
+        {
+          "call_number": 8,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": true,
+          "response_length": 907,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200607.1925807
+        }
+      ],
+      "sensor_events": [
+        {
+          "timestamp": 1762200269.1345851,
+          "sensor_name": "motion1",
+          "sensor_id": "M001",
+          "room": "Living_Room",
+          "event": "ON",
+          "position": [
+            -1.79,
+            -2.07
+          ]
+        },
+        {
+          "timestamp": 1762200269.1446514,
+          "sensor_name": "motion2",
+          "sensor_id": "M002",
+          "room": "Bedroom1",
+          "event": "ON",
+          "position": [
+            -1.79,
+            -2.07
+          ]
+        },
+        {
+          "timestamp": 1762200269.1585872,
+          "sensor_name": "motion4",
+          "sensor_id": "M004",
+          "room": "Bedroom2",
+          "event": "ON",
+          "position": [
+            -1.79,
+            -2.07
+          ]
+        },
+        {
+          "timestamp": 1762200269.1681566,
+          "sensor_name": "motion3",
+          "sensor_id": "M003",
+          "room": "Kitchen",
+          "event": "ON",
+          "position": [
+            -1.79,
+            -2.07
+          ]
+        }
+      ],
+      "virtual_end_timestamp": 1762247832.826803
+    },
+    {
+      "task_name": "Wash hands",
+      "task_index": 1,
+      "casas_task_id": "t2",
+      "casas_compatible": true,
+      "start_time": 1762200611.199776,
+      "virtual_start_time": "2025-11-04 04:25:12.432",
+      "virtual_start_timestamp": 1762248312.432411,
+      "start_position": null,
+      "end_position": null,
+      "completion_time": null,
+      "virtual_end_time": null,
+      "virtual_duration": null,
+      "steps_taken": 14,
+      "screenshots_captured": 7,
+      "llm_calls": 7,
+      "success": false,
+      "failure_reason": null,
+      "movement_path": [
+        {
+          "step": 1,
+          "action": "FORWARD",
+          "from_position": [
+            -2.97,
+            -0.99
+          ],
+          "to_position": [
+            -3.49,
+            -1.59
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200625.3953698
+        },
+        {
+          "step": 1,
+          "action": "FORWARD",
+          "from_position": [
+            -3.49,
+            -1.59
+          ],
+          "to_position": [
+            -4.02,
+            -2.19
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200625.7037604
+        },
+        {
+          "step": 2,
+          "action": "FORWARD",
+          "from_position": [
+            -4.02,
+            -2.19
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200642.8328419
+        },
+        {
+          "step": 2,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200643.1376405
+        },
+        {
+          "step": 3,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200659.295617
+        },
+        {
+          "step": 3,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200659.600098
+        },
+        {
+          "step": 4,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200676.43665
+        },
+        {
+          "step": 4,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200676.741379
+        },
+        {
+          "step": 5,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200693.8674605
+        },
+        {
+          "step": 5,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200694.178198
+        },
+        {
+          "step": 6,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200709.677364
+        },
+        {
+          "step": 6,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200709.9845934
+        },
+        {
+          "step": 7,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200727.2592194
+        },
+        {
+          "step": 7,
+          "action": "FORWARD",
+          "from_position": [
+            -4.55,
+            -2.79
+          ],
+          "to_position": [
+            -4.55,
+            -2.79
+          ],
+          "room_detected": "UNKNOWN",
+          "timestamp": 1762200727.5649269
+        }
+      ],
+      "room_detections": [
+        {
+          "step": 1,
+          "room": "UNKNOWN",
+          "position": [
+            -3.49,
+            -1.59
+          ]
+        },
+        {
+          "step": 1,
+          "room": "UNKNOWN",
+          "position": [
+            -4.02,
+            -2.19
+          ]
+        },
+        {
+          "step": 2,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 2,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 3,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 3,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 4,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 4,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 5,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 5,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 6,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 6,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 7,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        },
+        {
+          "step": 7,
+          "room": "UNKNOWN",
+          "position": [
+            -4.55,
+            -2.79
+          ]
+        }
+      ],
+      "vlm_responses": [
+        {
+          "call_number": 1,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 1109,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200625.089568
+        },
+        {
+          "call_number": 2,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 933,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200642.5280004
+        },
+        {
+          "call_number": 3,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 947,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200658.9898736
+        },
+        {
+          "call_number": 4,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 1123,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200676.1214976
+        },
+        {
+          "call_number": 5,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 927,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200693.5564365
+        },
+        {
+          "call_number": 6,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 893,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200709.3719606
+        },
+        {
+          "call_number": 7,
+          "room_detected": "LIVING_ROOM",
+          "furniture_visible": "None specified",
+          "task_complete": false,
+          "response_length": 1169,
+          "response_time": null,
+          "timeout": false,
+          "timestamp": 1762200726.953662
+        }
+      ],
+      "sensor_events": [
+        {
+          "timestamp": 1762200625.3973756,
+          "sensor_name": "motion3",
+          "sensor_id": "M003",
+          "room": "Kitchen",
+          "event": "OFF",
+          "position": [
+            -3.49,
+            -1.59
+          ]
+        }
+      ]
+    }
+  ],
+  "virtual_time_enabled": true,
+  "time_scale": 120.0
+}
