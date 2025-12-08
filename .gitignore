@@ -43,3 +43,26 @@ polycam/processed/
 # Test outputs
 *.tmp
 *.bak
+
+# Backup files
+*_backup*
+*.backup
+*.orig
+
+# Executables
+*.exe
+
+# Run logs
+vesper_logs/
+
+# Generated experiment captures
+data/fp_view_run*/
+data/map_run*/
+blender/captures/
+
+scripts/
+results/
+
+# Large polycam files
+polycam/*.exe
+

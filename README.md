@@ -1,6 +1,6 @@
 # VESPER LLM - Complete Production System
 
-![Version](https://img.shields.io/badge/version-3.4.0-blue.svg)
+![Version](https://img.shields.io/badge/version-3.5.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![Blender](https://img.shields.io/badge/blender-4.0+-orange.svg)
 ![UPBGE](https://img.shields.io/badge/UPBGE-0.4+-purple.svg)
@@ -12,6 +12,140 @@ VESPER LLM is a comprehensive AI-powered research platform combining Vision Lang
 ---
 
 # Latest System Enhancements
+
+## VESPER V2 Safety Enforcement Layer (December 4, 2025)
+
+### Problem Addressed
+
+LLM/VLM-driven agents in smart home environments may propose actions that violate safety constraints, such as:
+
+* Leaving appliances (stove, oven) unattended while navigating to other rooms
+* Disabling smoke detectors or carbon monoxide sensors
+* Unlocking doors during restricted hours (10PM-6AM)
+* Exceeding step limits without completing tasks
+* Violating task-specific semantic constraints
+
+Without a safety enforcement layer, these violations go undetected or are only logged post-hoc, making it difficult to evaluate agent safety performance or prevent hazardous outcomes.
+
+### Solution Implemented
+
+A comprehensive **Safety Enforcement Layer** with 31 safety rules across 5 categories, supporting both **baseline** (logging only) and **enforced** (active prevention) modes for comparative evaluation.
+
+### Safety Rule Categories
+
+| Category | Rules | Example Rules |
+|----------|-------|---------------|
+| **Appliance Safety** | 6 | `stove_unattended`, `oven_unattended`, `appliance_conflict` |
+| **Entry Security** | 6 | `door_locked_restricted`, `window_secure_night`, `garage_closed` |
+| **Sensor Integrity** | 6 | `smoke_detector_protected`, `co_detector_protected`, `motion_sensor_intact` |
+| **Spatial-Temporal** | 6 | `max_step_limit`, `room_transition_valid`, `time_constraint` |
+| **Task Semantics** | 7 | `safe_task_completion`, `device_state_consistency`, `interaction_sequence` |
+
+### Key Features
+
+#### Dual-Mode Operation
+```python
+# BASELINE MODE: Log violations but don't prevent (for comparison)
+bge.logic.safety_mode = 'baseline'
+
+# ENFORCED MODE: Actively prevent safety violations
+bge.logic.safety_mode = 'enforced'
+```
+
+#### Action Processing API
+```python
+from safety_enforcement import VESPERSafetyController
+
+controller = VESPERSafetyController(mode='enforced')
+
+result = controller.process_action(
+    proposed_action='FORWARD',
+    device_states={'stove': 'ON'},
+    current_room='kitchen',
+    step=15,
+    task_name='Cook oatmeal'
+)
+
+# Result includes:
+# - enforced_action: The safe action to execute
+# - was_modified: Whether the original action was changed
+# - violations: List of detected violations with severity
+```
+
+#### Severity Levels
+- **CRITICAL**: Immediate safety hazard (e.g., stove unattended, smoke detector disabled)
+- **HIGH**: Significant security risk (e.g., door unlocked at night)
+- **MEDIUM**: Policy violation (e.g., exceeding step limit)
+- **LOW**: Minor inconsistency (e.g., light left on)
+
+### Integration with BGE Navigation
+
+The safety layer is automatically integrated into `llm_bge_navigation.py`:
+
+1. **Initialization**: Safety controller starts with configurable mode
+2. **Action Wrapping**: Every `execute_movement()` call passes through safety check
+3. **Violation Logging**: All violations logged in CASAS-compatible format
+4. **Trial Export**: Safety metrics exported at end of each trial
+
+### Data Output
+
+Safety data exports to: `vesper_logs/safety/safety_trial_{mode}_{timestamp}.json`
+
+```json
+{
+  "mode": "enforced",
+  "summary": {
+    "total_actions": 127,
+    "total_violations": 3,
+    "actions_modified": 2,
+    "violations_prevented": 2
+  },
+  "violations": [
+    {
+      "rule": "stove_unattended",
+      "category": "appliance_safety",
+      "severity": "CRITICAL",
+      "message": "Cannot leave kitchen while stove is ON",
+      "was_prevented": true
+    }
+  ]
+}
+```
+
+### Files Added/Modified
+
+| File | Description |
+|------|-------------|
+| `blender/safety_enforcement.py` | Core safety enforcement module (870+ lines) |
+| `blender/llm_bge_navigation.py` | Integration with BGE navigation controller |
+| `blender/test_safety_integration.py` | Integration test suite (5/5 tests pass) |
+| `analysis/metrics_safety.py` | Safety metrics for paper evaluation |
+
+### Test Results
+
+```
+============================================================
+  VESPER V2 - Safety Enforcement Integration Test
+============================================================
+   ✅ PASS - Import
+   ✅ PASS - Initialize
+   ✅ PASS - Process Actions
+   ✅ PASS - Export Data
+   ✅ PASS - Mode Comparison
+
+   Total: 5/5 tests passed
+   🎉 All tests passed! Integration is ready.
+============================================================
+```
+
+### Research Applications
+
+- **Baseline vs Enforced Comparison**: Run identical trials with safety off/on to measure VLM safety awareness
+- **Violation Rate (VR)**: Calculate safety violations per task/house configuration
+- **Prevention Rate (PR)**: Measure effectiveness of enforcement layer
+- **CASAS Compatibility**: Safety events logged alongside sensor data for behavioral analysis
+
+---
 
 ## Device ON/OFF Status System (October 19, 2025)
 
