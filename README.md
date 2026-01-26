@@ -9,6 +9,8 @@
 
 VESPER LLM is a comprehensive AI-powered research platform combining Vision Language Models (VLMs) with 3D navigation, smart home simulation, and human activity pattern analysis. This production-ready system enables advanced research in embodied AI, smart home automation, and VLM evaluation.
 
+Technical report: [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md)
+
 ---
 
 # Latest System Enhancements
